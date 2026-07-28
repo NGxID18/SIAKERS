@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\KondisiAlkes;
 use App\Enums\StatusAlkes;
+use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\LogPemeliharaan;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class LogPemeliharaanController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
-            $alkes = Alkes::findOrFail($validated['alkes_id']);
+            $alkes = Alkes::with('nomenklatur')->findOrFail($validated['alkes_id']);
 
             LogPemeliharaan::create([
                 'alkes_id' => $alkes->id,
@@ -68,6 +69,9 @@ class LogPemeliharaanController extends Controller
                     'status' => StatusAlkes::DALAM_PERBAIKAN->value,
                 ]);
             }
+
+            // Automatic Audit Trail Logging
+            ActivityLog::record('Lapor Perbaikan', "Melaporkan tindakan {$validated['jenis_tindakan']} untuk '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
         });
 
         return redirect()->route('pemeliharaan.index')->with('success', 'Catatan pemeliharaan/perbaikan berhasil disimpan!');

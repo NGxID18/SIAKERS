@@ -25,8 +25,19 @@ class Seksi extends Model
         return $this->hasMany(Ruangan::class, 'seksi_id');
     }
 
+    /**
+     * Relasi alkes milik seksi (seksi_pemilik_id).
+     */
     public function alkes(): HasMany
     {
-        return $this->hasMany(Alkes::class, 'seksi_id');
+        return $this->hasMany(Alkes::class, 'seksi_pemilik_id');
+    }
+
+    /**
+     * Relasi alkes yang berada di lokasi seksi ini.
+     */
+    public function alkesLokasi(): HasMany
+    {
+        return $this->hasMany(Alkes::class, 'lokasi_seksi_id');
     }
 }

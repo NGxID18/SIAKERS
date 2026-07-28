@@ -15,6 +15,9 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
+    <!-- Chart.js CDN for Analytics Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         
@@ -163,7 +166,7 @@
 
                 <a href="{{ route('mutasi.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('mutasi.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
                     <i class="ri-arrow-left-right-line text-xl"></i>
-                    <span>Mutasi & Lokasi Seksi</span>
+                    <span>Pindah Lokasi & Transfer</span>
                 </a>
 
                 <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
@@ -231,10 +234,15 @@
                 </div>
 
                 <!-- Menu Master Lainnya -->
-                <div class="pt-2">
+                <div class="pt-2 space-y-1">
                     <a href="{{ route('seksi.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('seksi.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
                         <i class="ri-building-4-line text-lg"></i>
                         <span>Seksi & Ruangan RS</span>
+                    </a>
+
+                    <a href="{{ route('activity-logs.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('activity-logs.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
+                        <i class="ri-history-line text-lg text-teal-400"></i>
+                        <span>Log Aktivitas System</span>
                     </a>
                 </div>
             </nav>

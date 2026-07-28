@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <!-- Kolom Kanan: Status, Lokasi & Kalibrasi -->
+        <!-- Kolom Kanan: Status & Lokasi -->
         <div class="space-y-6">
 
             <!-- Card Status & Lokasi -->
@@ -115,11 +115,6 @@
                     <div>
                         <span class="text-xs text-slate-400 block">Ruangan Spesifik:</span>
                         <span class="font-bold text-slate-800 block mt-0.5">{{ $alkes->ruangan->nama_ruangan ?? 'Tanpa Spesifikasi Ruangan' }}</span>
-                    </div>
-
-                    <div>
-                        <span class="text-xs text-slate-400 block">Nilai Aset Terdaftar:</span>
-                        <span class="font-extrabold text-teal-700 text-base block mt-0.5">Rp {{ number_format($alkes->nilai_aset, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>

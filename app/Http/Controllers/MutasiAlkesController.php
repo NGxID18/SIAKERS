@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\MutasiAlkes;
 use App\Models\Ruangan;
@@ -10,9 +11,6 @@ use Illuminate\Http\Request;
 
 class MutasiAlkesController extends Controller
 {
-    /**
-     * Mendapatkan ID Seksi user aktif.
-     */
     private function getUserSeksiId()
     {
         return session('user_seksi_id', 6);
@@ -35,15 +33,19 @@ class MutasiAlkesController extends Controller
 
         $selectedAlkesId = $request->query('alkes_id');
 
-        $alkesQuery = Alkes::with(['nomenklatur', 'seksi', 'ruangan']);
+        // Menampilkan alkes milik seksi user (atau lokasi seksi user saat ini)
+        $alkesQuery = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan']);
         if (!$isAdmin) {
-            $alkesQuery->where('seksi_id', $userSeksiId);
+            $alkesQuery->where(function ($q) use ($userSeksiId) {
+                $q->where('seksi_pemilik_id', $userSeksiId)
+                  ->orWhere('lokasi_seksi_id', $userSeksiId);
+            });
         }
 
         if ($selectedAlkesId) {
             $targetAlkes = Alkes::find($selectedAlkesId);
-            if ($targetAlkes && !$isAdmin && $targetAlkes->seksi_id != $userSeksiId) {
-                abort(403, 'Akses Ditolak: Anda hanya berhak melakukan mutasi alat kesehatan yang ada di Seksi/Gudang Anda sendiri!');
+            if ($targetAlkes && !$isAdmin && $targetAlkes->seksi_pemilik_id != $userSeksiId && $targetAlkes->lokasi_seksi_id != $userSeksiId) {
+                abort(403, 'Akses Ditolak: Anda hanya berhak memindahkan alat kesehatan milik atau yang sedang berada di Seksi Anda!');
             }
         }
 
@@ -68,14 +70,15 @@ class MutasiAlkesController extends Controller
             'penanggung_jawab' => 'nullable|string',
         ]);
 
-        $alkes = Alkes::findOrFail($validated['alkes_id']);
+        $alkes = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi'])->findOrFail($validated['alkes_id']);
 
-        if (!$isAdmin && $alkes->seksi_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda tidak dapat memutasi barang dari Seksi lain!');
+        if (!$isAdmin && $alkes->seksi_pemilik_id != $userSeksiId && $alkes->lokasi_seksi_id != $userSeksiId) {
+            abort(403, 'Akses Ditolak: Anda tidak dapat memindahkan barang dari Seksi lain!');
         }
 
-        $seksiAsalId = $alkes->seksi_id;
+        $seksiAsalId = $alkes->lokasi_seksi_id;
         $ruanganAsalId = $alkes->ruangan_id;
+        $seksiTujuan = Seksi::findOrFail($validated['seksi_tujuan_id']);
 
         MutasiAlkes::create([
             'alkes_id' => $alkes->id,
@@ -90,12 +93,16 @@ class MutasiAlkesController extends Controller
             'status_persetujuan' => 'Disetujui',
         ]);
 
+        // PERATURAN UTAMA: Kepemilikan (seksi_pemilik_id) TETAP PERMANEN! Hanya lokasi_seksi_id & ruangan_id yang berubah.
         $alkes->update([
-            'seksi_id' => $validated['seksi_tujuan_id'],
+            'lokasi_seksi_id' => $validated['seksi_tujuan_id'],
             'ruangan_id' => $validated['ruangan_tujuan_id'] ?? null,
         ]);
 
-        return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
-            ->with('success', 'Mutasi Alat Kesehatan berhasil diproses! Unit telah dipindahkan ke Seksi tujuan.');
+        // Automatic Audit Trail Logging
+        ActivityLog::record('Pindah Lokasi Alkes', "Memindahkan lokasi fisik '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}) ke {$seksiTujuan->nama_seksi}. Kepemilikan aset tetap di {$alkes->seksiPemilik->nama_seksi}.");
+
+        return redirect()->route('alkes.index', ['seksi_id' => $alkes->seksi_pemilik_id])
+            ->with('success', "Lokasi fisik alat kesehatan berhasil dipindahkan ke {$seksiTujuan->nama_seksi}! Kepemilikan aset tetap berada di Seksi Anda.");
     }
 }

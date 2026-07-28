@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\KondisiAlkes;
 use App\Enums\StatusAlkes;
+use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\LogPemeliharaan;
 use App\Models\MutasiAlkes;
@@ -69,6 +70,8 @@ class SiakerSeeder extends Seeder
                 $sData
             );
         }
+
+        $seksiListArray = array_values($seksiModels);
 
         // 2. Seed 24 Ruangan Spesifik (4 Ruangan per Seksi)
         $ruanganData = [
@@ -168,27 +171,47 @@ class SiakerSeeder extends Seeder
             $nomKeys[] = $nObj;
         }
 
-        // 4. Seed Minimal 55 Alkes PER SEKSI (Total = 6 x 55 = 330 Unit Alkes Lengkap)
+        // 4. Seed 55 Alkes PER SEKSI (Sebagain dipindahkan lokasi fisiknya, Kepemilikan TETAP PERMANEN!)
         $brandList = ['GE Healthcare', 'Philips Medical', 'Siemens Healthineers', 'Mindray', 'Draeger', 'Zoll Medical', 'Nihon Kohden', 'Terumo', 'Olympus', 'BTL Medical', 'Fukuda Denshi', 'Stryker', 'Erbe Elektromedizin', 'Maquet Getinge'];
-        $statusValues = [StatusAlkes::TERSEDIA->value, StatusAlkes::SEDANG_DIGUNAKAN->value, StatusAlkes::DALAM_PERBAIKAN->value];
 
         $allCreatedAlkes = [];
         $globalCounter = 1;
 
         foreach ($seksisData as $sData) {
             $kodeSeksi = $sData['kode_seksi'];
-            $seksiObj = $seksiModels[$kodeSeksi];
-            $rList = $ruanganBySeksi[$seksiObj->id];
+            $seksiPemilikObj = $seksiModels[$kodeSeksi];
+            $rListOwner = $ruanganBySeksi[$seksiPemilikObj->id];
 
             for ($i = 1; $i <= 55; $i++) {
                 $invCode = sprintf('INV/ALKES/2024/%03d', $globalCounter);
                 $snCode = 'SN-' . strtoupper(substr($kodeSeksi, 4, 3)) . '-' . (10000 + $globalCounter);
                 $nomObj = $nomKeys[($globalCounter - 1) % count($nomKeys)];
-                $ruangObj = $rList[($i - 1) % count($rList)];
                 $brand = $brandList[($globalCounter - 1) % count($brandList)];
-                $status = $statusValues[($i - 1) % count($statusValues)];
-                $kondisi = ($status == StatusAlkes::DALAM_PERBAIKAN->value) ? KondisiAlkes::RUSAK_RINGAN->value : KondisiAlkes::BAIK->value;
-                $assetVal = rand(15, 650) * 1000000;
+
+                // Tentukan lokasi fisik: 5 item per seksi dipindahkan sementara ke seksi lain!
+                $isDipindahkan = ($i <= 5);
+                if ($isDipindahkan) {
+                    $lokasiSeksiObj = $seksiListArray[$seksiPemilikObj->id % count($seksiListArray)];
+                    $rListTarget = $ruanganBySeksi[$lokasiSeksiObj->id] ?? $rListOwner;
+                    $ruangObj = $rListTarget[0];
+                    $status = StatusAlkes::SEDANG_DIGUNAKAN->value;
+                    $kondisi = KondisiAlkes::BAIK->value;
+                    $noteMsg = "Aset milik {$seksiPemilikObj->nama_seksi}. Saat ini dipindahkan lokasi fisiknya ke {$lokasiSeksiObj->nama_seksi} ({$ruangObj->nama_ruangan}) untuk dukungan operasional.";
+                } else {
+                    $lokasiSeksiObj = $seksiPemilikObj;
+                    $ruangObj = $rListOwner[($i - 1) % count($rListOwner)];
+                    if ($i <= 45) {
+                        $status = StatusAlkes::TERSEDIA->value;
+                        $kondisi = KondisiAlkes::BAIK->value;
+                    } elseif ($i <= 52) {
+                        $status = StatusAlkes::SEDANG_DIGUNAKAN->value;
+                        $kondisi = KondisiAlkes::BAIK->value;
+                    } else {
+                        $status = StatusAlkes::DALAM_PERBAIKAN->value;
+                        $kondisi = KondisiAlkes::RUSAK_RINGAN->value;
+                    }
+                    $noteMsg = "Unit aset terdaftar milik {$seksiPemilikObj->nama_seksi} di ruangan {$ruangObj->nama_ruangan}.";
+                }
 
                 $alkesObj = Alkes::updateOrCreate(
                     ['kode_inventaris' => $invCode],
@@ -197,15 +220,16 @@ class SiakerSeeder extends Seeder
                         'nomenklatur_id' => $nomObj->id,
                         'merk' => $brand,
                         'tipe' => 'Series-' . rand(10, 99) . ' Pro',
-                        'seksi_id' => $seksiObj->id,
+                        'seksi_pemilik_id' => $seksiPemilikObj->id,
+                        'lokasi_seksi_id' => $lokasiSeksiObj->id,
                         'ruangan_id' => $ruangObj->id,
                         'status' => $status,
                         'kondisi' => $kondisi,
                         'tanggal_pengadaan' => date('Y-m-d', strtotime("-" . rand(3, 48) . " months")),
-                        'nilai_aset' => $assetVal,
+                        'nilai_aset' => 0,
                         'tanggal_kalibrasi_terakhir' => '2025-01-15',
                         'tanggal_kalibrasi_berikutnya' => '2026-01-15',
-                        'catatan' => "Unit aset terdaftar di {$seksiObj->nama_seksi} ({$ruangObj->nama_ruangan}). Kondisi siap pakai dan telah tersertifikasi BPFK.",
+                        'catatan' => $noteMsg,
                     ]
                 );
 
@@ -214,13 +238,12 @@ class SiakerSeeder extends Seeder
             }
         }
 
-        // 5. Seed 45 Riwayat Mutasi Alkes Realistis
+        // 5. Seed 45 Riwayat Mutasi / Transfer Lokasi Alkes
         $mutasiStatusOptions = ['Disetujui', 'Disetujui', 'Diproses', 'Ditolak'];
-        $seksiListArray = array_values($seksiModels);
 
         for ($m = 0; $m < 45; $m++) {
             $alkes = $allCreatedAlkes[($m * 7) % count($allCreatedAlkes)];
-            $seksiAsal = Seksi::find($alkes->seksi_id);
+            $seksiAsal = Seksi::find($alkes->lokasi_seksi_id);
             $seksiTujuan = $seksiListArray[($seksiAsal->id % count($seksiListArray))];
             
             $ruangAsalList = $ruanganBySeksi[$seksiAsal->id] ?? [];
@@ -237,21 +260,18 @@ class SiakerSeeder extends Seeder
                 'tanggal_mutasi' => date('Y-m-d H:i:s', strtotime("-" . rand(1, 180) . " days")),
                 'pemohon' => 'Petugas Operasional ' . $seksiAsal->nama_seksi,
                 'penanggung_jawab' => $seksiAsal->penanggung_jawab,
-                'alasan_mutasi' => 'Peminjaman operasional dan pemenuhan alokasi alat antar seksi rumah sakit.',
+                'alasan_mutasi' => 'Peminjaman operasional dan pemindahan lokasi fisik alat antar seksi (Kepemilikan tetap).',
                 'status_persetujuan' => $mutasiStatusOptions[$m % count($mutasiStatusOptions)],
             ]);
         }
 
-        // 6. Seed 45 Riwayat Log Pemeliharaan & Perbaikan Realistis
+        // 6. Seed 45 Riwayat Log Pemeliharaan
         $tindakanList = [
-            'Penggantian sensor oksigen & penggantian filter udara.',
-            'Kalibrasi rutin tahunan dan pengujian kelistrikan medis (IEC 60601).',
-            'Perbaikan modul daya (power supply) dan penggantian sekring.',
-            'Pembersihan optik lensa internal & perapian kabel sirkuit.',
-            'Pemeriksaan tekanan pompa vakum & pembersihan katup solenoide.'
+            'Penggantian modul daya & kalibrasi BPFK. Dikembalikan ke lokasi seksi.',
+            'Pembersihan optik internal & perapian kabel. Siap pakai di ruangan asal.',
+            'Pemeriksaan tekanan pompa vakum. Diserahterimakan kembali ke seksi.'
         ];
-        $pelaksanaList = ['Teknisi ATEM RS', 'PT. Medika Utama Vendor', 'Tim Teknisi BPFK', 'Service Center Resmi GE'];
-        $hasilList = ['Selesai', 'Selesai', 'Proses'];
+        $pelaksanaList = ['Teknisi ATEM RS', 'PT. Medika Utama Vendor', 'Tim Teknisi BPFK'];
 
         for ($p = 0; $p < 45; $p++) {
             $alkesP = $allCreatedAlkes[($p * 5) % count($allCreatedAlkes)];
@@ -264,10 +284,31 @@ class SiakerSeeder extends Seeder
                 'tanggal_mulai' => $tglMulai,
                 'tanggal_selesai' => $tglSelesai,
                 'pelaksana_vendor' => $pelaksanaList[$p % count($pelaksanaList)],
-                'deskripsi_kerusakan' => 'Terjadi alarm ketidakstabilan indikator fungsi saat pengujian beban kerja.',
+                'deskripsi_kerusakan' => 'Pemeriksaan kelayakan fungsi & kalibrasi tahunan.',
                 'tindakan_perbaikan' => $tindakanList[$p % count($tindakanList)],
-                'biaya' => rand(0, 35) * 100000,
-                'status_hasil' => $hasilList[$p % count($hasilList)],
+                'biaya' => 0,
+                'status_hasil' => 'Selesai',
+            ]);
+        }
+
+        // 7. Seed 30 Riwayat ActivityLog Audit Trail Realistis Pindah Lokasi
+        $actions = ['Pindah Lokasi Alkes', 'Edit Alkes', 'Tambah Alkes', 'Lapor Perbaikan'];
+        $roles = ['Seksi Operasional', 'Admin System', 'Gudang Alkes & ATEM'];
+
+        for ($a = 0; $a < 30; $a++) {
+            $action = $actions[$a % count($actions)];
+            $role = $roles[$a % count($roles)];
+            $seksiObj = $seksiListArray[$a % count($seksiListArray)];
+
+            $desc = "Memindahkan lokasi fisik unit alkes ke {$seksiObj->nama_seksi}. Kepemilikan aset tetap berada di seksi pemilik asal.";
+
+            ActivityLog::create([
+                'user_role' => $role,
+                'seksi_name' => $seksiObj->nama_seksi,
+                'action' => $action,
+                'description' => $desc,
+                'ip_address' => '127.0.0.1',
+                'created_at' => date('Y-m-d H:i:s', strtotime("-" . rand(1, 30) . " days")),
             ]);
         }
     }

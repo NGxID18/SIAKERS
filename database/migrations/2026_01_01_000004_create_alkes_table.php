@@ -15,8 +15,14 @@ return new class extends Migration
             $table->foreignId('nomenklatur_id')->constrained('nomenklatur')->onDelete('cascade');
             $table->string('merk')->nullable();
             $table->string('tipe')->nullable();
-            $table->foreignId('seksi_id')->constrained('seksi')->onDelete('cascade');
+            
+            // Seksi Pemilik Permanen Aset (Tidak pernah berubah meskipun alat dipindahkan)
+            $table->foreignId('seksi_pemilik_id')->constrained('seksi')->onDelete('cascade');
+            
+            // Lokasi Fisik Keberadaan Alat Saat Ini (Dapat berubah ketika dipindahkan/dipinjamkan)
+            $table->foreignId('lokasi_seksi_id')->constrained('seksi')->onDelete('cascade');
             $table->foreignId('ruangan_id')->nullable()->constrained('ruangan')->onDelete('set null');
+
             $table->string('status')->default('tersedia')->index();
             $table->string('kondisi')->default('baik')->index();
             $table->date('tanggal_pengadaan')->nullable();
@@ -27,8 +33,9 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->timestamps();
 
-            // High-Performance Composite Index for Fast Multi-Filter Queries
-            $table->index(['seksi_id', 'status']);
+            // High-Performance Composite Index
+            $table->index(['seksi_pemilik_id', 'status']);
+            $table->index(['lokasi_seksi_id', 'status']);
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\KondisiAlkes;
 use App\Enums\StatusAlkes;
+use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\Nomenklatur;
 use App\Models\Ruangan;
@@ -12,9 +13,6 @@ use Illuminate\Http\Request;
 
 class AlkesController extends Controller
 {
-    /**
-     * Mendapatkan ID Seksi user aktif (default: 1 - Seksi Penunjang Medis).
-     */
     private function getUserSeksiId()
     {
         return session('user_seksi_id', 1);
@@ -22,7 +20,7 @@ class AlkesController extends Controller
 
     public function index(Request $request)
     {
-        $query = Alkes::with(['nomenklatur', 'seksi', 'ruangan']);
+        $query = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -37,8 +35,14 @@ class AlkesController extends Controller
             });
         }
 
+        // Filter berdasarkan Seksi Pemilik Permanen (Submenu Seksi)
         if ($request->filled('seksi_id') && $request->seksi_id != 0) {
-            $query->where('seksi_id', $request->seksi_id);
+            $query->where('seksi_pemilik_id', $request->seksi_id);
+        }
+
+        // Filter berdasarkan Lokasi Keberadaan Fisik Alat
+        if ($request->filled('lokasi_seksi_id')) {
+            $query->where('lokasi_seksi_id', $request->lokasi_seksi_id);
         }
 
         if ($request->filled('ruangan_id')) {
@@ -53,11 +57,8 @@ class AlkesController extends Controller
             $query->where('kondisi', $request->kondisi);
         }
 
-        // Menampilkan 30 data per halaman
         $alkesList = $query->latest()->paginate(30)->withQueryString();
         $seksiList = Seksi::all();
-
-        // Menampilkan SELURUH lokasi ruangan di rumah sakit
         $ruanganList = Ruangan::with('seksi')->get();
 
         $statuses = StatusAlkes::cases();
@@ -100,11 +101,17 @@ class AlkesController extends Controller
             'status' => 'required',
             'kondisi' => 'required',
             'tanggal_pengadaan' => 'nullable|date',
-            'nilai_aset' => 'nullable|numeric',
             'catatan' => 'nullable|string',
         ]);
 
-        Alkes::create($validated);
+        $validated['seksi_pemilik_id'] = $userSeksiId;
+        $validated['lokasi_seksi_id'] = $userSeksiId;
+
+        $alkes = Alkes::create($validated);
+        $alkes->load('nomenklatur');
+
+        // Automatic Audit Trail Logging
+        ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
 
         return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
             ->with('success', 'Data Alat Kesehatan berhasil ditambahkan ke Seksi Anda!');
@@ -112,7 +119,7 @@ class AlkesController extends Controller
 
     public function show($id)
     {
-        $alkes = Alkes::with(['nomenklatur', 'seksi', 'ruangan', 'mutasi.seksiAsal', 'mutasi.seksiTujuan', 'logPemeliharaan'])->findOrFail($id);
+        $alkes = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan', 'mutasi.seksiAsal', 'mutasi.seksiTujuan', 'logPemeliharaan'])->findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
         return view('alkes.show', compact('alkes', 'userSeksiId'));
@@ -120,16 +127,16 @@ class AlkesController extends Controller
 
     public function edit($id)
     {
-        $alkes = Alkes::with(['nomenklatur', 'seksi', 'ruangan'])->findOrFail($id);
+        $alkes = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan'])->findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
-        if ($alkes->seksi_id != $userSeksiId) {
+        if ($alkes->seksi_pemilik_id != $userSeksiId) {
             abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengedit alat kesehatan milik seksi lain!');
         }
 
         $nomenklaturList = Nomenklatur::all();
         $seksiList = Seksi::where('id', $userSeksiId)->get();
-        $ruanganList = Ruangan::where('seksi_id', $alkes->seksi_id)->get();
+        $ruanganList = Ruangan::where('seksi_id', $alkes->lokasi_seksi_id)->get();
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();
 
@@ -141,7 +148,7 @@ class AlkesController extends Controller
         $alkes = Alkes::findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
-        if ($alkes->seksi_id != $userSeksiId) {
+        if ($alkes->seksi_pemilik_id != $userSeksiId) {
             abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengupdate alat kesehatan milik seksi lain!');
         }
 
@@ -151,16 +158,18 @@ class AlkesController extends Controller
             'nomenklatur_id' => 'required|exists:nomenklatur,id',
             'merk' => 'nullable|string',
             'tipe' => 'nullable|string',
-            'seksi_id' => 'required|exists:seksi,id',
             'ruangan_id' => 'nullable|exists:ruangan,id',
             'status' => 'required',
             'kondisi' => 'required',
             'tanggal_pengadaan' => 'nullable|date',
-            'nilai_aset' => 'nullable|numeric',
             'catatan' => 'nullable|string',
         ]);
 
         $alkes->update($validated);
+        $alkes->load('nomenklatur');
+
+        // Automatic Audit Trail Logging
+        ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
 
         return redirect()->route('alkes.show', $alkes->id)
             ->with('success', 'Data Alat Kesehatan berhasil diperbarui!');
@@ -168,14 +177,19 @@ class AlkesController extends Controller
 
     public function destroy($id)
     {
-        $alkes = Alkes::findOrFail($id);
+        $alkes = Alkes::with('nomenklatur')->findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
-        if ($alkes->seksi_id != $userSeksiId) {
+        if ($alkes->seksi_pemilik_id != $userSeksiId) {
             abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk menghapus alat kesehatan milik seksi lain!');
         }
 
+        $namaAlat = $alkes->nomenklatur->nama_alat ?? 'Alkes';
+        $kodeInv = $alkes->kode_inventaris;
         $alkes->delete();
+
+        // Automatic Audit Trail Logging
+        ActivityLog::record('Hapus Alkes', "Menghapus data aset alkes '{$namaAlat}' ({$kodeInv}).");
 
         return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
             ->with('success', 'Data Alat Kesehatan berhasil dihapus!');

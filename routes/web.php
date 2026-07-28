@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AlkesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -31,6 +32,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::get('pemeliharaan/buat', [LogPemeliharaanController::class, 'create'])->name('pemeliharaan.create');
 
     Route::get('seksi', [SeksiController::class, 'index'])->name('seksi.index');
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
 
 // Form Submissions (Rate Limit: 10 req/min)

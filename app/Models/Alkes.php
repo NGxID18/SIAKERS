@@ -21,7 +21,8 @@ class Alkes extends Model
         'nomenklatur_id',
         'merk',
         'tipe',
-        'seksi_id',
+        'seksi_pemilik_id',
+        'lokasi_seksi_id',
         'ruangan_id',
         'status',
         'kondisi',
@@ -63,9 +64,28 @@ class Alkes extends Model
         return $this->belongsTo(Nomenklatur::class, 'nomenklatur_id');
     }
 
+    /**
+     * Seksi Pemilik Permanen Aset (Tetap / Permanen).
+     */
+    public function seksiPemilik(): BelongsTo
+    {
+        return $this->belongsTo(Seksi::class, 'seksi_pemilik_id');
+    }
+
+    /**
+     * Alias backward-compatibility seksi -> seksiPemilik.
+     */
     public function seksi(): BelongsTo
     {
-        return $this->belongsTo(Seksi::class, 'seksi_id');
+        return $this->belongsTo(Seksi::class, 'seksi_pemilik_id');
+    }
+
+    /**
+     * Lokasi Fisik Keberadaan Seksi Saat Ini (Dinamis).
+     */
+    public function lokasiSeksi(): BelongsTo
+    {
+        return $this->belongsTo(Seksi::class, 'lokasi_seksi_id');
     }
 
     public function ruangan(): BelongsTo
@@ -81,5 +101,13 @@ class Alkes extends Model
     public function logPemeliharaan(): HasMany
     {
         return $this->hasMany(LogPemeliharaan::class, 'alkes_id')->latest();
+    }
+
+    /**
+     * Mengecek apakah unit alkes sedang dipindahkan/dipinjamkan di luar seksi pemiliknya.
+     */
+    public function getIsDipindahkanAttribute(): bool
+    {
+        return $this->seksi_pemilik_id !== $this->lokasi_seksi_id;
     }
 }
