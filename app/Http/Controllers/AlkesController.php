@@ -53,7 +53,8 @@ class AlkesController extends Controller
             $query->where('kondisi', $request->kondisi);
         }
 
-        $alkesList = $query->latest()->paginate(10)->withQueryString();
+        // Menampilkan 30 data per halaman
+        $alkesList = $query->latest()->paginate(30)->withQueryString();
         $seksiList = Seksi::all();
 
         // Menampilkan SELURUH lokasi ruangan di rumah sakit
@@ -109,16 +110,17 @@ class AlkesController extends Controller
             ->with('success', 'Data Alat Kesehatan berhasil ditambahkan ke Seksi Anda!');
     }
 
-    public function show(Alkes $alkes)
+    public function show($id)
     {
-        $alkes->load(['nomenklatur', 'seksi', 'ruangan', 'mutasi.seksiAsal', 'mutasi.seksiTujuan', 'logPemeliharaan']);
+        $alkes = Alkes::with(['nomenklatur', 'seksi', 'ruangan', 'mutasi.seksiAsal', 'mutasi.seksiTujuan', 'logPemeliharaan'])->findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
         return view('alkes.show', compact('alkes', 'userSeksiId'));
     }
 
-    public function edit(Alkes $alkes)
+    public function edit($id)
     {
+        $alkes = Alkes::with(['nomenklatur', 'seksi', 'ruangan'])->findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
         if ($alkes->seksi_id != $userSeksiId) {
@@ -134,8 +136,9 @@ class AlkesController extends Controller
         return view('alkes.edit', compact('alkes', 'nomenklaturList', 'seksiList', 'ruanganList', 'statuses', 'kondisis', 'userSeksiId'));
     }
 
-    public function update(Request $request, Alkes $alkes)
+    public function update(Request $request, $id)
     {
+        $alkes = Alkes::findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
         if ($alkes->seksi_id != $userSeksiId) {
@@ -163,8 +166,9 @@ class AlkesController extends Controller
             ->with('success', 'Data Alat Kesehatan berhasil diperbarui!');
     }
 
-    public function destroy(Alkes $alkes)
+    public function destroy($id)
     {
+        $alkes = Alkes::findOrFail($id);
         $userSeksiId = $this->getUserSeksiId();
 
         if ($alkes->seksi_id != $userSeksiId) {

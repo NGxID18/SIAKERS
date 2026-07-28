@@ -7,20 +7,22 @@ use App\Models\MutasiAlkes;
 use App\Models\Ruangan;
 use App\Models\Seksi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class MutasiAlkesController extends Controller
 {
+    /**
+     * Mendapatkan ID Seksi user aktif.
+     */
     private function getUserSeksiId()
     {
-        return session('user_seksi_id', 6); // Default 6: Gudang Pusat Alkes & ATEM
+        return session('user_seksi_id', 6);
     }
 
     public function index()
     {
         $mutasiList = MutasiAlkes::with(['alkes.nomenklatur', 'seksiAsal', 'seksiTujuan', 'ruanganAsal', 'ruanganTujuan'])
             ->latest()
-            ->paginate(15);
+            ->paginate(30);
 
         return view('mutasi.index', compact('mutasiList'));
     }
@@ -33,13 +35,11 @@ class MutasiAlkesController extends Controller
 
         $selectedAlkesId = $request->query('alkes_id');
 
-        // Query Alkes: Jika bukan Admin, HANYA tampilkan Alkes yang ada di Seksi pengirim saat ini
         $alkesQuery = Alkes::with(['nomenklatur', 'seksi', 'ruangan']);
         if (!$isAdmin) {
             $alkesQuery->where('seksi_id', $userSeksiId);
         }
 
-        // Cek jika alkes_id dispesifikasikan di URL
         if ($selectedAlkesId) {
             $targetAlkes = Alkes::find($selectedAlkesId);
             if ($targetAlkes && !$isAdmin && $targetAlkes->seksi_id != $userSeksiId) {
@@ -63,42 +63,39 @@ class MutasiAlkesController extends Controller
             'alkes_id' => 'required|exists:alkes,id',
             'seksi_tujuan_id' => 'required|exists:seksi,id',
             'ruangan_tujuan_id' => 'nullable|exists:ruangan,id',
-            'pemohon' => 'required|string',
-            'penanggung_jawab' => 'required|string',
             'alasan_mutasi' => 'required|string',
+            'pemohon' => 'nullable|string',
+            'penanggung_jawab' => 'nullable|string',
         ]);
 
         $alkes = Alkes::findOrFail($validated['alkes_id']);
 
-        // Proteksi Backend: Cek kepemilikan alat
         if (!$isAdmin && $alkes->seksi_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda tidak berhak mengirimkan alat kesehatan milik seksi lain!');
+            abort(403, 'Akses Ditolak: Anda tidak dapat memutasi barang dari Seksi lain!');
         }
 
-        $seksiTujuan = Seksi::find($validated['seksi_tujuan_id']);
+        $seksiAsalId = $alkes->seksi_id;
+        $ruanganAsalId = $alkes->ruangan_id;
 
-        DB::transaction(function () use ($validated, $alkes) {
-            MutasiAlkes::create([
-                'alkes_id' => $alkes->id,
-                'seksi_asal_id' => $alkes->seksi_id,
-                'ruangan_asal_id' => $alkes->ruangan_id,
-                'seksi_tujuan_id' => $validated['seksi_tujuan_id'],
-                'ruangan_tujuan_id' => $validated['ruangan_tujuan_id'],
-                'tanggal_mutasi' => now(),
-                'pemohon' => $validated['pemohon'],
-                'penanggung_jawab' => $validated['penanggung_jawab'],
-                'alasan_mutasi' => $validated['alasan_mutasi'],
-                'status_persetujuan' => 'Disetujui',
-            ]);
+        MutasiAlkes::create([
+            'alkes_id' => $alkes->id,
+            'seksi_asal_id' => $seksiAsalId,
+            'seksi_tujuan_id' => $validated['seksi_tujuan_id'],
+            'ruangan_asal_id' => $ruanganAsalId,
+            'ruangan_tujuan_id' => $validated['ruangan_tujuan_id'] ?? null,
+            'tanggal_mutasi' => now(),
+            'pemohon' => $validated['pemohon'] ?? session('user_role_name', 'Petugas Seksi'),
+            'penanggung_jawab' => $validated['penanggung_jawab'] ?? 'Penanggung Jawab Seksi',
+            'alasan_mutasi' => $validated['alasan_mutasi'],
+            'status_persetujuan' => 'Disetujui',
+        ]);
 
-            // Update lokasi alkes ke seksi & ruangan tujuan
-            $alkes->update([
-                'seksi_id' => $validated['seksi_tujuan_id'],
-                'ruangan_id' => $validated['ruangan_tujuan_id'],
-            ]);
-        });
+        $alkes->update([
+            'seksi_id' => $validated['seksi_tujuan_id'],
+            'ruangan_id' => $validated['ruangan_tujuan_id'] ?? null,
+        ]);
 
         return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
-            ->with('success', "Alat kesehatan {$alkes->kode_inventaris} berhasil dimutasi & dikirim ke {$seksiTujuan->nama_seksi}!");
+            ->with('success', 'Mutasi Alat Kesehatan berhasil diproses! Unit telah dipindahkan ke Seksi tujuan.');
     }
 }

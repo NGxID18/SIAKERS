@@ -15,7 +15,7 @@ class LogPemeliharaanController extends Controller
     {
         $logList = LogPemeliharaan::with(['alkes.nomenklatur', 'alkes.seksi'])
             ->latest()
-            ->paginate(15);
+            ->paginate(30);
 
         return view('pemeliharaan.index', compact('logList'));
     }
@@ -58,7 +58,6 @@ class LogPemeliharaanController extends Controller
                 'status_hasil' => $validated['status_hasil'],
             ]);
 
-            // Jika status_hasil = Selesai, ubah status alkes ke Tersedia / Baik
             if ($validated['status_hasil'] === 'Selesai') {
                 $alkes->update([
                     'status' => StatusAlkes::TERSEDIA->value,

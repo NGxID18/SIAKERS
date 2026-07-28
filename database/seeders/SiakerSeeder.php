@@ -16,7 +16,7 @@ class SiakerSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Seed Seksi (6 Seksi Operasional RS)
+        // 1. Seed 6 Seksi Operasional RS
         $seksisData = [
             [
                 'kode_seksi' => 'SEK-PENUNJANG',
@@ -64,50 +64,59 @@ class SiakerSeeder extends Seeder
 
         $seksiModels = [];
         foreach ($seksisData as $sData) {
-            $seksiModels[$sData['kode_seksi']] = Seksi::firstOrCreate(
+            $seksiModels[$sData['kode_seksi']] = Seksi::updateOrCreate(
                 ['kode_seksi' => $sData['kode_seksi']],
                 $sData
             );
         }
 
-        // 2. Seed Ruangan per Seksi
+        // 2. Seed 24 Ruangan Spesifik (4 Ruangan per Seksi)
         $ruanganData = [
             'SEK-PENUNJANG' => [
                 ['kode_ruangan' => 'R-LAB-01', 'nama_ruangan' => 'Laboratorium Patologi Klinik', 'lokasi_lantai' => 'Lantai 1 Gedung B'],
                 ['kode_ruangan' => 'R-RAD-01', 'nama_ruangan' => 'Ruang Radiologi & CT Scan', 'lokasi_lantai' => 'Lantai 1 Gedung A'],
                 ['kode_ruangan' => 'R-FAR-01', 'nama_ruangan' => 'Depo Farmasi Central', 'lokasi_lantai' => 'Lantai 1 Gedung Utama'],
+                ['kode_ruangan' => 'R-MKN-01', 'nama_ruangan' => 'Ruang Patologi Anatomi & Mikrobiologi', 'lokasi_lantai' => 'Lantai 2 Gedung B'],
             ],
             'SEK-PELAYANAN' => [
                 ['kode_ruangan' => 'R-IGD-01', 'nama_ruangan' => 'Resusitasi & Triase IGD', 'lokasi_lantai' => 'Lantai 1 Gedung Utama'],
                 ['kode_ruangan' => 'R-OK-01', 'nama_ruangan' => 'Kamar Bedah Central OK-1', 'lokasi_lantai' => 'Lantai 2 Gedung Utama'],
                 ['kode_ruangan' => 'R-POLI-01', 'nama_ruangan' => 'Poliklinik Jantung & Spesialis', 'lokasi_lantai' => 'Lantai 2 Gedung B'],
+                ['kode_ruangan' => 'R-POLI-02', 'nama_ruangan' => 'Poliklinik Mata & THT', 'lokasi_lantai' => 'Lantai 2 Gedung B'],
             ],
             'SEK-KEPERAWATAN' => [
                 ['kode_ruangan' => 'R-RI-VIP', 'nama_ruangan' => 'Rawat Inap VIP Pavilion', 'lokasi_lantai' => 'Lantai 3 Gedung B'],
                 ['kode_ruangan' => 'R-RI-CLASS1', 'nama_ruangan' => 'Rawat Inap Kelas 1 Anggrek', 'lokasi_lantai' => 'Lantai 3 Gedung A'],
                 ['kode_ruangan' => 'R-PERI-01', 'nama_ruangan' => 'Ruang Perinatologi', 'lokasi_lantai' => 'Lantai 2 Gedung A'],
+                ['kode_ruangan' => 'R-VK-01', 'nama_ruangan' => 'Ruang Bersalin (VK / Delivery Room)', 'lokasi_lantai' => 'Lantai 2 Gedung A'],
             ],
             'SEK-ICU' => [
                 ['kode_ruangan' => 'R-ICU-MAIN', 'nama_ruangan' => 'Ruang Utama ICU Bed 1-6', 'lokasi_lantai' => 'Lantai 3 Gedung Utama'],
                 ['kode_ruangan' => 'R-ICCU-01', 'nama_ruangan' => 'Ruang Intensive Cardiac Care Unit', 'lokasi_lantai' => 'Lantai 3 Gedung Utama'],
                 ['kode_ruangan' => 'R-NICU-01', 'nama_ruangan' => 'Ruang Neonatal ICU (NICU)', 'lokasi_lantai' => 'Lantai 3 Gedung A'],
+                ['kode_ruangan' => 'R-PICU-01', 'nama_ruangan' => 'Ruang Pediatric ICU (PICU)', 'lokasi_lantai' => 'Lantai 3 Gedung A'],
             ],
             'SEK-REHAB' => [
                 ['kode_ruangan' => 'R-FISIO-01', 'nama_ruangan' => 'Ruang Elektroterapi & Diatermi', 'lokasi_lantai' => 'Lantai 1 Gedung C'],
                 ['kode_ruangan' => 'R-FISIO-02', 'nama_ruangan' => 'Gymnasium Rehabilitasi & Mekanoterapi', 'lokasi_lantai' => 'Lantai 1 Gedung C'],
                 ['kode_ruangan' => 'R-HIDRO-01', 'nama_ruangan' => 'Ruang Hidroterapi', 'lokasi_lantai' => 'Basemen Gedung C'],
+                ['kode_ruangan' => 'R-OKUP-01', 'nama_ruangan' => 'Ruang Terapi Okupasi & Wicara', 'lokasi_lantai' => 'Lantai 1 Gedung C'],
             ],
             'SEK-GUDANG' => [
                 ['kode_ruangan' => 'R-GUDANG-01', 'nama_ruangan' => 'Gudang Utama Inventaris Buffer', 'lokasi_lantai' => 'Basemen Gedung B'],
                 ['kode_ruangan' => 'R-ATEM-WS', 'nama_ruangan' => 'Workshop Kalibrasi & Service ATEM', 'lokasi_lantai' => 'Basemen Gedung B'],
+                ['kode_ruangan' => 'R-GUDANG-02', 'nama_ruangan' => 'Depo Cadangan Alkes Kritis', 'lokasi_lantai' => 'Basemen Gedung A'],
+                ['kode_ruangan' => 'R-STERIL-01', 'nama_ruangan' => 'Central Sterile Supply Dept (CSSD)', 'lokasi_lantai' => 'Basemen Gedung Utama'],
             ],
         ];
 
         $ruanganModels = [];
+        $ruanganBySeksi = [];
         foreach ($ruanganData as $kodeSeksi => $rList) {
             $seksiObj = $seksiModels[$kodeSeksi];
+            $ruanganBySeksi[$seksiObj->id] = [];
             foreach ($rList as $rItem) {
-                $ruanganModels[$rItem['kode_ruangan']] = Ruangan::firstOrCreate(
+                $rObj = Ruangan::updateOrCreate(
                     ['kode_ruangan' => $rItem['kode_ruangan']],
                     [
                         'seksi_id' => $seksiObj->id,
@@ -115,10 +124,12 @@ class SiakerSeeder extends Seeder
                         'lokasi_lantai' => $rItem['lokasi_lantai'],
                     ]
                 );
+                $ruanganModels[$rItem['kode_ruangan']] = $rObj;
+                $ruanganBySeksi[$seksiObj->id][] = $rObj;
             }
         }
 
-        // 3. Seed Master Nomenklatur Alkes
+        // 3. Seed Master Nomenklatur Alkes Standard Kemenkes
         $nomenklaturData = [
             ['kode' => 'NOM-VENT-01', 'nama' => 'Ventilator Intensive Care Unit', 'kat' => 'Life Support', 'desk' => 'Alat ventilator mekanis pasien kritis.'],
             ['kode' => 'NOM-DEF-01', 'nama' => 'Defibrillator Biphasic dengan Monitor', 'kat' => 'Emergency', 'desk' => 'Alat resusitasi jantung pasca henti jantung.'],
@@ -135,11 +146,17 @@ class SiakerSeeder extends Seeder
             ['kode' => 'NOM-CAL-01', 'nama' => 'Defibrillator & Safety Analyzer ATEM', 'kat' => 'Calibration', 'desk' => 'Alat penguji kalibrasi dan keselamatan listrik medis.'],
             ['kode' => 'NOM-ANA-01', 'nama' => 'Mesin Anestesi dengan Vaporizer', 'kat' => 'Surgery', 'desk' => 'Alat pemberian gas pembius ruang bedah.'],
             ['kode' => 'NOM-AUTO-01', 'nama' => 'Autoclave Sterilizer Steam 150L', 'kat' => 'Sterilization', 'desk' => 'Alat sterilisasi instrumen medis uap panas.'],
+            ['kode' => 'NOM-OPER-01', 'nama' => 'Lampu Operasi LED Dual Arm Ceiling', 'kat' => 'Surgery', 'desk' => 'Lampu penerangan khusus meja bedah.'],
+            ['kode' => 'NOM-HEMO-01', 'nama' => 'Mesin Hemodialisis Dialyzer', 'kat' => 'Renal Support', 'desk' => 'Mesin cuci darah pasien gagal ginjal.'],
+            ['kode' => 'NOM-PULSE-01', 'nama' => 'Pulse Oximeter Finger Sensor', 'kat' => 'Monitoring', 'desk' => 'Pengukur kadar oksigen darah portable.'],
+            ['kode' => 'NOM-CENTR-01', 'nama' => 'Centrifuge Refrigerated High Speed', 'kat' => 'Laboratory', 'desk' => 'Alat pemisah komponen sampel darah dan cairan.'],
+            ['kode' => 'NOM-NEBU-01', 'nama' => 'Ultrasonic Nebulizer Heavy Duty', 'kat' => 'Therapy', 'desk' => 'Alat pengabut obat saluran pernapasan.'],
         ];
 
         $nomModels = [];
+        $nomKeys = [];
         foreach ($nomenklaturData as $nData) {
-            $nomModels[$nData['kode']] = Nomenklatur::firstOrCreate(
+            $nObj = Nomenklatur::updateOrCreate(
                 ['kode_nomenklatur' => $nData['kode']],
                 [
                     'nama_alat' => $nData['nama'],
@@ -147,32 +164,33 @@ class SiakerSeeder extends Seeder
                     'deskripsi' => $nData['desk'],
                 ]
             );
+            $nomModels[$nData['kode']] = $nObj;
+            $nomKeys[] = $nObj;
         }
 
-        // 4. Seed Minimal 20 Alkes PER SEKSI (Total = 6 x 20 = 120 Unit Alkes)
-        $brandList = ['Draeger', 'Siemens', 'GE Healthcare', 'Philips', 'Terumo', 'Mindray', 'Nihon Kohden', 'Zoll', 'Olympus', 'BTL Medical', 'Fukuda Denshi', 'Stryker'];
+        // 4. Seed Minimal 55 Alkes PER SEKSI (Total = 6 x 55 = 330 Unit Alkes Lengkap)
+        $brandList = ['GE Healthcare', 'Philips Medical', 'Siemens Healthineers', 'Mindray', 'Draeger', 'Zoll Medical', 'Nihon Kohden', 'Terumo', 'Olympus', 'BTL Medical', 'Fukuda Denshi', 'Stryker', 'Erbe Elektromedizin', 'Maquet Getinge'];
         $statusValues = [StatusAlkes::TERSEDIA->value, StatusAlkes::SEDANG_DIGUNAKAN->value, StatusAlkes::DALAM_PERBAIKAN->value];
-        $kondisiValues = [KondisiAlkes::BAIK->value, KondisiAlkes::BAIK->value, KondisiAlkes::RUSAK_RINGAN->value];
 
+        $allCreatedAlkes = [];
         $globalCounter = 1;
 
-        foreach ($seksisData as $sIndex => $sData) {
+        foreach ($seksisData as $sData) {
             $kodeSeksi = $sData['kode_seksi'];
             $seksiObj = $seksiModels[$kodeSeksi];
-            $rList = array_values(array_filter($ruanganModels, fn($r) => $r->seksi_id == $seksiObj->id));
+            $rList = $ruanganBySeksi[$seksiObj->id];
 
-            for ($i = 1; $i <= 20; $i++) {
+            for ($i = 1; $i <= 55; $i++) {
                 $invCode = sprintf('INV/ALKES/2024/%03d', $globalCounter);
-                $snCode = 'SN-' . strtoupper(substr($kodeSeksi, 4, 3)) . '-' . (100000 + $globalCounter);
-                $nomKey = array_keys($nomModels)[($globalCounter - 1) % count($nomModels)];
-                $nomObj = $nomModels[$nomKey];
-                $ruangObj = $rList[($i - 1) % count($rList)] ?? reset($rList);
+                $snCode = 'SN-' . strtoupper(substr($kodeSeksi, 4, 3)) . '-' . (10000 + $globalCounter);
+                $nomObj = $nomKeys[($globalCounter - 1) % count($nomKeys)];
+                $ruangObj = $rList[($i - 1) % count($rList)];
                 $brand = $brandList[($globalCounter - 1) % count($brandList)];
                 $status = $statusValues[($i - 1) % count($statusValues)];
                 $kondisi = ($status == StatusAlkes::DALAM_PERBAIKAN->value) ? KondisiAlkes::RUSAK_RINGAN->value : KondisiAlkes::BAIK->value;
-                $assetVal = rand(15, 450) * 1000000;
+                $assetVal = rand(15, 650) * 1000000;
 
-                Alkes::firstOrCreate(
+                $alkesObj = Alkes::updateOrCreate(
                     ['kode_inventaris' => $invCode],
                     [
                         'nomor_seri' => $snCode,
@@ -183,46 +201,74 @@ class SiakerSeeder extends Seeder
                         'ruangan_id' => $ruangObj->id,
                         'status' => $status,
                         'kondisi' => $kondisi,
-                        'tanggal_pengadaan' => date('Y-m-d', strtotime("-" . rand(6, 36) . " months")),
+                        'tanggal_pengadaan' => date('Y-m-d', strtotime("-" . rand(3, 48) . " months")),
                         'nilai_aset' => $assetVal,
                         'tanggal_kalibrasi_terakhir' => '2025-01-15',
                         'tanggal_kalibrasi_berikutnya' => '2026-01-15',
-                        'catatan' => "Unit aset terdaftar di {$seksiObj->nama_seksi} ({$ruangObj->nama_ruangan}). Berfungsi normal.",
+                        'catatan' => "Unit aset terdaftar di {$seksiObj->nama_seksi} ({$ruangObj->nama_ruangan}). Kondisi siap pakai dan telah tersertifikasi BPFK.",
                     ]
                 );
 
+                $allCreatedAlkes[] = $alkesObj;
                 $globalCounter++;
             }
         }
 
-        // 5. Seed sampel Mutasi Alkes & Log Pemeliharaan
-        $sampleAlkes = Alkes::first();
-        if ($sampleAlkes) {
-            MutasiAlkes::firstOrCreate(
-                ['alkes_id' => $sampleAlkes->id, 'tanggal_mutasi' => '2025-01-10 08:00:00'],
-                [
-                    'seksi_asal_id' => $seksiModels['SEK-GUDANG']->id,
-                    'seksi_tujuan_id' => $seksiModels['SEK-PENUNJANG']->id,
-                    'ruangan_asal_id' => $ruanganModels['R-GUDANG-01']->id ?? null,
-                    'ruangan_tujuan_id' => $ruanganModels['R-LAB-01']->id ?? null,
-                    'pemohon' => 'dr. H. Ahmad Fauzi, Sp.PK',
-                    'penanggung_jawab' => 'Ir. Hendra Gunawan (ATEM)',
-                    'alasan_mutasi' => 'Penambahan unit cadangan untuk seksi penunjang medis.',
-                    'status_persetujuan' => 'Disetujui',
-                ]
-            );
+        // 5. Seed 45 Riwayat Mutasi Alkes Realistis
+        $mutasiStatusOptions = ['Disetujui', 'Disetujui', 'Diproses', 'Ditolak'];
+        $seksiListArray = array_values($seksiModels);
 
-            LogPemeliharaan::firstOrCreate(
-                ['alkes_id' => $sampleAlkes->id, 'tanggal_mulai' => '2025-02-01'],
-                [
-                    'tanggal_selesai' => '2025-02-02',
-                    'pelaksana_vendor' => 'Teknisi ATEM RS',
-                    'deskripsi_kerusakan' => 'Pemeriksaan rutin & kalibrasi berkala.',
-                    'tindakan_perbaikan' => 'Pembersihan elemen internal & uji fungsi.',
-                    'biaya' => 0.00,
-                    'status_hasil' => 'Selesai',
-                ]
-            );
+        for ($m = 0; $m < 45; $m++) {
+            $alkes = $allCreatedAlkes[($m * 7) % count($allCreatedAlkes)];
+            $seksiAsal = Seksi::find($alkes->seksi_id);
+            $seksiTujuan = $seksiListArray[($seksiAsal->id % count($seksiListArray))];
+            
+            $ruangAsalList = $ruanganBySeksi[$seksiAsal->id] ?? [];
+            $ruangTujuanList = $ruanganBySeksi[$seksiTujuan->id] ?? [];
+            $rAsal = count($ruangAsalList) > 0 ? $ruangAsalList[0] : null;
+            $rTujuan = count($ruangTujuanList) > 0 ? $ruangTujuanList[0] : null;
+
+            MutasiAlkes::create([
+                'alkes_id' => $alkes->id,
+                'seksi_asal_id' => $seksiAsal->id,
+                'seksi_tujuan_id' => $seksiTujuan->id,
+                'ruangan_asal_id' => $rAsal ? $rAsal->id : null,
+                'ruangan_tujuan_id' => $rTujuan ? $rTujuan->id : null,
+                'tanggal_mutasi' => date('Y-m-d H:i:s', strtotime("-" . rand(1, 180) . " days")),
+                'pemohon' => 'Petugas Operasional ' . $seksiAsal->nama_seksi,
+                'penanggung_jawab' => $seksiAsal->penanggung_jawab,
+                'alasan_mutasi' => 'Peminjaman operasional dan pemenuhan alokasi alat antar seksi rumah sakit.',
+                'status_persetujuan' => $mutasiStatusOptions[$m % count($mutasiStatusOptions)],
+            ]);
+        }
+
+        // 6. Seed 45 Riwayat Log Pemeliharaan & Perbaikan Realistis
+        $tindakanList = [
+            'Penggantian sensor oksigen & penggantian filter udara.',
+            'Kalibrasi rutin tahunan dan pengujian kelistrikan medis (IEC 60601).',
+            'Perbaikan modul daya (power supply) dan penggantian sekring.',
+            'Pembersihan optik lensa internal & perapian kabel sirkuit.',
+            'Pemeriksaan tekanan pompa vakum & pembersihan katup solenoide.'
+        ];
+        $pelaksanaList = ['Teknisi ATEM RS', 'PT. Medika Utama Vendor', 'Tim Teknisi BPFK', 'Service Center Resmi GE'];
+        $hasilList = ['Selesai', 'Selesai', 'Proses'];
+
+        for ($p = 0; $p < 45; $p++) {
+            $alkesP = $allCreatedAlkes[($p * 5) % count($allCreatedAlkes)];
+            $tglMulai = date('Y-m-d', strtotime("-" . rand(5, 120) . " days"));
+            $tglSelesai = date('Y-m-d', strtotime($tglMulai . " +" . rand(1, 4) . " days"));
+
+            LogPemeliharaan::create([
+                'alkes_id' => $alkesP->id,
+                'jenis_tindakan' => ($p % 2 == 0) ? 'Perbaikan' : 'Kalibrasi',
+                'tanggal_mulai' => $tglMulai,
+                'tanggal_selesai' => $tglSelesai,
+                'pelaksana_vendor' => $pelaksanaList[$p % count($pelaksanaList)],
+                'deskripsi_kerusakan' => 'Terjadi alarm ketidakstabilan indikator fungsi saat pengujian beban kerja.',
+                'tindakan_perbaikan' => $tindakanList[$p % count($tindakanList)],
+                'biaya' => rand(0, 35) * 100000,
+                'status_hasil' => $hasilList[$p % count($hasilList)],
+            ]);
         }
     }
 }
