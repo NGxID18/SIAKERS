@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Ruangan Rumah Sakit')
+@section('title', 'Daftar Ruangan')
 
 @section('content')
 <div class="space-y-8">
@@ -10,9 +10,9 @@
         <div>
             <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2.5">
                 <i class="ri-building-4-line text-teal-600"></i>
-                Daftar Ruangan Rumah Sakit
+                Daftar Ruangan
             </h3>
-            <p class="text-sm text-slate-500">Unit penempatan & lokasi fisik alat kesehatan dikelompokkan berdasarkan <strong>Lantai & Gedung RS</strong></p>
+            <p class="text-sm text-slate-500">Unit penempatan & lokasi fisik alat kesehatan dikelompokkan berdasarkan <strong>Lantai & Gedung</strong></p>
         </div>
     </div>
 
@@ -27,7 +27,7 @@
                         <i class="ri-building-2-line"></i>
                     </div>
                     <div>
-                        <h4 class="font-extrabold text-slate-900 text-lg tracking-tight">{{ $lokasiLantai ?? 'Lantai & Gedung RS' }}</h4>
+                        <h4 class="font-extrabold text-slate-900 text-lg tracking-tight">{{ $lokasiLantai ?? 'Lantai & Gedung' }}</h4>
                         <span class="text-xs text-slate-400 font-medium">{{ $ruanganList->count() }} Ruangan Operasional Terdaftar</span>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
 
                         <div>
                             <h5 class="font-extrabold text-slate-900 text-base group-hover:text-teal-700 transition leading-snug">{{ $ruang->nama_ruangan }}</h5>
-                            <p class="text-xs text-slate-500 mt-0.5"><i class="ri-map-pin-line text-teal-600"></i> {{ $ruang->lokasi_lantai ?? 'Lantai RS' }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5"><i class="ri-map-pin-line text-teal-600"></i> {{ $ruang->lokasi_lantai ?? 'Lantai Penempatan' }}</p>
                         </div>
 
                         <div class="pt-2.5 border-t border-slate-200/80 flex items-center justify-between">

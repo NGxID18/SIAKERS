@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login SIAKER ERP RS</title>
+    <title>SIAKER - Sistem Inventaris Alat Kesehatan RS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,8 +72,8 @@
             <div class="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-teal-500/30">
                 <i class="ri-hospital-line text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIAKER ERP RS</h2>
-            <p class="text-xs text-slate-400">Sistem Informasi Alat Kesehatan Rumah Sakit</p>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIAKER RS</h2>
+            <p class="text-xs text-slate-400">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
         </div>
 
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
@@ -129,7 +129,7 @@
         </form>
 
         <div class="text-center pt-2 border-t border-slate-800/80">
-            <p class="text-xs text-slate-500">&copy; 2026 SIAKER ERP RS</p>
+            <p class="text-xs text-slate-500">&copy; 2026 SIAKER RS</p>
         </div>
 
     </div>

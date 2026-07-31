@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Redirect login ke Dashboard ERP (Akses Terbuka)
+// Redirect login ke Dashboard Utama (Akses Terbuka)
 Route::get('/login', function () {
     return redirect()->route('dashboard');
 })->name('login');

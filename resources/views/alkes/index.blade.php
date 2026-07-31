@@ -3,7 +3,7 @@
 @php
     $currentRuanganId = request('ruangan_id', 0);
     $selectedRuanganObj = $ruanganList->firstWhere('id', $currentRuanganId);
-    $pageTitle = $selectedRuanganObj ? 'Inventaris Alkes Ruang ' . $selectedRuanganObj->nama_ruangan : 'Daftar Seluruh Inventaris Alkes RS';
+    $pageTitle = $selectedRuanganObj ? 'Inventaris Alkes Ruang ' . $selectedRuanganObj->nama_ruangan : 'Daftar Seluruh Inventaris Alkes';
 
     // Current Sort Params
     $sortBy = request('sort_by', 'nama_barang');
@@ -21,6 +21,53 @@
 @section('title', $pageTitle)
 
 @section('content')
+<!-- Tom Select CSS & JS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+<style>
+    .ts-wrapper {
+        border-radius: 0.75rem !important;
+    }
+    .ts-control {
+        border-radius: 0.75rem !important;
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 0.5rem 0.85rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        color: #0f172a !important;
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important;
+        transition: all 0.2s ease !important;
+    }
+    .ts-wrapper.focus .ts-control {
+        border-color: #0d9488 !important;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
+        background-color: #ffffff !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.85rem !important;
+        border: 1px solid #0d9488 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+        padding: 4px !important;
+        background: #ffffff !important;
+    }
+    .ts-dropdown .option {
+        padding: 8px 12px !important;
+        border-radius: 0.5rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+    }
+    .ts-dropdown .option:hover, 
+    .ts-dropdown .option.active {
+        background-color: #0d9488 !important;
+        color: #ffffff !important;
+    }
+</style>
+
 <div class="space-y-6">
 
     <!-- Header Page & Actions -->
@@ -34,7 +81,7 @@
                 @if ($selectedRuanganObj)
                     Menampilkan daftar seluruh unit alat kesehatan <strong>RUANG {{ strtoupper($selectedRuanganObj->nama_ruangan) }}</strong>
                 @else
-                    Tabel inventaris komprehensif disesuaikan 100% dengan Database Excel (.xlsx) Rumah Sakit
+                    Kelola dan tinjau seluruh rekapan data alat kesehatan, kondisi fisik, dan lokasi penempatan unit
                 @endif
             </p>
         </div>
@@ -47,11 +94,11 @@
         </div>
     </div>
 
-    <!-- CARD 1: PENCARIAN UNIVERSAL SELURUH JENIS DATA -->
+    <!-- CARD 1: PENCARIAN UNIVERSAL DATA -->
     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
             <i class="ri-search-2-line text-teal-600 text-base"></i>
-            Pencarian Universal Data RS (Seluruh Kolom)
+            Pencarian Universal Data
         </label>
         <form method="GET" action="{{ route('alkes.index') }}" class="flex items-center gap-2">
             <!-- Retain current filters if searching -->
@@ -62,7 +109,7 @@
             @endforeach
 
             <div class="relative flex-1">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci apapun (Nama Barang, Merk, Tipe, Serial Number, Tahun, Perolehan, Harga, Ruangan, Keterangan...)" class="w-full pl-10 pr-4 h-[44px] bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white shadow-xs transition">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Masukkan kata kunci..." class="w-full pl-10 pr-4 h-[44px] bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white shadow-xs transition">
                 <i class="ri-search-line absolute left-3.5 top-3 text-slate-400 text-lg"></i>
             </div>
 
@@ -78,15 +125,15 @@
         </form>
     </div>
 
-    <!-- CARD 2: PENYARINGAN SPESIFIK KATEGORI -->
+    <!-- CARD 2: PENYARINGAN RINGKAS (RUANGAN, LOKASI, KONDISI) -->
     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
             <i class="ri-filter-3-line text-teal-600 text-base"></i>
-            Penyaringan Spesifik Kategori Data
+            Filter Utama Inventaris
         </label>
 
         <form method="GET" action="{{ route('alkes.index') }}" id="filterForm">
-            <!-- Retain current search query if filtering -->
+            <!-- Retain search and sorting when filtering -->
             @if (request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
@@ -97,12 +144,12 @@
                 <input type="hidden" name="sort_dir" value="{{ request('sort_dir') }}">
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
                 
-                <!-- Filter Ruangan RS -->
+                <!-- Filter 1: Ruangan -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Ruangan RS</label>
-                    <select name="ruangan_id" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Ruangan</label>
+                    <select id="selectRuangan" name="ruangan_id">
                         <option value="">-- Semua Ruangan --</option>
                         @foreach ($ruanganList as $ruang)
                             <option value="{{ $ruang->id }}" {{ request('ruangan_id') == $ruang->id ? 'selected' : '' }}>
@@ -112,60 +159,39 @@
                     </select>
                 </div>
 
-                <!-- Filter Cara Perolehan -->
+                <!-- Filter 2: Lokasi Saat Ini -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Cara Perolehan</label>
-                    <select name="cara_perolehan" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                        <option value="">-- Semua Perolehan --</option>
-                        @foreach ($caraPerolehanList as $cp)
-                            <option value="{{ $cp }}" {{ request('cara_perolehan') == $cp ? 'selected' : '' }}>{{ $cp }}</option>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi Saat Ini</label>
+                    <select id="selectLokasi" name="lokasi_ruangan_id">
+                        <option value="">-- Semua Lokasi Fisik --</option>
+                        @foreach ($ruanganList as $ruang)
+                            <option value="{{ $ruang->id }}" {{ request('lokasi_ruangan_id') == $ruang->id ? 'selected' : '' }}>
+                                {{ $ruang->nama_ruangan }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Filter Kondisi Fisik -->
+                <!-- Filter 3: Kondisi Alat -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi Alat</label>
-                    <select name="kondisi" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                        <option value="">-- Semua Kondisi --</option>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kondisi Alat</label>
+                    <select id="selectKondisi" name="kondisi">
+                        <option value="">-- Semua Kondisi Alat --</option>
                         @foreach ($kondisis as $kd)
                             <option value="{{ $kd->value }}" {{ request('kondisi') == $kd->value ? 'selected' : '' }}>{{ $kd->label() }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Filter ASPAK & KIB Combined Row -->
-                <div class="flex items-center gap-2">
-                    <div class="w-1/2">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">ASPAK</label>
-                        <select name="aspak_status" class="w-full px-2 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                            <option value="">-- Semua --</option>
-                            <option value="TERDATA" {{ request('aspak_status') == 'TERDATA' ? 'selected' : '' }}>TERDATA</option>
-                            <option value="TIDAK TERDATA" {{ request('aspak_status') == 'TIDAK TERDATA' ? 'selected' : '' }}>TIDAK</option>
-                        </select>
-                    </div>
-
-                    <div class="w-1/2">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">KIB</label>
-                        <select name="kib_status" class="w-full px-2 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                            <option value="">-- Semua --</option>
-                            <option value="1" {{ request('kib_status') == '1' ? 'selected' : '' }}>TRUE</option>
-                            <option value="0" {{ request('kib_status') == '0' ? 'selected' : '' }}>FALSE</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Action Buttons Bar -->
+                <!-- Action Buttons Bar: RESET FILTER DI SEBELAH KIRI TERAPKAN FILTER -->
                 <div class="flex items-center gap-2 justify-end">
-                    <button type="submit" class="h-[40px] px-5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 shrink-0">
+                    <a href="{{ route('alkes.index') }}" class="h-[42px] px-4 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition flex items-center justify-center gap-1.5 shrink-0" title="Reset Semua Filter & Pencarian">
+                        <i class="ri-refresh-line text-base"></i> Reset Filter
+                    </a>
+
+                    <button type="submit" class="h-[42px] px-6 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 shrink-0">
                         <i class="ri-filter-3-line text-base"></i> Terapkan Filter
                     </button>
-
-                    @if (request()->hasAny(['ruangan_id', 'cara_perolehan', 'status', 'kondisi', 'aspak_status', 'kib_status']))
-                        <a href="{{ route('alkes.index', request()->only('search')) }}" class="h-[40px] w-[40px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl border border-slate-200 transition flex items-center justify-center shrink-0" title="Reset Filter">
-                            <i class="ri-refresh-line text-lg"></i>
-                        </a>
-                    @endif
                 </div>
 
             </div>
@@ -401,4 +427,27 @@
     </div>
 
 </div>
+
+<!-- Interactive TomSelect Initializer Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new TomSelect('#selectRuangan', {
+            create: false,
+            placeholder: '-- Semua Ruangan --',
+            maxOptions: 50,
+        });
+
+        new TomSelect('#selectLokasi', {
+            create: false,
+            placeholder: '-- Semua Lokasi Fisik --',
+            maxOptions: 50,
+        });
+
+        new TomSelect('#selectKondisi', {
+            create: false,
+            placeholder: '-- Semua Kondisi Alat --',
+            maxOptions: 10,
+        });
+    });
+</script>
 @endsection

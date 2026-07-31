@@ -25,7 +25,7 @@ class AuthController extends Controller
                 'user_ruangan_id' => 0,
                 'user_ruangan_name' => 'RS Central (Admin)',
             ]);
-            $msg = 'Berhasil masuk sebagai Administrator System SIAKER ERP.';
+            $msg = 'Berhasil masuk sebagai Administrator System SIAKER RS.';
         } elseif ($role === 'tata_usaha') {
             session([
                 'is_admin' => false,
@@ -52,6 +52,6 @@ class AuthController extends Controller
     public function logout()
     {
         session()->forget(['is_admin', 'user_role', 'user_ruangan_id', 'user_ruangan_name']);
-        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar dari sistem SIAKER ERP.');
+        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar dari sistem SIAKER RS.');
     }
 }

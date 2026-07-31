@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard ERP Inventaris Alkes RS')
+@section('title', 'Dashboard Inventaris Alkes')
 
 @section('content')
 <div class="space-y-6">
@@ -13,7 +13,7 @@
             <div>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Unit Alkes</span>
                 <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ number_format($totalAlkes) }}</h3>
-                <span class="text-xs text-teal-600 font-semibold mt-1 inline-block">Terdata di Database RS</span>
+                <span class="text-xs text-teal-600 font-semibold mt-1 inline-block">Terdata di Database</span>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl shadow-xs">
                 <i class="ri-stethoscope-line"></i>
@@ -72,11 +72,11 @@
             </div>
         </div>
 
-        <!-- Chart 2: Kondisi Fisik Alat per Ruangan RS (Bar Stacked) -->
+        <!-- Chart 2: Kondisi Fisik Alat per Ruangan Utama (Bar Stacked) -->
         <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <h4 class="font-extrabold text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
                 <i class="ri-bar-chart-grouped-line text-teal-600"></i>
-                Kondisi Alkes per Ruangan Utama RS
+                Kondisi Alkes per Ruangan Utama
             </h4>
             <div class="relative h-64">
                 <canvas id="chartRuanganKondisi"></canvas>
@@ -89,19 +89,19 @@
     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <h4 class="font-extrabold text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
             <i class="ri-price-tag-3-line text-teal-600"></i>
-            Distribusi Alkes Berdasarkan Cara Perolehan (Sumber Dana RS)
+            Distribusi Alkes Berdasarkan Cara Perolehan (Sumber Dana)
         </h4>
         <div class="relative h-64">
             <canvas id="chartPerolehan"></canvas>
         </div>
     </div>
 
-    <!-- Grid Rekapitulasi Ruangan RS -->
+    <!-- Grid Rekapitulasi Ruangan (Urut Abjad A-Z) -->
     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h4 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
                 <i class="ri-building-4-line text-teal-600"></i>
-                Sebaran Unit Alkes per Ruangan RS
+                Sebaran Unit Alkes per Ruangan (Abjad A-Z)
             </h4>
             <a href="{{ route('ruangan.index') }}" class="text-xs font-bold text-teal-600 hover:text-teal-800 transition flex items-center gap-1">
                 Lihat Semua Ruangan <i class="ri-arrow-right-line"></i>
@@ -151,7 +151,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between gap-2">
-                                <span class="font-bold text-xs text-slate-900 truncate">{{ $log->user_role }} ({{ $log->ruangan_name ?? 'RS' }})</span>
+                                <span class="font-bold text-xs text-slate-900 truncate">{{ $log->user_role }} ({{ $log->ruangan_name ?? 'Utama' }})</span>
                                 <span class="text-[10px] text-slate-400 shrink-0 font-mono">{{ $log->created_at->diffForHumans() }}</span>
                             </div>
                             <span class="inline-block px-2 py-0.5 bg-teal-50 text-teal-800 text-[10px] font-extrabold rounded border border-teal-200 mt-1">

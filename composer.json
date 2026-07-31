@@ -1,7 +1,7 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "SIAKER ERP Inventaris Alkes RS Framework",
+    "description": "Sistem Inventaris Alat Kesehatan (SIAKER) Rumah Sakit",
     "license": "MIT",
     "require": {
         "php": "^8.2",

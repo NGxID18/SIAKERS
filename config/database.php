@@ -7,7 +7,7 @@ return [
     | Default Database Connection Name
     |--------------------------------------------------------------------------
     |
-    | Proyek SIAKER ERP menggunakan database eksklusif MariaDB.
+    | Proyek SIAKER RS menggunakan database MariaDB / SQLite.
     |
     */
 

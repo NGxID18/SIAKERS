@@ -41,34 +41,19 @@ class AlkesController extends Controller
             });
         }
 
-        // Filter Spesifik berdasarkan Ruangan RS
+        // Filter 1: Ruangan RS (Penempatan)
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
 
-        // Filter Spesifik berdasarkan Cara Perolehan / Sumber Dana
-        if ($request->filled('cara_perolehan')) {
-            $query->where('cara_perolehan', 'like', "%{$request->cara_perolehan}%");
+        // Filter 2: Lokasi Saat Ini (Fisik)
+        if ($request->filled('lokasi_ruangan_id')) {
+            $query->where('lokasi_ruangan_id', $request->lokasi_ruangan_id);
         }
 
-        // Filter Spesifik berdasarkan Status Penggunaan
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter Spesifik berdasarkan Kondisi Fisik Alat
+        // Filter 3: Kondisi Fisik Alat
         if ($request->filled('kondisi')) {
             $query->where('kondisi', $request->kondisi);
-        }
-
-        // Filter Spesifik berdasarkan Status ASPAK Kemenkes
-        if ($request->filled('aspak_status')) {
-            $query->where('aspak_status', $request->aspak_status);
-        }
-
-        // Filter Spesifik berdasarkan Status KIB (Kartu Inventaris Barang)
-        if ($request->filled('kib_status')) {
-            $query->where('kib_status', $request->kib_status == '1' || strtolower($request->kib_status) == 'true');
         }
 
         // Sortir Kolom & Arah (Ascending A-Z / Descending Z-A)
@@ -103,17 +88,10 @@ class AlkesController extends Controller
         $alkesList = $query->paginate(30)->withQueryString();
         $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
 
-        // Unique Cara Perolehan for dropdown filter
-        $caraPerolehanList = DB::table('alkes')
-            ->whereNotNull('cara_perolehan')
-            ->where('cara_perolehan', '!=', '')
-            ->distinct()
-            ->pluck('cara_perolehan');
-
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();
 
-        return view('alkes.index', compact('alkesList', 'ruanganList', 'caraPerolehanList', 'statuses', 'kondisis', 'sortBy', 'sortDir'));
+        return view('alkes.index', compact('alkesList', 'ruanganList', 'statuses', 'kondisis', 'sortBy', 'sortDir'));
     }
 
     public function create()
