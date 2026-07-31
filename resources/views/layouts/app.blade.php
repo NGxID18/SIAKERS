@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Sistem Inventaris Alat Kesehatan</title>
+    <title>@yield('title', 'Dashboard') - Sistem Inventaris Alat Kesehatan Rumah Sakit</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Source+Sans+3:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 
     <!-- RemixIcon CDN -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
     </style>
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col">
@@ -35,8 +35,8 @@
                         <i class="ri-hospital-line text-2xl"></i>
                     </div>
                     <div class="min-w-0">
-                        <h1 class="font-extrabold text-lg tracking-wide text-teal-400">SIAKER</h1>
-                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan</p>
+                        <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKER</h1>
+                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
@@ -94,7 +94,7 @@
                 <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none" title="Buka Menu Navigasi">
                     <i class="ri-menu-line text-xl"></i>
                 </button>
-                <h2 class="font-bold text-slate-800 text-base">SISTEM INVENTARIS ALAT KESEHATAN (SIAKER)</h2>
+                <h2 class="font-extrabold text-slate-800 text-base tracking-tight">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT (SIAKER)</h2>
             </div>
         </header>
 

@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAKER - Sistem Inventaris Alat Kesehatan RS</title>
+    <title>SIAKER - Sistem Inventaris Alat Kesehatan Rumah Sakit</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Source+Sans+3:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <!-- Tom Select UI CDN -->
@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
 
         .role-card {
             transition: all 0.2s ease-in-out;
@@ -72,7 +72,7 @@
             <div class="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-teal-500/30">
                 <i class="ri-hospital-line text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIAKER RS</h2>
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">SIAKER</h2>
             <p class="text-xs text-slate-400">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
         </div>
 
@@ -83,21 +83,21 @@
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Peran Login Anda:</label>
 
                 <div class="grid grid-cols-1 gap-2.5">
-                    <!-- Option 1: Petugas Ruangan RS -->
+                    <!-- Option 1: Petugas Ruangan -->
                     <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
                         <input type="radio" name="role" value="ruangan" checked onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-teal-300 text-sm sm:text-base">Petugas Ruangan RS</p>
+                            <p class="font-bold text-teal-300 text-sm sm:text-base">Petugas Ruangan</p>
                             <p class="text-xs text-slate-400 mt-0.5">Kelola & edit inventaris ruangan sendiri</p>
                         </div>
                     </label>
 
                     <!-- Dynamic Ruangan Select Dropdown -->
                     <div id="ruanganDropdownContainer" class="pl-2 pt-1 pb-1 space-y-1.5">
-                        <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan RS:</label>
+                        <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan:</label>
                         <select id="ruanganSelect" name="ruangan_id" class="w-full px-4 py-3.5 bg-slate-950 border border-teal-500/50 rounded-2xl text-sm font-semibold text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all shadow-inner">
                             @foreach ($ruanganList as $ruang)
-                                <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai ?? 'RS' }})</option>
+                                <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai ?? 'Lantai Penempatan' }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -107,7 +107,7 @@
                         <input type="radio" name="role" value="admin" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
                             <p class="font-bold text-white text-sm sm:text-base">Administrator System</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Akses penuh kelola seluruh data RS</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Akses penuh kelola seluruh data</p>
                         </div>
                     </label>
 
@@ -115,7 +115,7 @@
                     <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
                         <input type="radio" name="role" value="tata_usaha" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Tata Usaha / Direksi RS</p>
+                            <p class="font-bold text-white text-sm sm:text-base">Tata Usaha / Direksi</p>
                             <p class="text-xs text-slate-400 mt-0.5">Pengawasan rekapitulasi (Read-Only)</p>
                         </div>
                     </label>
@@ -129,7 +129,7 @@
         </form>
 
         <div class="text-center pt-2 border-t border-slate-800/80">
-            <p class="text-xs text-slate-500">&copy; 2026 SIAKER RS</p>
+            <p class="text-xs text-slate-500">&copy; 2026 SIAKER</p>
         </div>
 
     </div>
@@ -142,7 +142,7 @@
             if (selectEl) {
                 tsControlInstance = new TomSelect('#ruanganSelect', {
                     create: false,
-                    placeholder: 'Ketik nama ruangan RS...',
+                    placeholder: 'Ketik nama ruangan...',
                     maxOptions: 50,
                 });
             }
