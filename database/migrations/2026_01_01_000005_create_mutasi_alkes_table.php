@@ -11,11 +11,9 @@ return new class extends Migration
         Schema::create('mutasi_alkes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('alkes_id')->constrained('alkes')->onDelete('cascade');
-            $table->foreignId('seksi_asal_id')->nullable()->constrained('seksi')->onDelete('set null');
-            $table->foreignId('seksi_tujuan_id')->constrained('seksi')->onDelete('cascade');
             $table->foreignId('ruangan_asal_id')->nullable()->constrained('ruangan')->onDelete('set null');
             $table->foreignId('ruangan_tujuan_id')->nullable()->constrained('ruangan')->onDelete('set null');
-            $table->dateTime('tanggal_mutasi');
+            $table->timestamp('tanggal_mutasi')->useCurrent();
             $table->string('pemohon')->nullable();
             $table->string('penanggung_jawab')->nullable();
             $table->text('alasan_mutasi')->nullable();

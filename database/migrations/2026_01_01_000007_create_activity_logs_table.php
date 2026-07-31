@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('user_role')->default('Seksi Operasional');
-            $table->string('seksi_name')->default('Seksi Penunjang Medis');
-            $table->string('action'); // Tambah Alkes, Edit Alkes, Hapus Alkes, Mutasi Alkes, Lapor Perbaikan, Login
+            $table->string('user_role')->default('Petugas RS');
+            $table->string('ruangan_name')->nullable();
+            $table->string('action'); // Tambah Alkes, Edit Alkes, Pindah Ruangan Alkes, Lapor Perbaikan, Hapus Alkes
             $table->text('description');
             $table->string('ip_address')->nullable();
             $table->timestamps();

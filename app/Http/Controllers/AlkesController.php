@@ -8,168 +8,207 @@ use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\Nomenklatur;
 use App\Models\Ruangan;
-use App\Models\Seksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AlkesController extends Controller
 {
-    private function getUserSeksiId()
-    {
-        return session('user_seksi_id', 1);
-    }
-
     public function index(Request $request)
     {
-        $query = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan']);
+        $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan']);
 
+        // Universal Search Across ALL Data Fields
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function ($q) use ($search) {
-                $q->where('kode_inventaris', 'like', "%{$search}%")
-                  ->orWhere('nomor_seri', 'like', "%{$search}%")
+                $q->where('nama_barang', 'like', "%{$search}%")
                   ->orWhere('merk', 'like', "%{$search}%")
                   ->orWhere('tipe', 'like', "%{$search}%")
-                  ->orWhereHas('nomenklatur', function ($nq) use ($search) {
-                      $nq->where('nama_alat', 'like', "%{$search}%");
+                  ->orWhere('nomor_seri', 'like', "%{$search}%")
+                  ->orWhere('tahun_pengadaan', 'like', "%{$search}%")
+                  ->orWhere('jumlah', 'like', "%{$search}%")
+                  ->orWhere('cara_perolehan', 'like', "%{$search}%")
+                  ->orWhere('nilai_perolehan', 'like', "%{$search}%")
+                  ->orWhere('lokasi_saat_ini_note', 'like', "%{$search}%")
+                  ->orWhere('kondisi', 'like', "%{$search}%")
+                  ->orWhere('aspak_status', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%")
+                  ->orWhereHas('ruangan', function ($rq) use ($search) {
+                      $rq->where('nama_ruangan', 'like', "%{$search}%")
+                        ->orWhere('kode_ruangan', 'like', "%{$search}%")
+                        ->orWhere('lokasi_lantai', 'like', "%{$search}%");
                   });
             });
         }
 
-        // Filter berdasarkan Seksi Pemilik Permanen (Submenu Seksi)
-        if ($request->filled('seksi_id') && $request->seksi_id != 0) {
-            $query->where('seksi_pemilik_id', $request->seksi_id);
-        }
-
-        // Filter berdasarkan Lokasi Keberadaan Fisik Alat
-        if ($request->filled('lokasi_seksi_id')) {
-            $query->where('lokasi_seksi_id', $request->lokasi_seksi_id);
-        }
-
+        // Filter Spesifik berdasarkan Ruangan RS
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
 
+        // Filter Spesifik berdasarkan Cara Perolehan / Sumber Dana
+        if ($request->filled('cara_perolehan')) {
+            $query->where('cara_perolehan', 'like', "%{$request->cara_perolehan}%");
+        }
+
+        // Filter Spesifik berdasarkan Status Penggunaan
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
+        // Filter Spesifik berdasarkan Kondisi Fisik Alat
         if ($request->filled('kondisi')) {
             $query->where('kondisi', $request->kondisi);
         }
 
-        $alkesList = $query->latest()->paginate(30)->withQueryString();
-        $seksiList = Seksi::all();
-        $ruanganList = Ruangan::with('seksi')->get();
+        // Filter Spesifik berdasarkan Status ASPAK Kemenkes
+        if ($request->filled('aspak_status')) {
+            $query->where('aspak_status', $request->aspak_status);
+        }
+
+        // Filter Spesifik berdasarkan Status KIB (Kartu Inventaris Barang)
+        if ($request->filled('kib_status')) {
+            $query->where('kib_status', $request->kib_status == '1' || strtolower($request->kib_status) == 'true');
+        }
+
+        // Sortir Kolom & Arah (Ascending A-Z / Descending Z-A)
+        $sortBy = $request->input('sort_by', 'nama_barang');
+        $sortDir = strtolower($request->input('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $allowedSorts = [
+            'nama_barang' => 'nama_barang',
+            'merk' => 'merk',
+            'tipe' => 'tipe',
+            'nomor_seri' => 'nomor_seri',
+            'tahun_pengadaan' => 'tahun_pengadaan',
+            'jumlah' => 'jumlah',
+            'cara_perolehan' => 'cara_perolehan',
+            'nilai_perolehan' => 'nilai_perolehan',
+            'kondisi' => 'kondisi',
+            'aspak_status' => 'aspak_status',
+            'kib_status' => 'kib_status',
+            'created_at' => 'created_at',
+        ];
+
+        if (array_key_exists($sortBy, $allowedSorts)) {
+            $query->orderBy($allowedSorts[$sortBy], $sortDir);
+        } elseif ($sortBy === 'ruangan') {
+            $query->join('ruangan', 'alkes.ruangan_id', '=', 'ruangan.id')
+                  ->orderBy('ruangan.nama_ruangan', $sortDir)
+                  ->select('alkes.*');
+        } else {
+            $query->orderBy('nama_barang', 'asc');
+        }
+
+        $alkesList = $query->paginate(30)->withQueryString();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
+
+        // Unique Cara Perolehan for dropdown filter
+        $caraPerolehanList = DB::table('alkes')
+            ->whereNotNull('cara_perolehan')
+            ->where('cara_perolehan', '!=', '')
+            ->distinct()
+            ->pluck('cara_perolehan');
 
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();
-        $userSeksiId = $this->getUserSeksiId();
 
-        return view('alkes.index', compact('alkesList', 'seksiList', 'ruanganList', 'statuses', 'kondisis', 'userSeksiId'));
+        return view('alkes.index', compact('alkesList', 'ruanganList', 'caraPerolehanList', 'statuses', 'kondisis', 'sortBy', 'sortDir'));
     }
 
     public function create()
     {
-        $userSeksiId = $this->getUserSeksiId();
-        $userSeksi = Seksi::findOrFail($userSeksiId);
-
         $nomenklaturList = Nomenklatur::all();
-        $seksiList = Seksi::where('id', $userSeksiId)->get();
-        $ruanganList = Ruangan::where('seksi_id', $userSeksiId)->get();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();
 
-        return view('alkes.create', compact('nomenklaturList', 'seksiList', 'ruanganList', 'statuses', 'kondisis', 'userSeksi', 'userSeksiId'));
+        return view('alkes.create', compact('nomenklaturList', 'ruanganList', 'statuses', 'kondisis'));
     }
 
     public function store(Request $request)
     {
-        $userSeksiId = $this->getUserSeksiId();
-
-        if ($request->seksi_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda hanya berhak menambahkan alat kesehatan ke Seksi Anda sendiri!');
-        }
-
         $validated = $request->validate([
-            'kode_inventaris' => 'required|unique:alkes,kode_inventaris',
+            'nama_barang' => 'required|string|max:255',
+            'kode_inventaris' => 'nullable|string',
             'nomor_seri' => 'nullable|string',
-            'nomenklatur_id' => 'required|exists:nomenklatur,id',
+            'nomenklatur_id' => 'nullable|exists:nomenklatur,id',
             'merk' => 'nullable|string',
             'tipe' => 'nullable|string',
-            'seksi_id' => 'required|exists:seksi,id',
-            'ruangan_id' => 'nullable|exists:ruangan,id',
+            'tahun_pengadaan' => 'nullable|string',
+            'jumlah' => 'nullable|integer|min:1',
+            'cara_perolehan' => 'nullable|string',
+            'nilai_perolehan' => 'nullable|numeric',
+            'ruangan_id' => 'required|exists:ruangan,id',
             'status' => 'required',
             'kondisi' => 'required',
-            'tanggal_pengadaan' => 'nullable|date',
-            'catatan' => 'nullable|string',
+            'aspak_status' => 'nullable|string',
+            'kib_status' => 'nullable|boolean',
+            'keterangan' => 'nullable|string',
         ]);
 
-        $validated['seksi_pemilik_id'] = $userSeksiId;
-        $validated['lokasi_seksi_id'] = $userSeksiId;
+        if (empty($validated['kode_inventaris'])) {
+            $validated['kode_inventaris'] = 'INV/ALKES/' . date('Y') . '/' . sprintf('%04d', rand(1000, 9999));
+        }
+
+        $validated['lokasi_ruangan_id'] = $validated['ruangan_id'];
 
         $alkes = Alkes::create($validated);
-        $alkes->load('nomenklatur');
+        $ruang = Ruangan::find($validated['ruangan_id']);
 
         // Automatic Audit Trail Logging
-        ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
+        ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nama_barang}'.", $ruang->nama_ruangan ?? 'RS');
 
-        return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
-            ->with('success', 'Data Alat Kesehatan berhasil ditambahkan ke Seksi Anda!');
+        return redirect()->route('alkes.index', ['ruangan_id' => $alkes->ruangan_id])
+            ->with('success', 'Data Alat Kesehatan berhasil ditambahkan!');
     }
 
     public function show($id)
     {
-        $alkes = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan', 'mutasi.seksiAsal', 'mutasi.seksiTujuan', 'logPemeliharaan'])->findOrFail($id);
-        $userSeksiId = $this->getUserSeksiId();
+        $alkes = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan', 'mutasi.ruanganAsal', 'mutasi.ruanganTujuan', 'logPemeliharaan'])->findOrFail($id);
 
-        return view('alkes.show', compact('alkes', 'userSeksiId'));
+        return view('alkes.show', compact('alkes'));
     }
 
     public function edit($id)
     {
-        $alkes = Alkes::with(['nomenklatur', 'seksiPemilik', 'lokasiSeksi', 'ruangan'])->findOrFail($id);
-        $userSeksiId = $this->getUserSeksiId();
-
-        if ($alkes->seksi_pemilik_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengedit alat kesehatan milik seksi lain!');
-        }
+        $alkes = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan'])->findOrFail($id);
 
         $nomenklaturList = Nomenklatur::all();
-        $seksiList = Seksi::where('id', $userSeksiId)->get();
-        $ruanganList = Ruangan::where('seksi_id', $alkes->lokasi_seksi_id)->get();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();
 
-        return view('alkes.edit', compact('alkes', 'nomenklaturList', 'seksiList', 'ruanganList', 'statuses', 'kondisis', 'userSeksiId'));
+        return view('alkes.edit', compact('alkes', 'nomenklaturList', 'ruanganList', 'statuses', 'kondisis'));
     }
 
     public function update(Request $request, $id)
     {
         $alkes = Alkes::findOrFail($id);
-        $userSeksiId = $this->getUserSeksiId();
-
-        if ($alkes->seksi_pemilik_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk mengupdate alat kesehatan milik seksi lain!');
-        }
 
         $validated = $request->validate([
-            'kode_inventaris' => 'required|unique:alkes,kode_inventaris,' . $alkes->id,
+            'nama_barang' => 'required|string|max:255',
+            'kode_inventaris' => 'nullable|string',
             'nomor_seri' => 'nullable|string',
-            'nomenklatur_id' => 'required|exists:nomenklatur,id',
+            'nomenklatur_id' => 'nullable|exists:nomenklatur,id',
             'merk' => 'nullable|string',
             'tipe' => 'nullable|string',
-            'ruangan_id' => 'nullable|exists:ruangan,id',
+            'tahun_pengadaan' => 'nullable|string',
+            'jumlah' => 'nullable|integer|min:1',
+            'cara_perolehan' => 'nullable|string',
+            'nilai_perolehan' => 'nullable|numeric',
+            'ruangan_id' => 'required|exists:ruangan,id',
             'status' => 'required',
             'kondisi' => 'required',
-            'tanggal_pengadaan' => 'nullable|date',
-            'catatan' => 'nullable|string',
+            'aspak_status' => 'nullable|string',
+            'kib_status' => 'nullable|boolean',
+            'keterangan' => 'nullable|string',
         ]);
 
         $alkes->update($validated);
-        $alkes->load('nomenklatur');
 
         // Automatic Audit Trail Logging
-        ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
+        ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nama_barang}'.", $alkes->ruangan->nama_ruangan ?? 'RS');
 
         return redirect()->route('alkes.show', $alkes->id)
             ->with('success', 'Data Alat Kesehatan berhasil diperbarui!');
@@ -177,21 +216,15 @@ class AlkesController extends Controller
 
     public function destroy($id)
     {
-        $alkes = Alkes::with('nomenklatur')->findOrFail($id);
-        $userSeksiId = $this->getUserSeksiId();
+        $alkes = Alkes::findOrFail($id);
 
-        if ($alkes->seksi_pemilik_id != $userSeksiId) {
-            abort(403, 'Akses Ditolak: Anda tidak memiliki hak akses untuk menghapus alat kesehatan milik seksi lain!');
-        }
-
-        $namaAlat = $alkes->nomenklatur->nama_alat ?? 'Alkes';
-        $kodeInv = $alkes->kode_inventaris;
+        $namaAlat = $alkes->nama_barang;
         $alkes->delete();
 
         // Automatic Audit Trail Logging
-        ActivityLog::record('Hapus Alkes', "Menghapus data aset alkes '{$namaAlat}' ({$kodeInv}).");
+        ActivityLog::record('Hapus Alkes', "Menghapus data aset alkes '{$namaAlat}'.");
 
-        return redirect()->route('alkes.index', ['seksi_id' => $userSeksiId])
+        return redirect()->route('alkes.index')
             ->with('success', 'Data Alat Kesehatan berhasil dihapus!');
     }
 }

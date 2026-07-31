@@ -17,7 +17,7 @@ class ActivityLogController extends Controller
                 $q->where('action', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('user_role', 'like', "%{$search}%")
-                  ->orWhere('seksi_name', 'like', "%{$search}%");
+                  ->orWhere('ruangan_name', 'like', "%{$search}%");
             });
         }
 

@@ -25,7 +25,6 @@
             transform: translateY(-2px);
         }
 
-        /* Seamless Single-Box Dark Mode Theme for Login Dropdown */
         .ts-control {
             background-color: #020617 !important;
             border: 1.5px solid #0d9488 !important;
@@ -38,135 +37,125 @@
         .ts-wrapper.dropdown-active .ts-control {
             border-bottom-left-radius: 0 !important;
             border-bottom-right-radius: 0 !important;
-            border-color: #2dd4bf !important;
         }
         .ts-dropdown {
-            background-color: #0f172a !important;
-            border: 1.5px solid #2dd4bf !important;
+            background-color: #020617 !important;
+            border: 1.5px solid #0d9488 !important;
             border-top: none !important;
             border-bottom-left-radius: 1rem !important;
             border-bottom-right-radius: 1rem !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            padding: 0.5rem !important;
-            margin-top: 0 !important;
             color: #ffffff !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7) !important;
+            z-index: 9999 !important;
         }
         .ts-dropdown .option {
-            padding: 0.75rem 1rem !important;
-            border-radius: 0.625rem !important;
-            color: #cbd5e1 !important;
+            padding: 0.65rem 1rem !important;
+            color: #e2e8f0 !important;
+            font-size: 0.875rem !important;
             font-weight: 600 !important;
         }
-        .ts-dropdown .option.active, .ts-dropdown .option:hover {
-            background-color: #134e4a !important;
-            color: #2dd4bf !important;
-        }
-        .ts-dropdown .option.selected {
+        .ts-dropdown .option:hover, 
+        .ts-dropdown .option.active {
             background-color: #0d9488 !important;
+            color: #ffffff !important;
+        }
+        .ts-control input {
             color: #ffffff !important;
         }
     </style>
 </head>
-<body class="h-full flex items-center justify-center p-4 sm:p-6 text-slate-100 antialiased min-h-screen">
-    <div class="max-w-lg w-full space-y-6 my-auto">
-        <!-- Header Brand -->
-        <div class="text-center space-y-3">
-            <div class="inline-flex w-16 h-16 rounded-3xl bg-gradient-to-tr from-teal-600 to-teal-400 text-white items-center justify-center shadow-xl shadow-teal-500/20 border border-teal-300/30 mb-1">
+<body class="h-full flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-teal-500/30">
                 <i class="ri-hospital-line text-3xl"></i>
             </div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-white">SIAKER ERP RS</h1>
-            <p class="text-slate-300 text-sm sm:text-base max-w-sm mx-auto font-medium">Sistem Pengelolaan & Monitoring Inventaris Alat Kesehatan Rumah Sakit</p>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIAKER ERP RS</h2>
+            <p class="text-xs text-slate-400">Sistem Informasi Alat Kesehatan Rumah Sakit</p>
         </div>
 
-        <!-- Login Form Container -->
-        <form method="POST" action="/login" class="bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-5">
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
-            <div class="border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-200 text-base">Pilih Hak Akses Pengguna</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Silakan pilih peran login Anda untuk mengakses data alkes</p>
-            </div>
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Peran Login Anda:</label>
 
-            <div class="space-y-3.5">
-                <!-- Option 1: Administrator System -->
-                <label class="role-card flex items-center justify-between p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 hover:bg-slate-800/90 hover:border-amber-500/60 cursor-pointer transition-all duration-200 group">
-                    <div class="flex items-center gap-3.5">
-                        <input type="radio" name="role" value="admin" onchange="toggleSeksiDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                <div class="grid grid-cols-1 gap-2.5">
+                    <!-- Option 1: Petugas Ruangan RS -->
+                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
+                        <input type="radio" name="role" value="ruangan" checked onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-amber-400 text-sm sm:text-base group-hover:text-amber-300">Administrator System</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Akses penuh edit seluruh inventaris RS</p>
+                            <p class="font-bold text-teal-300 text-sm sm:text-base">Petugas Ruangan RS</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Kelola & edit inventaris ruangan sendiri</p>
                         </div>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0">
-                        <i class="ri-shield-user-line"></i>
-                    </div>
-                </label>
+                    </label>
 
-                <!-- Option 2: Seksi Operasional -->
-                <label class="role-card flex items-center justify-between p-4 rounded-2xl border-2 border-teal-500/80 bg-teal-950/30 hover:bg-slate-800/90 hover:border-teal-400 cursor-pointer transition-all duration-200 group">
-                    <div class="flex items-center gap-3.5">
-                        <input type="radio" name="role" value="seksi" checked onchange="toggleSeksiDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                    <!-- Dynamic Ruangan Select Dropdown -->
+                    <div id="ruanganDropdownContainer" class="pl-2 pt-1 pb-1 space-y-1.5">
+                        <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan RS:</label>
+                        <select id="ruanganSelect" name="ruangan_id" class="w-full px-4 py-3.5 bg-slate-950 border border-teal-500/50 rounded-2xl text-sm font-semibold text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all shadow-inner">
+                            @foreach ($ruanganList as $ruang)
+                                <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai ?? 'RS' }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Option 2: Admin System -->
+                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
+                        <input type="radio" name="role" value="admin" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-teal-300 text-sm sm:text-base group-hover:text-teal-200">Seksi Operasional</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Kelola & edit data alkes seksi sendiri</p>
+                            <p class="font-bold text-white text-sm sm:text-base">Administrator System</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Akses penuh kelola seluruh data RS</p>
                         </div>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-xl shrink-0">
-                        <i class="ri-building-line"></i>
-                    </div>
-                </label>
+                    </label>
 
-                <!-- Dynamic Seksi Select Dropdown -->
-                <div id="seksiDropdownContainer" class="pl-2 pt-1 pb-1 space-y-1.5">
-                    <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Seksi Operasional RS:</label>
-                    <select id="seksiSelect" name="seksi_id" class="w-full px-4 py-3.5 bg-slate-950 border border-teal-500/50 rounded-2xl text-sm font-semibold text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all shadow-inner">
-                        @foreach ($seksiList as $seksi)
-                            <option value="{{ $seksi->id }}">{{ $seksi->nama_seksi }}</option>
-                        @endforeach
-                    </select>
+                    <!-- Option 3: Tata Usaha -->
+                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
+                        <input type="radio" name="role" value="tata_usaha" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                        <div>
+                            <p class="font-bold text-white text-sm sm:text-base">Tata Usaha / Direksi RS</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Pengawasan rekapitulasi (Read-Only)</p>
+                        </div>
+                    </label>
                 </div>
-
-                <!-- Option 3: Tata Usaha -->
-                <label class="role-card flex items-center justify-between p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 hover:bg-slate-800/90 hover:border-slate-600 cursor-pointer transition-all duration-200 group">
-                    <div class="flex items-center gap-3.5">
-                        <input type="radio" name="role" value="tata_usaha" onchange="toggleSeksiDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
-                        <div>
-                            <p class="font-bold text-slate-200 text-sm sm:text-base group-hover:text-white">Tata Usaha</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Akses pengawasan (hanya lihat data)</p>
-                        </div>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-slate-700/20 border border-slate-700/40 text-slate-300 flex items-center justify-center text-xl shrink-0">
-                        <i class="ri-eye-line"></i>
-                    </div>
-                </label>
             </div>
 
-            <button type="submit" class="w-full py-4 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-base rounded-2xl shadow-xl shadow-teal-500/25 transition-all duration-200 flex items-center justify-center gap-2 mt-6 active:scale-[0.99]">
-                <i class="ri-login-circle-line text-xl"></i> Masuk Sistem SIAKER
+            <button type="submit" class="w-full py-3.5 bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-teal-500/30 transition flex items-center justify-center gap-2 mt-4">
+                <i class="ri-login-box-line text-lg"></i>
+                Masuk ke Aplikasi SIAKER
             </button>
         </form>
-        
-        <p class="text-center text-xs text-slate-500">&copy; 2026 Rumah Sakit SIAKER ERP System. All rights reserved.</p>
+
+        <div class="text-center pt-2 border-t border-slate-800/80">
+            <p class="text-xs text-slate-500">&copy; 2026 SIAKER ERP RS</p>
+        </div>
+
     </div>
 
     <script>
-        let tsInstance = null;
+        let tsControlInstance = null;
+
         document.addEventListener('DOMContentLoaded', function() {
-            const selectEl = document.getElementById('seksiSelect');
+            const selectEl = document.getElementById('ruanganSelect');
             if (selectEl) {
-                tsInstance = new TomSelect(selectEl, {
+                tsControlInstance = new TomSelect('#ruanganSelect', {
                     create: false,
-                    placeholder: 'Ketik nama seksi...'
+                    placeholder: 'Ketik nama ruangan RS...',
+                    maxOptions: 50,
                 });
             }
         });
 
-        function toggleSeksiDropdown() {
-            const role = document.querySelector('input[name="role"]:checked').value;
-            const container = document.getElementById('seksiDropdownContainer');
-            container.style.display = (role === 'seksi') ? 'block' : 'none';
+        function toggleRuanganDropdown() {
+            const role = document.querySelector('input[name="role"]:checked')?.value;
+            const container = document.getElementById('ruanganDropdownContainer');
+            if (container) {
+                container.style.display = (role === 'ruangan') ? 'block' : 'none';
+            }
         }
-        toggleSeksiDropdown();
+        toggleRuanganDropdown();
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Data Alkes')
+@section('title', 'Edit Inventaris Alkes - ' . $alkes->nama_barang)
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
@@ -11,43 +11,34 @@
             <i class="ri-arrow-left-line text-lg"></i>
         </a>
         <div>
-            <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Data Alkes: {{ $alkes->kode_inventaris }}</h3>
-            <p class="text-sm text-slate-500">Perbarui spesifikasi dan lokasi penempatan alat kesehatan</p>
+            <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Data Inventaris Alkes</h3>
+            <p class="text-sm text-slate-500">Memperbarui informasi aset unit alat kesehatan: <strong>{{ $alkes->nama_barang }}</strong></p>
         </div>
     </div>
 
     <!-- Form Card -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+
         <form method="POST" action="{{ route('alkes.update', $alkes->id) }}" class="space-y-6">
             @csrf
             @method('PUT')
 
-            <input type="hidden" name="seksi_id" value="{{ $alkes->seksi_id }}">
+            <!-- Hidden Kode Inventaris -->
+            <input type="hidden" name="kode_inventaris" value="{{ $alkes->kode_inventaris }}">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <!-- Kode Inventaris -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kode Inventaris <span class="text-rose-500">*</span></label>
-                    <input type="text" name="kode_inventaris" value="{{ old('kode_inventaris', $alkes->kode_inventaris) }}" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
+                <!-- Nama Barang -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Barang / Alat Kesehatan <span class="text-rose-500">*</span></label>
+                    <input type="text" name="nama_barang" value="{{ old('nama_barang', $alkes->nama_barang) }}" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-teal-500">
+                    @error('nama_barang') <p class="text-xs text-rose-500 mt-1 font-semibold">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Nomor Seri -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nomor Seri (Serial Number)</label>
-                    <input type="text" name="nomor_seri" value="{{ old('nomor_seri', $alkes->nomor_seri) }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
-                </div>
-
-                <!-- Nomenklatur -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Nomenklatur Standard Kemenkes <span class="text-rose-500">*</span></label>
-                    <select name="nomenklatur_id" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
-                        @foreach ($nomenklaturList as $nom)
-                            <option value="{{ $nom->id }}" {{ old('nomenklatur_id', $alkes->nomenklatur_id) == $nom->id ? 'selected' : '' }}>
-                                {{ $nom->nama_alat }} ({{ $nom->kategori }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nomor Seri (Serial Number / SN)</label>
+                    <input type="text" name="nomor_seri" value="{{ old('nomor_seri', $alkes->nomor_seri) }}" placeholder="Contoh: SN-9812-77X, SK 10308902" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
                 </div>
 
                 <!-- Merk -->
@@ -62,14 +53,37 @@
                     <input type="text" name="tipe" value="{{ old('tipe', $alkes->tipe) }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
                 </div>
 
+                <!-- Tahun Pengadaan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tahun Pengadaan</label>
+                    <input type="text" name="tahun_pengadaan" value="{{ old('tahun_pengadaan', $alkes->tahun_pengadaan) }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                </div>
+
+                <!-- Cara Perolehan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Cara Perolehan (Sumber Dana)</label>
+                    <input type="text" name="cara_perolehan" value="{{ old('cara_perolehan', $alkes->cara_perolehan) }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                </div>
+
+                <!-- Nilai Perolehan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nilai Perolehan (Harga Rp)</label>
+                    <input type="number" name="nilai_perolehan" value="{{ old('nilai_perolehan', $alkes->nilai_perolehan) }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
+                </div>
+
+                <!-- Jumlah Unit -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Jumlah Unit</label>
+                    <input type="number" name="jumlah" value="{{ old('jumlah', $alkes->jumlah) }}" min="1" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
+                </div>
+
                 <!-- Ruangan -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penempatan Ruangan Spesifik</label>
-                    <select name="ruangan_id" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
-                        <option value="">-- Pilih Ruangan --</option>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Penempatan Ruangan RS <span class="text-rose-500">*</span></label>
+                    <select name="ruangan_id" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-teal-500">
                         @foreach ($ruanganList as $ruang)
                             <option value="{{ $ruang->id }}" {{ old('ruangan_id', $alkes->ruangan_id) == $ruang->id ? 'selected' : '' }}>
-                                {{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai }})
+                                {{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai ?? 'RS' }})
                             </option>
                         @endforeach
                     </select>
@@ -77,7 +91,7 @@
 
                 <!-- Status Penggunaan -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Status Alat <span class="text-rose-500">*</span></label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Status Awal Alat <span class="text-rose-500">*</span></label>
                     <select name="status" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
                         @foreach ($statuses as $st)
                             <option value="{{ $st->value }}" {{ old('status', $alkes->status->value ?? $alkes->status) == $st->value ? 'selected' : '' }}>{{ $st->label() }}</option>
@@ -88,23 +102,35 @@
                 <!-- Kondisi Fisik -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kondisi Fisik <span class="text-rose-500">*</span></label>
-                    <select name="kondisi" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                    <select name="kondisi" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 font-bold">
                         @foreach ($kondisis as $kd)
                             <option value="{{ $kd->value }}" {{ old('kondisi', $alkes->kondisi->value ?? $alkes->kondisi) == $kd->value ? 'selected' : '' }}>{{ $kd->label() }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Tanggal Pengadaan -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tanggal Pengadaan</label>
-                    <input type="date" name="tanggal_pengadaan" value="{{ old('tanggal_pengadaan', $alkes->tanggal_pengadaan ? $alkes->tanggal_pengadaan->format('Y-m-d') : '') }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                <!-- ASPAK Status -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Status ASPAK Kemenkes</label>
+                    <select name="aspak_status" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                        <option value="TERDATA" {{ old('aspak_status', $alkes->aspak_status) == 'TERDATA' ? 'selected' : '' }}>TERDATA</option>
+                        <option value="TIDAK TERDATA" {{ old('aspak_status', $alkes->aspak_status) == 'TIDAK TERDATA' ? 'selected' : '' }}>TIDAK TERDATA</option>
+                    </select>
                 </div>
 
-                <!-- Catatan -->
+                <!-- KIB Status -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Status KIB (Kartu Inventaris Barang)</label>
+                    <select name="kib_status" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+                        <option value="0" {{ !old('kib_status', $alkes->kib_status) ? 'selected' : '' }}>NON-KIB (FALSE)</option>
+                        <option value="1" {{ old('kib_status', $alkes->kib_status) ? 'selected' : '' }}>TERDAFTAR KIB (TRUE)</option>
+                    </select>
+                </div>
+
+                <!-- Keterangan -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Catatan Operasional Spesifikasi</label>
-                    <textarea name="catatan" rows="3" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">{{ old('catatan', $alkes->catatan) }}</textarea>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Keterangan / Catatan Spesifikasi</label>
+                    <textarea name="keterangan" rows="3" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">{{ old('keterangan', $alkes->keterangan) }}</textarea>
                 </div>
 
             </div>

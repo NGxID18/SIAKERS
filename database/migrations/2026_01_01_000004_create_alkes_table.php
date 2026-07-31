@@ -11,31 +11,34 @@ return new class extends Migration
         Schema::create('alkes', function (Blueprint $table) {
             $table->id();
             $table->string('kode_inventaris')->unique();
-            $table->string('nomor_seri')->nullable()->index();
-            $table->foreignId('nomenklatur_id')->constrained('nomenklatur')->onDelete('cascade');
-            $table->string('merk')->nullable();
+            $table->string('nama_barang')->index();
+            $table->foreignId('nomenklatur_id')->nullable()->constrained('nomenklatur')->onDelete('set null');
+            $table->string('merk')->nullable()->index();
             $table->string('tipe')->nullable();
+            $table->string('nomor_seri')->nullable()->index();
+            $table->string('tahun_pengadaan')->nullable();
+            $table->integer('jumlah')->default(1);
+            $table->string('cara_perolehan')->nullable(); // DAK 2023, APBD 2021, HIBAH APBN, BLUD, Beli Sendiri
+            $table->decimal('nilai_perolehan', 18, 2)->default(0);
             
-            // Seksi Pemilik Permanen Aset (Tidak pernah berubah meskipun alat dipindahkan)
-            $table->foreignId('seksi_pemilik_id')->constrained('seksi')->onDelete('cascade');
-            
-            // Lokasi Fisik Keberadaan Alat Saat Ini (Dapat berubah ketika dipindahkan/dipinjamkan)
-            $table->foreignId('lokasi_seksi_id')->constrained('seksi')->onDelete('cascade');
-            $table->foreignId('ruangan_id')->nullable()->constrained('ruangan')->onDelete('set null');
+            // Ruangan Penempatan Asli & Lokasi Fisik Keberadaan Alat saat ini
+            $table->foreignId('ruangan_id')->nullable()->constrained('ruangan')->onDelete('cascade');
+            $table->foreignId('lokasi_ruangan_id')->nullable()->constrained('ruangan')->onDelete('cascade');
+            $table->string('lokasi_saat_ini_note')->nullable(); // Misal: "1 Berada di Poli", "1 di Perinatology"
 
-            $table->string('status')->default('tersedia')->index();
-            $table->string('kondisi')->default('baik')->index();
-            $table->date('tanggal_pengadaan')->nullable();
-            $table->decimal('nilai_aset', 15, 2)->default(0);
+            $table->string('status')->default('tersedia')->index(); // tersedia, sedang_digunakan, dalam_perbaikan
+            $table->string('kondisi')->default('baik')->index(); // baik, rusak_ringan, rusak_berat
+            $table->string('aspak_status')->default('TERDATA'); // TERDATA, TIDAK TERDATA
+            $table->boolean('kib_status')->default(false); // true / false
             $table->date('tanggal_kalibrasi_terakhir')->nullable();
             $table->date('tanggal_kalibrasi_berikutnya')->nullable();
             $table->string('foto_alat')->nullable();
-            $table->text('catatan')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
 
-            // High-Performance Composite Index
-            $table->index(['seksi_pemilik_id', 'status']);
-            $table->index(['lokasi_seksi_id', 'status']);
+            // Composite Indexes
+            $table->index(['ruangan_id', 'status']);
+            $table->index(['lokasi_ruangan_id', 'status']);
         });
     }
 

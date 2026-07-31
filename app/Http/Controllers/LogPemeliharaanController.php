@@ -14,7 +14,7 @@ class LogPemeliharaanController extends Controller
 {
     public function index()
     {
-        $logList = LogPemeliharaan::with(['alkes.nomenklatur', 'alkes.seksi'])
+        $logList = LogPemeliharaan::with(['alkes.ruangan'])
             ->latest()
             ->paginate(30);
 
@@ -24,7 +24,7 @@ class LogPemeliharaanController extends Controller
     public function create(Request $request)
     {
         $selectedAlkesId = $request->query('alkes_id');
-        $alkesList = Alkes::with(['nomenklatur', 'seksi'])->get();
+        $alkesList = Alkes::with(['ruangan'])->get();
 
         return view('pemeliharaan.create', compact('alkesList', 'selectedAlkesId'));
     }
@@ -45,7 +45,7 @@ class LogPemeliharaanController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
-            $alkes = Alkes::with('nomenklatur')->findOrFail($validated['alkes_id']);
+            $alkes = Alkes::findOrFail($validated['alkes_id']);
 
             LogPemeliharaan::create([
                 'alkes_id' => $alkes->id,
@@ -71,7 +71,11 @@ class LogPemeliharaanController extends Controller
             }
 
             // Automatic Audit Trail Logging
-            ActivityLog::record('Lapor Perbaikan', "Melaporkan tindakan {$validated['jenis_tindakan']} untuk '{$alkes->nomenklatur->nama_alat}' ({$alkes->kode_inventaris}).");
+            ActivityLog::record(
+                'Lapor Perbaikan',
+                "Melaporkan tindakan {$validated['jenis_tindakan']} untuk '{$alkes->nama_barang}' ({$alkes->kode_inventaris}).",
+                $alkes->ruangan->nama_ruangan ?? 'RS'
+            );
         });
 
         return redirect()->route('pemeliharaan.index')->with('success', 'Catatan pemeliharaan/perbaikan berhasil disimpan!');

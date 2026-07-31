@@ -1,9 +1,21 @@
 @extends('layouts.app')
 
 @php
-    $currentSeksiId = request('seksi_id', 0);
-    $selectedSeksiObj = $seksiList->firstWhere('id', $currentSeksiId);
-    $pageTitle = $selectedSeksiObj ? 'Inventaris Alkes ' . $selectedSeksiObj->nama_seksi : 'Daftar Seluruh Inventaris Alkes RS';
+    $currentRuanganId = request('ruangan_id', 0);
+    $selectedRuanganObj = $ruanganList->firstWhere('id', $currentRuanganId);
+    $pageTitle = $selectedRuanganObj ? 'Inventaris Alkes Ruang ' . $selectedRuanganObj->nama_ruangan : 'Daftar Seluruh Inventaris Alkes RS';
+
+    // Current Sort Params
+    $sortBy = request('sort_by', 'nama_barang');
+    $sortDir = strtolower(request('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+    // Helper function to generate column sort links
+    function makeSortUrl($column, $currentSortBy, $currentSortDir) {
+        $queryParams = request()->query();
+        $queryParams['sort_by'] = $column;
+        $queryParams['sort_dir'] = ($currentSortBy === $column && $currentSortDir === 'asc') ? 'desc' : 'asc';
+        return route('alkes.index', $queryParams);
+    }
 @endphp
 
 @section('title', $pageTitle)
@@ -19,193 +31,360 @@
                 {{ $pageTitle }}
             </h3>
             <p class="text-sm text-slate-500">
-                @if ($selectedSeksiObj)
-                    Menampilkan daftar seluruh unit alat kesehatan <strong>MILIK {{ strtoupper($selectedSeksiObj->nama_seksi) }}</strong>
+                @if ($selectedRuanganObj)
+                    Menampilkan daftar seluruh unit alat kesehatan <strong>RUANG {{ strtoupper($selectedRuanganObj->nama_ruangan) }}</strong>
                 @else
-                    Menampilkan seluruh data alat kesehatan terdaftar di Rumah Sakit
+                    Tabel inventaris komprehensif disesuaikan 100% dengan Database Excel (.xlsx) Rumah Sakit
                 @endif
             </p>
         </div>
 
         <div class="flex items-center gap-2">
-            @if ($userSeksiId)
-                <a href="{{ route('alkes.create') }}" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-600/30 transition flex items-center gap-2">
-                    <i class="ri-add-line text-lg"></i>
-                    Tambah Alkes
-                </a>
-            @endif
+            <a href="{{ route('alkes.create') }}" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-600/30 transition flex items-center gap-2">
+                <i class="ri-add-line text-lg"></i>
+                Tambah Alkes
+            </a>
         </div>
     </div>
 
-    <!-- Integrated Dynamic Auto-Apply Filter Bar -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <form method="GET" action="{{ route('alkes.index') }}" id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-            
-            <input type="hidden" name="seksi_id" value="{{ $currentSeksiId }}">
-
-            <!-- Search Field -->
-            <div class="lg:col-span-1">
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Cari Kode / Nama / SN / Merk</label>
-                <div class="relative">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci..." class="w-full pl-9 pr-3 h-[42px] bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-xs">
-                    <i class="ri-search-line absolute left-3 top-3 text-slate-400"></i>
-                </div>
-            </div>
-
-            <!-- Filter Lokasi Keberadaan Fisik Alkes (Menampilkan SELURUH Ruangan RS) -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi Fisik Alkes</label>
-                <select name="ruangan_id" id="filter_ruangan_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                    <option value="">-- Semua Lokasi Ruangan RS --</option>
-                    @foreach ($ruanganList as $ruang)
-                        <option value="{{ $ruang->id }}" {{ request('ruangan_id') == $ruang->id ? 'selected' : '' }}>
-                            {{ $ruang->nama_ruangan }} ({{ $ruang->seksi->nama_seksi ?? 'Seksi' }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Filter Status Penggunaan -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Status Penggunaan</label>
-                <select name="status" id="filter_status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                    <option value="">-- Semua Status --</option>
-                    @foreach ($statuses as $st)
-                        <option value="{{ $st->value }}" {{ request('status') == $st->value ? 'selected' : '' }}>{{ $st->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Filter Kondisi Fisik -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi Fisik</label>
-                <select name="kondisi" id="filter_kondisi" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                    <option value="">-- Semua Kondisi --</option>
-                    @foreach ($kondisis as $kd)
-                        <option value="{{ $kd->value }}" {{ request('kondisi') == $kd->value ? 'selected' : '' }}>{{ $kd->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-2 justify-end">
-                <button type="submit" class="h-[42px] px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1 shrink-0" title="Cari">
-                    <i class="ri-search-line text-base"></i> Cari
-                </button>
-
-                @if (request()->hasAny(['search', 'ruangan_id', 'status', 'kondisi']))
-                    <a href="{{ route('alkes.index', ['seksi_id' => $currentSeksiId]) }}" class="h-[42px] w-[42px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl border border-slate-200 transition flex items-center justify-center shrink-0" title="Reset Filter">
-                        <i class="ri-refresh-line text-lg"></i>
-                    </a>
+    <!-- CARD 1: PENCARIAN UNIVERSAL SELURUH JENIS DATA -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+            <i class="ri-search-2-line text-teal-600 text-base"></i>
+            Pencarian Universal Data RS (Seluruh Kolom)
+        </label>
+        <form method="GET" action="{{ route('alkes.index') }}" class="flex items-center gap-2">
+            <!-- Retain current filters if searching -->
+            @foreach (request()->except(['search', 'page']) as $k => $v)
+                @if ($v)
+                    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                 @endif
+            @endforeach
+
+            <div class="relative flex-1">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci apapun (Nama Barang, Merk, Tipe, Serial Number, Tahun, Perolehan, Harga, Ruangan, Keterangan...)" class="w-full pl-10 pr-4 h-[44px] bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white shadow-xs transition">
+                <i class="ri-search-line absolute left-3.5 top-3 text-slate-400 text-lg"></i>
+            </div>
+
+            <button type="submit" class="h-[44px] px-6 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-600/30 transition flex items-center gap-2 shrink-0">
+                <i class="ri-search-line text-lg"></i> Cari Data
+            </button>
+
+            @if (request('search'))
+                <a href="{{ route('alkes.index', request()->except('search')) }}" class="h-[44px] px-4 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 font-bold text-sm rounded-xl border border-slate-200 transition flex items-center justify-center shrink-0" title="Bersihkan Pencarian">
+                    <i class="ri-close-circle-line text-lg"></i> Reset Cari
+                </a>
+            @endif
+        </form>
+    </div>
+
+    <!-- CARD 2: PENYARINGAN SPESIFIK KATEGORI -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+            <i class="ri-filter-3-line text-teal-600 text-base"></i>
+            Penyaringan Spesifik Kategori Data
+        </label>
+
+        <form method="GET" action="{{ route('alkes.index') }}" id="filterForm">
+            <!-- Retain current search query if filtering -->
+            @if (request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            @if (request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+            @endif
+            @if (request('sort_dir'))
+                <input type="hidden" name="sort_dir" value="{{ request('sort_dir') }}">
+            @endif
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                
+                <!-- Filter Ruangan RS -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Ruangan RS</label>
+                    <select name="ruangan_id" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        <option value="">-- Semua Ruangan --</option>
+                        @foreach ($ruanganList as $ruang)
+                            <option value="{{ $ruang->id }}" {{ request('ruangan_id') == $ruang->id ? 'selected' : '' }}>
+                                {{ $ruang->nama_ruangan }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filter Cara Perolehan -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Cara Perolehan</label>
+                    <select name="cara_perolehan" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        <option value="">-- Semua Perolehan --</option>
+                        @foreach ($caraPerolehanList as $cp)
+                            <option value="{{ $cp }}" {{ request('cara_perolehan') == $cp ? 'selected' : '' }}>{{ $cp }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filter Kondisi Fisik -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi Alat</label>
+                    <select name="kondisi" class="w-full px-3 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                        <option value="">-- Semua Kondisi --</option>
+                        @foreach ($kondisis as $kd)
+                            <option value="{{ $kd->value }}" {{ request('kondisi') == $kd->value ? 'selected' : '' }}>{{ $kd->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filter ASPAK & KIB Combined Row -->
+                <div class="flex items-center gap-2">
+                    <div class="w-1/2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">ASPAK</label>
+                        <select name="aspak_status" class="w-full px-2 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                            <option value="">-- Semua --</option>
+                            <option value="TERDATA" {{ request('aspak_status') == 'TERDATA' ? 'selected' : '' }}>TERDATA</option>
+                            <option value="TIDAK TERDATA" {{ request('aspak_status') == 'TIDAK TERDATA' ? 'selected' : '' }}>TIDAK</option>
+                        </select>
+                    </div>
+
+                    <div class="w-1/2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">KIB</label>
+                        <select name="kib_status" class="w-full px-2 h-[40px] bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                            <option value="">-- Semua --</option>
+                            <option value="1" {{ request('kib_status') == '1' ? 'selected' : '' }}>TRUE</option>
+                            <option value="0" {{ request('kib_status') == '0' ? 'selected' : '' }}>FALSE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Buttons Bar -->
+                <div class="flex items-center gap-2 justify-end">
+                    <button type="submit" class="h-[40px] px-5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 shrink-0">
+                        <i class="ri-filter-3-line text-base"></i> Terapkan Filter
+                    </button>
+
+                    @if (request()->hasAny(['ruangan_id', 'cara_perolehan', 'status', 'kondisi', 'aspak_status', 'kib_status']))
+                        <a href="{{ route('alkes.index', request()->only('search')) }}" class="h-[40px] w-[40px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl border border-slate-200 transition flex items-center justify-center shrink-0" title="Reset Filter">
+                            <i class="ri-refresh-line text-lg"></i>
+                        </a>
+                    @endif
+                </div>
+
             </div>
 
         </form>
     </div>
 
-    <!-- Data Table Card -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Excel-Style Interactive Data Table Card -->
+    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse border border-slate-300 text-xs">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-6 py-4">Kode & Nama Alat</th>
-                        <th class="px-6 py-4">Merk / Tipe / No Seri</th>
-                        <th class="px-6 py-4">Seksi Pemilik Aset</th>
-                        <th class="px-6 py-4">Lokasi Fisik Saat Ini</th>
-                        <th class="px-6 py-4">Status Penggunaan</th>
-                        <th class="px-6 py-4">Kondisi Fisik</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
+                    <tr class="bg-emerald-900 text-white border-b border-emerald-950 text-[11px] font-extrabold uppercase tracking-wider select-none">
+                        <th class="px-3 py-3 text-center border-r border-emerald-800 w-12">No</th>
+                        
+                        <!-- Clickable Column Headers with Sort Icons -->
+                        <th class="px-4 py-3 border-r border-emerald-800 min-w-[180px]">
+                            <a href="{{ makeSortUrl('nama_barang', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
+                                <span>Nama Barang</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'nama_barang' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[110px]">
+                            <a href="{{ makeSortUrl('merk', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
+                                <span>Merk</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'merk' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[110px]">
+                            <a href="{{ makeSortUrl('tipe', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
+                                <span>Tipe</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'tipe' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[140px]">
+                            <a href="{{ makeSortUrl('nomor_seri', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
+                                <span>Serial Number</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'nomor_seri' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 text-center border-r border-emerald-800 w-16">
+                            <a href="{{ makeSortUrl('tahun_pengadaan', $sortBy, $sortDir) }}" class="flex items-center justify-center gap-1 hover:text-teal-200 transition" title="Klik untuk mengurutkan Tahun">
+                                <span>Tahun</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'tahun_pengadaan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 text-center border-r border-emerald-800 w-16">
+                            <a href="{{ makeSortUrl('jumlah', $sortBy, $sortDir) }}" class="flex items-center justify-center gap-1 hover:text-teal-200 transition" title="Klik untuk mengurutkan Jumlah">
+                                <span>Jumlah</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'jumlah' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[130px]">
+                            <a href="{{ makeSortUrl('cara_perolehan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Perolehan">
+                                <span>Cara Perolehan</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'cara_perolehan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[130px]">
+                            <a href="{{ makeSortUrl('nilai_perolehan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Harga">
+                                <span>Nilai Perolehan</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'nilai_perolehan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[110px]">
+                            <a href="{{ makeSortUrl('ruangan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Ruangan">
+                                <span>Ruangan</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'ruangan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[130px]">Lokasi Saat Ini</th>
+
+                        <th class="px-3 py-3 border-r border-emerald-800 min-w-[110px]">
+                            <a href="{{ makeSortUrl('kondisi', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Kondisi">
+                                <span>Kondisi Alat</span>
+                                <i class="ri-arrow-up-down-line text-xs opacity-75 {{ $sortBy == 'kondisi' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
+                            </a>
+                        </th>
+
+                        <th class="px-3 py-3 text-center border-r border-emerald-800 w-24">ASPAK</th>
+                        <th class="px-3 py-3 text-center border-r border-emerald-800 w-20">KIB</th>
+                        <th class="px-4 py-3 border-r border-emerald-800 min-w-[140px]">Keterangan</th>
+                        <th class="px-3 py-3 text-center min-w-[120px]">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
-                    @forelse ($alkesList as $alkes)
+                <tbody class="divide-y divide-slate-200 font-medium text-slate-800">
+                    @forelse ($alkesList as $index => $alkes)
                         @php
-                            $isMyItem = ($alkes->seksi_pemilik_id == $userSeksiId);
-                            $isMovedOut = ($alkes->seksi_pemilik_id != $alkes->lokasi_seksi_id);
+                            $rowNumber = $alkesList->firstItem() + $index;
                         @endphp
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <!-- Kode & Nama -->
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-slate-900">{{ $alkes->nomenklatur->nama_alat ?? 'Nomenklatur Unmapped' }}</div>
-                                <div class="text-xs text-slate-400 font-mono mt-0.5">{{ $alkes->kode_inventaris }}</div>
+                        <tr class="hover:bg-teal-50/60 transition odd:bg-white even:bg-slate-50/50 border-b border-slate-200">
+                            <!-- No -->
+                            <td class="px-3 py-2.5 text-center font-bold text-slate-500 border-r border-slate-200">
+                                {{ $rowNumber }}
                             </td>
 
-                            <!-- Merk & Tipe -->
-                            <td class="px-6 py-4">
-                                <div class="font-semibold text-slate-800">{{ $alkes->merk ?? '-' }} <span class="text-slate-500 font-normal">({{ $alkes->tipe ?? '-' }})</span></div>
-                                <div class="text-xs text-slate-400">SN: {{ $alkes->nomor_seri ?? '-' }}</div>
+                            <!-- Nama Barang -->
+                            <td class="px-4 py-2.5 font-extrabold text-slate-900 border-r border-slate-200">
+                                {{ $alkes->nama_barang }}
                             </td>
 
-                            <!-- Seksi Pemilik Permanen -->
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                                    <i class="ri-shield-user-line text-teal-600"></i>
-                                    {{ $alkes->seksiPemilik->nama_seksi ?? '-' }}
-                                </div>
+                            <!-- Merk -->
+                            <td class="px-3 py-2.5 font-bold text-teal-800 border-r border-slate-200">
+                                {{ $alkes->merk ?: '-' }}
                             </td>
 
-                            <!-- Lokasi Keberadaan Fisik Saat Ini -->
-                            <td class="px-6 py-4">
-                                @if ($isMovedOut)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs" title="Barang milik {{ $alkes->seksiPemilik->nama_seksi }} yang dipindahkan lokasi fisiknya">
-                                        <i class="ri-map-pin-user-line text-amber-700 text-sm"></i>
-                                        Dipindahkan ke {{ $alkes->lokasiSeksi->nama_seksi }} ({{ $alkes->ruangan->nama_ruangan ?? '-' }})
+                            <!-- Tipe -->
+                            <td class="px-3 py-2.5 text-slate-700 border-r border-slate-200">
+                                {{ $alkes->tipe ?: '-' }}
+                            </td>
+
+                            <!-- Serial Number -->
+                            <td class="px-3 py-2.5 font-mono font-bold text-slate-800 border-r border-slate-200">
+                                {{ $alkes->nomor_seri ?: '-' }}
+                            </td>
+
+                            <!-- Tahun -->
+                            <td class="px-3 py-2.5 text-center font-semibold text-blue-700 border-r border-slate-200">
+                                {{ $alkes->tahun_pengadaan ?: '-' }}
+                            </td>
+
+                            <!-- Jumlah -->
+                            <td class="px-3 py-2.5 text-center font-extrabold text-slate-900 border-r border-slate-200">
+                                {{ $alkes->jumlah }}
+                            </td>
+
+                            <!-- Cara Perolehan -->
+                            <td class="px-3 py-2.5 text-slate-700 border-r border-slate-200">
+                                {{ $alkes->cara_perolehan ?: '-' }}
+                            </td>
+
+                            <!-- Nilai Perolehan -->
+                            <td class="px-3 py-2.5 font-mono font-semibold text-emerald-700 border-r border-slate-200">
+                                {{ $alkes->nilai_perolehan > 0 ? 'Rp ' . number_format($alkes->nilai_perolehan, 0, ',', '.') : '-' }}
+                            </td>
+
+                            <!-- Ruangan -->
+                            <td class="px-3 py-2.5 font-bold text-slate-800 border-r border-slate-200">
+                                {{ $alkes->ruangan->nama_ruangan ?? '-' }}
+                            </td>
+
+                            <!-- Lokasi Saat Ini -->
+                            <td class="px-3 py-2.5 border-r border-slate-200">
+                                @if ($alkes->lokasi_saat_ini_note)
+                                    <span class="font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                        {{ $alkes->lokasi_saat_ini_note }}
+                                    </span>
+                                @elseif ($alkes->ruangan_id != $alkes->lokasi_ruangan_id)
+                                    <span class="font-bold text-teal-800">
+                                        {{ $alkes->lokasiRuangan->nama_ruangan ?? '-' }}
                                     </span>
                                 @else
-                                    <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                        <i class="ri-building-line text-slate-400"></i>
-                                        {{ $alkes->ruangan->nama_ruangan ?? 'Ruangan Seksi' }}
-                                    </div>
-                                    <div class="text-[11px] text-slate-400">Di Seksi Pemilik</div>
+                                    <span class="text-slate-500">{{ $alkes->ruangan->nama_ruangan ?? '-' }}</span>
                                 @endif
                             </td>
 
-                            <!-- Status Penggunaan -->
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border {{ $alkes->status_enum->warnaBadge() }}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                                    {{ $alkes->status_enum->label() }}
-                                </span>
-                            </td>
-
-                            <!-- Kondisi Fisik -->
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $alkes->kondisi_enum->warnaBadge() }}">
+                            <!-- Kondisi Alat -->
+                            <td class="px-3 py-2.5 border-r border-slate-200">
+                                <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold border {{ $alkes->kondisi_enum->warnaBadge() }}">
                                     {{ $alkes->kondisi_enum->label() }}
                                 </span>
                             </td>
 
+                            <!-- ASPAK -->
+                            <td class="px-3 py-2.5 text-center border-r border-slate-200">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold {{ $alkes->aspak_status == 'TERDATA' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                                    {{ $alkes->aspak_status ?? 'TERDATA' }}
+                                </span>
+                            </td>
+
+                            <!-- KIB -->
+                            <td class="px-3 py-2.5 text-center border-r border-slate-200">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold {{ $alkes->kib_status ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-500 border border-slate-200' }}">
+                                    {{ $alkes->kib_status ? 'TRUE' : 'FALSE' }}
+                                </span>
+                            </td>
+
+                            <!-- Keterangan -->
+                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-200 max-w-xs truncate" title="{{ $alkes->keterangan }}">
+                                {{ $alkes->keterangan ?: '-' }}
+                            </td>
+
                             <!-- Aksi -->
-                            <td class="px-6 py-4 text-center whitespace-nowrap">
+                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-1">
                                     <!-- Detail -->
-                                    <a href="{{ route('alkes.show', $alkes->id) }}" class="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition" title="Lihat Detail">
-                                        <i class="ri-eye-line text-lg"></i>
+                                    <a href="{{ route('alkes.show', $alkes->id) }}" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded transition" title="Lihat Detail">
+                                        <i class="ri-eye-line text-base"></i>
                                     </a>
 
-                                    @if ($isMyItem || session('is_admin'))
-                                        <!-- Pindah Lokasi Alat -->
-                                        <a href="{{ route('mutasi.create', ['alkes_id' => $alkes->id]) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Pindah Lokasi Alat">
-                                            <i class="ri-arrow-left-right-line text-lg"></i>
-                                        </a>
+                                    <!-- Pindah Ruangan Alat -->
+                                    <a href="{{ route('mutasi.create', ['alkes_id' => $alkes->id]) }}" class="p-1.5 text-blue-700 hover:bg-blue-100 rounded transition" title="Pindah Ruangan Alat">
+                                        <i class="ri-arrow-left-right-line text-base"></i>
+                                    </a>
 
-                                        <!-- Lapor Perbaikan -->
-                                        <a href="{{ route('pemeliharaan.create', ['alkes_id' => $alkes->id]) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Lapor Perbaikan">
-                                            <i class="ri-tools-line text-lg"></i>
-                                        </a>
+                                    <!-- Lapor Perbaikan -->
+                                    <a href="{{ route('pemeliharaan.create', ['alkes_id' => $alkes->id]) }}" class="p-1.5 text-amber-700 hover:bg-amber-100 rounded transition" title="Lapor Perbaikan">
+                                        <i class="ri-tools-line text-base"></i>
+                                    </a>
 
-                                        <!-- Edit -->
-                                        <a href="{{ route('alkes.edit', $alkes->id) }}" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition" title="Edit Data">
-                                            <i class="ri-edit-line text-lg"></i>
-                                        </a>
-                                    @endif
+                                    <!-- Edit -->
+                                    <a href="{{ route('alkes.edit', $alkes->id) }}" class="p-1.5 text-slate-700 hover:bg-slate-200 rounded transition" title="Edit Data">
+                                        <i class="ri-edit-line text-base"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-slate-400">
+                            <td colspan="16" class="px-6 py-8 text-center text-slate-400">
                                 <i class="ri-inbox-line text-4xl block mb-2 text-slate-300"></i>
                                 Tidak ada data alat kesehatan ditemukan.
                             </td>
@@ -215,7 +394,7 @@
             </table>
         </div>
 
-        <!-- SIAKER Custom Pagination UI (30 items per page with Direct Page Jump) -->
+        <!-- SIAKER Custom Pagination UI -->
         <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
             {{ $alkesList->links() }}
         </div>

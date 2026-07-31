@@ -17,30 +17,36 @@ class Alkes extends Model
 
     protected $fillable = [
         'kode_inventaris',
-        'nomor_seri',
+        'nama_barang',
         'nomenklatur_id',
         'merk',
         'tipe',
-        'seksi_pemilik_id',
-        'lokasi_seksi_id',
+        'nomor_seri',
+        'tahun_pengadaan',
+        'jumlah',
+        'cara_perolehan',
+        'nilai_perolehan',
         'ruangan_id',
+        'lokasi_ruangan_id',
+        'lokasi_saat_ini_note',
         'status',
         'kondisi',
-        'tanggal_pengadaan',
-        'nilai_aset',
+        'aspak_status',
+        'kib_status',
         'tanggal_kalibrasi_terakhir',
         'tanggal_kalibrasi_berikutnya',
         'foto_alat',
-        'catatan',
+        'keterangan',
     ];
 
     protected $casts = [
         'status' => StatusAlkes::class,
         'kondisi' => KondisiAlkes::class,
-        'tanggal_pengadaan' => 'date',
+        'jumlah' => 'integer',
+        'nilai_perolehan' => 'decimal:2',
+        'kib_status' => 'boolean',
         'tanggal_kalibrasi_terakhir' => 'date',
         'tanggal_kalibrasi_berikutnya' => 'date',
-        'nilai_aset' => 'decimal:2',
     ];
 
     public function getStatusEnumAttribute(): StatusAlkes
@@ -64,33 +70,14 @@ class Alkes extends Model
         return $this->belongsTo(Nomenklatur::class, 'nomenklatur_id');
     }
 
-    /**
-     * Seksi Pemilik Permanen Aset (Tetap / Permanen).
-     */
-    public function seksiPemilik(): BelongsTo
-    {
-        return $this->belongsTo(Seksi::class, 'seksi_pemilik_id');
-    }
-
-    /**
-     * Alias backward-compatibility seksi -> seksiPemilik.
-     */
-    public function seksi(): BelongsTo
-    {
-        return $this->belongsTo(Seksi::class, 'seksi_pemilik_id');
-    }
-
-    /**
-     * Lokasi Fisik Keberadaan Seksi Saat Ini (Dinamis).
-     */
-    public function lokasiSeksi(): BelongsTo
-    {
-        return $this->belongsTo(Seksi::class, 'lokasi_seksi_id');
-    }
-
     public function ruangan(): BelongsTo
     {
         return $this->belongsTo(Ruangan::class, 'ruangan_id');
+    }
+
+    public function lokasiRuangan(): BelongsTo
+    {
+        return $this->belongsTo(Ruangan::class, 'lokasi_ruangan_id');
     }
 
     public function mutasi(): HasMany
@@ -103,11 +90,8 @@ class Alkes extends Model
         return $this->hasMany(LogPemeliharaan::class, 'alkes_id')->latest();
     }
 
-    /**
-     * Mengecek apakah unit alkes sedang dipindahkan/dipinjamkan di luar seksi pemiliknya.
-     */
     public function getIsDipindahkanAttribute(): bool
     {
-        return $this->seksi_pemilik_id !== $this->lokasi_seksi_id;
+        return $this->ruangan_id !== $this->lokasi_ruangan_id;
     }
 }

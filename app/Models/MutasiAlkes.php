@@ -14,8 +14,6 @@ class MutasiAlkes extends Model
 
     protected $fillable = [
         'alkes_id',
-        'seksi_asal_id',
-        'seksi_tujuan_id',
         'ruangan_asal_id',
         'ruangan_tujuan_id',
         'tanggal_mutasi',
@@ -32,16 +30,6 @@ class MutasiAlkes extends Model
     public function alkes(): BelongsTo
     {
         return $this->belongsTo(Alkes::class, 'alkes_id');
-    }
-
-    public function seksiAsal(): BelongsTo
-    {
-        return $this->belongsTo(Seksi::class, 'seksi_asal_id');
-    }
-
-    public function seksiTujuan(): BelongsTo
-    {
-        return $this->belongsTo(Seksi::class, 'seksi_tujuan_id');
     }
 
     public function ruanganAsal(): BelongsTo

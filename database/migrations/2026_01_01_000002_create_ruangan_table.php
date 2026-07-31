@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('ruangan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('seksi_id')->constrained('seksi')->onDelete('cascade');
             $table->string('kode_ruangan')->unique();
-            $table->string('nama_ruangan');
+            $table->string('nama_ruangan')->index();
             $table->string('lokasi_lantai')->nullable();
+            $table->string('penanggung_jawab')->nullable();
             $table->timestamps();
         });
     }

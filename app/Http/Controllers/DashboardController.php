@@ -8,8 +8,7 @@ use App\Models\ActivityLog;
 use App\Models\Alkes;
 use App\Models\LogPemeliharaan;
 use App\Models\MutasiAlkes;
-use App\Models\Nomenklatur;
-use App\Models\Seksi;
+use App\Models\Ruangan;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -24,55 +23,56 @@ class DashboardController extends Controller
             ->count();
         $alkesKalibrasi = Alkes::where('status', StatusAlkes::PROSES_KALIBRASI->value)->count();
 
-        // Rekap per Seksi Pemilik
-        $seksiList = Seksi::withCount(['alkes', 'alkes as alkes_digunakan_count' => function ($q) {
+        // Rekap per Ruangan RS Diurutkan Berdasarkan Abjad Nama Ruangan (A-Z)
+        $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_digunakan_count' => function ($q) {
             $q->where('status', StatusAlkes::SEDANG_DIGUNAKAN->value);
         }, 'alkes as alkes_rusak_count' => function ($q) {
-            $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value);
-        }])->get();
+            $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
+              ->orWhere('kondisi', KondisiAlkes::RUSAK_BERAT->value);
+        }])->orderBy('nama_ruangan', 'asc')->get();
 
-        // Mutasi Terbaru
-        $mutasiTerbaru = MutasiAlkes::with(['alkes.nomenklatur', 'seksiAsal', 'seksiTujuan'])
+        // Mutasi / Pindah Ruangan Terbaru
+        $mutasiTerbaru = MutasiAlkes::with(['alkes', 'ruanganAsal', 'ruanganTujuan'])
             ->latest()
-            ->take(5)
+            ->take(6)
             ->get();
 
         // Log Perbaikan Terbaru
-        $logPerbaikanTerbaru = LogPemeliharaan::with(['alkes.nomenklatur', 'alkes.seksiPemilik'])
+        $logPerbaikanTerbaru = LogPemeliharaan::with(['alkes.ruangan'])
             ->latest()
             ->take(5)
             ->get();
 
-        // Data Grafik Analytics Chart.js
+        // Data Grafik Analytics Chart.js Status
         $chartStatusData = [
             'Tersedia' => $alkesTersedia,
             'Sedang Digunakan' => $alkesDigunakan,
             'Dalam Perbaikan' => $alkesRusak,
         ];
 
-        $chartSeksiLabels = [];
+        // Grafik Kondisi per Ruangan RS (Diurutkan Abjad A-Z)
+        $chartRuanganLabels = [];
         $chartKondisiBaik = [];
         $chartKondisiRusak = [];
 
-        foreach ($seksiList as $seksi) {
-            $chartSeksiLabels[] = str_replace('Seksi ', '', $seksi->nama_seksi);
-            $chartKondisiBaik[] = Alkes::where('seksi_pemilik_id', $seksi->id)->where('kondisi', KondisiAlkes::BAIK->value)->count();
-            $chartKondisiRusak[] = Alkes::where('seksi_pemilik_id', $seksi->id)->where('kondisi', '!=', KondisiAlkes::BAIK->value)->count();
+        foreach ($ruanganList->take(12) as $ruang) {
+            $chartRuanganLabels[] = $ruang->nama_ruangan;
+            $chartKondisiBaik[] = Alkes::where('ruangan_id', $ruang->id)->where('kondisi', KondisiAlkes::BAIK->value)->count();
+            $chartKondisiRusak[] = Alkes::where('ruangan_id', $ruang->id)->where('kondisi', '!=', KondisiAlkes::BAIK->value)->count();
         }
 
-        // Grafik Kategori Nomenklatur (Jumlah Alat per Kategori Medis)
-        $kategoriData = DB::table('alkes')
-            ->join('nomenklatur', 'alkes.nomenklatur_id', '=', 'nomenklatur.id')
-            ->select('nomenklatur.kategori', DB::raw('count(alkes.id) as total'))
-            ->groupBy('nomenklatur.kategori')
+        // Grafik Sumber Perolehan (DAK, APBD, BLUD, HIBAH, Beli Sendiri)
+        $perolehanData = DB::table('alkes')
+            ->select('cara_perolehan', DB::raw('count(id) as total'))
+            ->groupBy('cara_perolehan')
             ->orderBy('total', 'desc')
             ->get();
 
-        $chartKategoriLabels = [];
-        $chartKategoriCounts = [];
-        foreach ($kategoriData as $kat) {
-            $chartKategoriLabels[] = $kat->kategori ?? 'Lainnya';
-            $chartKategoriCounts[] = $kat->total;
+        $chartPerolehanLabels = [];
+        $chartPerolehanCounts = [];
+        foreach ($perolehanData as $p) {
+            $chartPerolehanLabels[] = $p->cara_perolehan ?: 'Pengadaan RS';
+            $chartPerolehanCounts[] = $p->total;
         }
 
         // Recent Audit Trail Activity Logs
@@ -84,15 +84,15 @@ class DashboardController extends Controller
             'alkesDigunakan',
             'alkesRusak',
             'alkesKalibrasi',
-            'seksiList',
+            'ruanganList',
             'mutasiTerbaru',
             'logPerbaikanTerbaru',
             'chartStatusData',
-            'chartSeksiLabels',
+            'chartRuanganLabels',
             'chartKondisiBaik',
             'chartKondisiRusak',
-            'chartKategoriLabels',
-            'chartKategoriCounts',
+            'chartPerolehanLabels',
+            'chartPerolehanCounts',
             'recentActivityLogs'
         ));
     }

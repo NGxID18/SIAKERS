@@ -13,30 +13,17 @@ class ActivityLog extends Model
 
     protected $fillable = [
         'user_role',
-        'seksi_name',
+        'ruangan_name',
         'action',
         'description',
         'ip_address',
     ];
 
-    /**
-     * Helper statis untuk mencatat log aktivitas pengguna.
-     */
-    public static function record(string $action, string $description): self
+    public static function record(string $action, string $description, ?string $ruanganName = null): self
     {
-        $roleName = 'Seksi Operasional';
-        if (session('is_admin')) {
-            $roleName = 'Admin System';
-        } elseif (session('user_role') === 'tata_usaha') {
-            $roleName = 'Tata Usaha RS';
-        }
-
-        $seksiObj = Seksi::find(session('user_seksi_id', 1));
-        $seksiName = $seksiObj ? $seksiObj->nama_seksi : 'RS Central';
-
         return self::create([
-            'user_role' => $roleName,
-            'seksi_name' => $seksiName,
+            'user_role' => session('user_role', 'Petugas RS'),
+            'ruangan_name' => $ruanganName ?? session('user_ruangan_name', 'RS Central'),
             'action' => $action,
             'description' => $description,
             'ip_address' => request()->ip() ?? '127.0.0.1',
