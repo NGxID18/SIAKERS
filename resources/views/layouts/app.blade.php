@@ -110,12 +110,11 @@
                 <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT (SIAKER)</h2>
             </div>
 
-            <!-- Header Action Controls: Notification Bell & Role Switcher -->
-            <div class="flex items-center gap-3">
+            <!-- Header Action Controls: Notification Bell, Role Switcher, & Logout -->
+            <div class="flex items-center gap-2.5">
 
                 <!-- Role Switcher -->
                 <div class="relative inline-block text-left">
-                    <span class="text-xs text-slate-500 font-medium mr-1 hidden sm:inline">Peran Aktif:</span>
                     @if ($currentRole === 'elektromedis')
                         <a href="{{ route('switch-role', 'ruangan') }}" class="px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold hover:bg-amber-100 transition inline-flex items-center gap-1.5" title="Klik untuk beralih peran ke Petugas Ruangan Operasional">
                             <i class="ri-shield-user-fill text-amber-600 text-sm"></i>
@@ -176,6 +175,15 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Keluar / Logout Button -->
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 hover:text-rose-800 transition flex items-center gap-1" title="Keluar dari Aplikasi SIAKER">
+                        <i class="ri-logout-box-r-line text-lg"></i>
+                        <span class="text-xs font-bold hidden md:inline">Keluar</span>
+                    </button>
+                </form>
 
             </div>
         </header>

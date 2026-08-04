@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AlkesController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LogPemeliharaanController;
 use App\Http\Controllers\MutasiAlkesController;
@@ -14,23 +15,27 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Redirect login ke Dashboard Utama
-Route::get('/login', function () {
-    return redirect()->route('dashboard');
-})->name('login');
+// Auth Routes (Login Tanpa Password & Logout)
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::post('/login', function () {
-    return redirect()->route('dashboard');
-});
-
-Route::post('/logout', function () {
-    return redirect()->route('dashboard');
-})->name('logout');
-
-// Role Switcher untuk Pengujian Simulasi Elektromedis vs Petugas Ruangan
+// Role Switcher untuk Pengujian Cepat Elektromedis vs Petugas Ruangan
 Route::get('/switch-role/{role}', function ($role) {
-    session(['user_role' => $role]);
-    return redirect()->back()->with('success', 'Peran aktif diubah ke: ' . ($role === 'elektromedis' ? 'Ruangan Elektromedis (Admin SIAKER)' : 'Petugas Ruangan Operasional'));
+    if ($role === 'elektromedis') {
+        session([
+            'user_role' => 'elektromedis',
+            'user_role_label' => 'Ruangan Elektromedis (Admin SIAKER)',
+            'user_ruangan_name' => 'Elektromedis',
+        ]);
+    } else {
+        session([
+            'user_role' => 'ruangan',
+            'user_role_label' => 'Petugas Ruangan Operasional',
+            'user_ruangan_name' => 'Ruangan Operasional',
+        ]);
+    }
+    return redirect()->back()->with('success', 'Peran diubah ke: ' . session('user_role_label'));
 })->name('switch-role');
 
 // Web Pages (Rate Limit: 60 req/min)

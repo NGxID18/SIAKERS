@@ -9,37 +9,43 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        $ruanganList = Ruangan::all();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
         return view('auth.login', compact('ruanganList'));
     }
 
     public function login(Request $request)
     {
-        $role = $request->input('role', 'ruangan');
-        $ruanganId = (int) $request->input('ruangan_id', 1);
+        $validated = $request->validate([
+            'role' => 'required|string|in:elektromedis,ruangan,tata_usaha',
+            'ruangan_id' => 'nullable|integer|exists:ruangan,id',
+        ]);
 
-        if ($role === 'admin') {
+        $role = $validated['role'];
+
+        if ($role === 'elektromedis') {
+            $elektromedisRuang = Ruangan::where('nama_ruangan', 'Elektromedis')->first();
             session([
-                'is_admin' => true,
-                'user_role' => 'Administrator System',
-                'user_ruangan_id' => 0,
-                'user_ruangan_name' => 'RS Central (Admin)',
+                'user_role' => 'elektromedis',
+                'user_role_label' => 'Ruangan Elektromedis (Admin SIAKER)',
+                'user_ruangan_id' => $elektromedisRuang ? $elektromedisRuang->id : 1,
+                'user_ruangan_name' => 'Elektromedis',
             ]);
-            $msg = 'Berhasil masuk sebagai Administrator System SIAKER RS.';
+            $msg = 'Berhasil masuk sebagai Ruangan Elektromedis (Admin Utama SIAKER).';
         } elseif ($role === 'tata_usaha') {
             session([
-                'is_admin' => false,
-                'user_role' => 'Tata Usaha RS',
+                'user_role' => 'tata_usaha',
+                'user_role_label' => 'Tata Usaha / Direksi (Read-Only)',
                 'user_ruangan_id' => 0,
-                'user_ruangan_name' => 'Tata Usaha / Direksi RS',
+                'user_ruangan_name' => 'Direksi & Tata Usaha',
             ]);
-            $msg = 'Berhasil masuk sebagai Tata Usaha RS (Read-Only).';
+            $msg = 'Berhasil masuk sebagai Tata Usaha / Direksi (Pengawasan Read-Only).';
         } else {
+            $ruanganId = (int) ($validated['ruangan_id'] ?? 1);
             $ruangan = Ruangan::find($ruanganId);
-            $namaRuangan = $ruangan->nama_ruangan ?? 'Ruangan RS';
+            $namaRuangan = $ruangan ? $ruangan->nama_ruangan : 'Ruangan Operasional';
             session([
-                'is_admin' => false,
-                'user_role' => 'Petugas Ruangan',
+                'user_role' => 'ruangan',
+                'user_role_label' => "Petugas Ruangan {$namaRuangan}",
                 'user_ruangan_id' => $ruanganId,
                 'user_ruangan_name' => $namaRuangan,
             ]);
@@ -51,7 +57,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        session()->forget(['is_admin', 'user_role', 'user_ruangan_id', 'user_ruangan_name']);
-        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar dari sistem SIAKER RS.');
+        session()->forget(['user_role', 'user_role_label', 'user_ruangan_id', 'user_ruangan_name']);
+        return redirect()->route('login')->with('success', 'Anda telah keluar dari aplikasi SIAKER.');
     }
 }

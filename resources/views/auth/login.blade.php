@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAKER - Sistem Inventaris Alat Kesehatan Rumah Sakit</title>
+    <title>Masuk Sistem - SIAKER (Sistem Inventaris Alat Kesehatan)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,8 +30,8 @@
             border: 1.5px solid #0d9488 !important;
             border-radius: 1rem !important;
             padding: 0.75rem 1rem !important;
-            font-size: 0.875rem !important;
-            font-weight: 700 !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
             color: #ffffff !important;
         }
         .ts-wrapper.dropdown-active .ts-control {
@@ -51,8 +51,8 @@
         .ts-dropdown .option {
             padding: 0.65rem 1rem !important;
             color: #e2e8f0 !important;
-            font-size: 0.875rem !important;
-            font-weight: 600 !important;
+            font-size: 0.925rem !important;
+            font-weight: 500 !important;
         }
         .ts-dropdown .option:hover, 
         .ts-dropdown .option.active {
@@ -66,7 +66,7 @@
 </head>
 <body class="h-full flex items-center justify-center p-4">
 
-    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+    <div class="w-full max-w-md bg-slate-900/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
 
         <div class="text-center space-y-2">
             <div class="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-teal-500/30">
@@ -80,50 +80,53 @@
             @csrf
 
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Peran Login Anda:</label>
+                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Pilih Otoritas Login Anda (Tanpa Password):</label>
 
-                <div class="grid grid-cols-1 gap-2.5">
-                    <!-- Option 1: Petugas Ruangan -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
-                        <input type="radio" name="role" value="ruangan" checked onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                <div class="grid grid-cols-1 gap-3">
+                    
+                    <!-- Option 1: Ruangan Elektromedis (Admin SIAKER) -->
+                    <label class="role-card flex items-center gap-3 p-4 bg-slate-950 border border-teal-500/40 rounded-2xl cursor-pointer hover:border-teal-400 transition">
+                        <input type="radio" name="role" value="elektromedis" checked onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-teal-300 text-sm sm:text-base">Petugas Ruangan</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Kelola & edit inventaris ruangan sendiri</p>
+                            <p class="font-bold text-teal-300 text-base">Ruangan Elektromedis (Admin)</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Otoritas perbaikan, notifikasi, & pengembalian unit alkes</p>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Petugas Ruangan Operasional -->
+                    <label class="role-card flex items-center gap-3 p-4 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50 transition">
+                        <input type="radio" name="role" value="ruangan" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                        <div>
+                            <p class="font-bold text-white text-base">Petugas Ruangan Operasional</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Pelaporan barang rusak & mutasi alkes ruangan</p>
                         </div>
                     </label>
 
                     <!-- Dynamic Ruangan Select Dropdown -->
-                    <div id="ruanganDropdownContainer" class="pl-2 pt-1 pb-1 space-y-1.5">
-                        <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan:</label>
-                        <select id="ruanganSelect" name="ruangan_id" class="w-full px-4 py-3.5 bg-slate-950 border border-teal-500/50 rounded-2xl text-sm font-semibold text-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all shadow-inner">
+                    <div id="ruanganDropdownContainer" class="pl-2 pt-1 pb-1 space-y-1.5 hidden">
+                        <label class="block text-xs font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan Operasional Anda:</label>
+                        <select id="ruanganSelect" name="ruangan_id" class="w-full">
                             @foreach ($ruanganList as $ruang)
-                                <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }} ({{ $ruang->lokasi_lantai ?? 'Lantai Penempatan' }})</option>
+                                @if ($ruang->nama_ruangan !== 'Elektromedis')
+                                    <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- Option 2: Admin System -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
-                        <input type="radio" name="role" value="admin" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
-                        <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Administrator System</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Akses penuh kelola seluruh data</p>
-                        </div>
-                    </label>
-
-                    <!-- Option 3: Tata Usaha -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50">
+                    <!-- Option 3: Tata Usaha / Direksi -->
+                    <label class="role-card flex items-center gap-3 p-4 bg-slate-950 border border-slate-800 rounded-2xl cursor-pointer hover:border-teal-500/50 transition">
                         <input type="radio" name="role" value="tata_usaha" onchange="toggleRuanganDropdown()" class="w-5 h-5 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Tata Usaha / Direksi</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Pengawasan rekapitulasi (Read-Only)</p>
+                            <p class="font-bold text-white text-base">Tata Usaha / Direksi</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Pengawasan rekapitulasi inventaris (Read-Only)</p>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="w-full py-3.5 bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-teal-500/30 transition flex items-center justify-center gap-2 mt-4">
-                <i class="ri-login-box-line text-lg"></i>
+            <button type="submit" class="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-base rounded-2xl shadow-lg shadow-teal-600/30 transition flex items-center justify-center gap-2 mt-4">
+                <i class="ri-login-box-line text-xl"></i>
                 Masuk ke Aplikasi SIAKER
             </button>
         </form>
