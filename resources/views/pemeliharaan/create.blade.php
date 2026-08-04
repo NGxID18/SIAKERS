@@ -58,8 +58,16 @@
             <i class="ri-arrow-left-line text-xl"></i>
         </a>
         <div>
-            <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight">Formulir Lapor Perbaikan & Kalibrasi</h3>
-            <p class="text-base text-slate-600 mt-1 font-normal">Catat tindakan pemeliharaan medis, perbaikan teknis, atau kalibrasi BPFK</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight">Formulir Lapor Perbaikan & Kerusakan</h3>
+            <p class="text-base text-slate-600 mt-1 font-normal">Laporkan unit alkes yang membutuhkan perbaikan ke Ruangan Elektromedis</p>
+        </div>
+    </div>
+
+    <!-- Banner Info Otomatisasi -->
+    <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-amber-900 text-sm font-normal flex items-start gap-3">
+        <i class="ri-information-line text-xl text-amber-600 shrink-0 mt-0.5"></i>
+        <div>
+            <strong>Pemberitahuan Otomatisasi Mutasi:</strong> Memproses laporan ini akan <strong>secara otomatis memindahkan lokasi fisik unit ke Ruangan Elektromedis</strong> dan mengirim notifikasi laporan masuk. Unit akan dikembalikan oleh Elektromedis setelah selesai diperbaiki.
         </div>
     </div>
 
@@ -68,9 +76,9 @@
 
         <!-- Pilih Alkes dengan TomSelect Searchable Dropdown -->
         <div>
-            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Pilih Alat Kesehatan <span class="text-rose-500">*</span></label>
+            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Pilih Alat Kesehatan Yang Rusak <span class="text-rose-500">*</span></label>
             <select id="selectAlkesPemeliharaan" name="alkes_id" required>
-                <option value="">-- Ketik Nama Barang, SN, atau Ruangan --</option>
+                <option value="">-- Ketik Nama Barang, SN, atau Ruangan Asal --</option>
                 @foreach ($alkesList as $alkes)
                     <option value="{{ $alkes->id }}" {{ $selectedAlkesId == $alkes->id ? 'selected' : '' }}>
                         {{ $alkes->nama_barang }} (SN: {{ $alkes->nomor_seri ?? '-' }}) - Ruangan: {{ $alkes->ruangan->nama_ruangan ?? 'Penempatan' }}
@@ -85,59 +93,38 @@
             <div>
                 <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Jenis Tindakan <span class="text-rose-500">*</span></label>
                 <select name="jenis_tindakan" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500">
-                    <option value="Perbaikan">Perbaikan Kerusakan</option>
-                    <option value="Kalibrasi">Kalibrasi Tahunan BPFK</option>
-                    <option value="Pemeliharaan Rutin">Pemeliharaan Rutin ATEM</option>
+                    <option value="Perbaikan Kerusakan">Perbaikan Kerusakan Alat</option>
+                    <option value="Kalibrasi BPFK">Kalibrasi Tahunan BPFK</option>
+                    <option value="Pemeliharaan Rutin ATEM">Pemeliharaan Rutin ATEM</option>
                 </select>
             </div>
 
             <!-- Pelaksana / Vendor -->
             <div>
-                <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Pelaksana / Vendor</label>
-                <input type="text" name="pelaksana_vendor" value="{{ old('pelaksana_vendor') }}" placeholder="Teknisi ATEM / Vendor PT. Medika" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">
+                <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Pelaksana / Vendor (Opsional)</label>
+                <input type="text" name="pelaksana_vendor" value="{{ old('pelaksana_vendor') }}" placeholder="Teknisi Elektromedis RS / Vendor PT Medika" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">
             </div>
 
-            <!-- Tanggal Mulai -->
-            <div>
-                <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Tanggal Mulai <span class="text-rose-500">*</span></label>
+            <!-- Tanggal Mulai Lapor -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Tanggal Lapor Kerusakan <span class="text-rose-500">*</span></label>
                 <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai', date('Y-m-d')) }}" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">
-            </div>
-
-            <!-- Tanggal Selesai -->
-            <div>
-                <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Tanggal Selesai (Opsional)</label>
-                <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">
             </div>
 
         </div>
 
         <!-- Deskripsi Kerusakan -->
         <div>
-            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Deskripsi Kerusakan / Gejala</label>
-            <textarea name="deskripsi_kerusakan" rows="2" placeholder="Jelaskan gejala kerusakan atau indikasi kelainan pada alat..." class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">{{ old('deskripsi_kerusakan') }}</textarea>
-        </div>
-
-        <!-- Tindakan Perbaikan -->
-        <div>
-            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Tindakan Perbaikan / Solusi</label>
-            <textarea name="tindakan_perbaikan" rows="2" placeholder="Jelaskan perbaikan yang dilakukan (misal: penggantian sparepart, perapian kabel, dll)..." class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">{{ old('tindakan_perbaikan') }}</textarea>
-        </div>
-
-        <!-- Status Hasil -->
-        <div>
-            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Status Hasil Perbaikan <span class="text-rose-500">*</span></label>
-            <select name="status_hasil" required class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-semibold text-slate-900 focus:ring-2 focus:ring-amber-500">
-                <option value="Selesai">Selesai (Alat Siap Digunakan Kembali)</option>
-                <option value="Proses">Dalam Proses Perbaikan</option>
-            </select>
+            <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Deskripsi Kerusakan / Indikasi Kelainan <span class="text-rose-500">*</span></label>
+            <textarea name="deskripsi_kerusakan" rows="3" required placeholder="Jelaskan gejala kerusakan pada alat ini (misal: layar mati, pompa macet, alarm eror)..." class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-base font-normal focus:ring-2 focus:ring-amber-500">{{ old('deskripsi_kerusakan') }}</textarea>
         </div>
 
         <!-- Buttons -->
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <a href="{{ route('pemeliharaan.index') }}" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-base rounded-xl transition">Batal</a>
             <button type="submit" class="px-7 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-base rounded-xl shadow-lg shadow-amber-600/30 transition flex items-center gap-2">
-                <i class="ri-check-double-line text-xl"></i>
-                Simpan Log Perbaikan
+                <i class="ri-send-plane-fill text-xl"></i>
+                Kirim Laporan & Pindahkan Unit ke Elektromedis
             </button>
         </div>
 
@@ -149,7 +136,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         new TomSelect('#selectAlkesPemeliharaan', {
             create: false,
-            placeholder: 'Ketik nama barang, SN, atau ruangan...',
+            placeholder: 'Ketik nama barang, SN, atau ruangan asal...',
             maxOptions: 100,
         });
     });

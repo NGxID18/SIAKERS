@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('kode_ruangan')->unique();
             $table->string('nama_ruangan')->index();
-            $table->string('lokasi_lantai')->nullable();
             $table->string('penanggung_jawab')->nullable();
             $table->timestamps();
         });

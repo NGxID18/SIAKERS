@@ -8,12 +8,10 @@ class RuanganController extends Controller
 {
     public function index()
     {
-        $ruanganGrouped = Ruangan::withCount('alkes')
-            ->orderBy('lokasi_lantai', 'asc')
+        $ruanganList = Ruangan::withCount('alkes')
             ->orderBy('nama_ruangan', 'asc')
-            ->get()
-            ->groupBy('lokasi_lantai');
+            ->get();
 
-        return view('ruangan.index', compact('ruanganGrouped'));
+        return view('ruangan.index', compact('ruanganList'));
     }
 }

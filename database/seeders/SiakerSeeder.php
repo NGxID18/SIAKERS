@@ -13,37 +13,38 @@ class SiakerSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Pemetaan 24 Ruangan Asli Dokumen RS (100% Sesuai Data Asli)
+        // 1. Pemetaan Ruangan Master Dokumen RS + Ruangan Elektromedis (Admin Utama SIAKER)
         $ruanganData = [
-            ['nama' => 'CSSD', 'kode' => 'R-CSSD', 'lantai' => 'Lantai 1 Gedung B'],
-            ['nama' => 'Laboratorium', 'kode' => 'R-LAB', 'lantai' => 'Lantai 1 Gedung B'],
-            ['nama' => 'Radiologi', 'kode' => 'R-RAD', 'lantai' => 'Lantai 1 Gedung A'],
-            ['nama' => 'UTD', 'kode' => 'R-UTD', 'lantai' => 'Lantai 1 Gedung B'],
-            ['nama' => 'MCU', 'kode' => 'R-MCU', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'G. Penunjang', 'kode' => 'R-PENUNJANG', 'lantai' => 'Lantai 2 Gedung B'],
+            ['nama' => 'Elektromedis', 'kode' => 'R-ELEKTROMEDIS'],
+            ['nama' => 'CSSD', 'kode' => 'R-CSSD'],
+            ['nama' => 'Laboratorium', 'kode' => 'R-LAB'],
+            ['nama' => 'Radiologi', 'kode' => 'R-RAD'],
+            ['nama' => 'UTD', 'kode' => 'R-UTD'],
+            ['nama' => 'MCU', 'kode' => 'R-MCU'],
+            ['nama' => 'G. Penunjang', 'kode' => 'R-PENUNJANG'],
 
-            ['nama' => 'IGD', 'kode' => 'R-IGD', 'lantai' => 'Lantai 1 Gedung Utama'],
-            ['nama' => 'OK', 'kode' => 'R-OK', 'lantai' => 'Lantai 2 Gedung Utama'],
-            ['nama' => 'Poli Anak', 'kode' => 'R-POLI-ANAK', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli Bedah', 'kode' => 'R-POLI-BEDAH', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli gigi', 'kode' => 'R-POLI-GIGI', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli Jantung', 'kode' => 'R-POLI-JANTUNG', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli Kebidanan', 'kode' => 'R-POLI-KEBIDANAN', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli Mata', 'kode' => 'R-POLI-MATA', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'Poli Penyakit Dalam', 'kode' => 'R-POLI-PDALAM', 'lantai' => 'Lantai 2 Gedung B'],
-            ['nama' => 'THT', 'kode' => 'R-THT', 'lantai' => 'Lantai 2 Gedung B'],
+            ['nama' => 'IGD', 'kode' => 'R-IGD'],
+            ['nama' => 'OK', 'kode' => 'R-OK'],
+            ['nama' => 'Poli Anak', 'kode' => 'R-POLI-ANAK'],
+            ['nama' => 'Poli Bedah', 'kode' => 'R-POLI-BEDAH'],
+            ['nama' => 'Poli gigi', 'kode' => 'R-POLI-GIGI'],
+            ['nama' => 'Poli Jantung', 'kode' => 'R-POLI-JANTUNG'],
+            ['nama' => 'Poli Kebidanan', 'kode' => 'R-POLI-KEBIDANAN'],
+            ['nama' => 'Poli Mata', 'kode' => 'R-POLI-MATA'],
+            ['nama' => 'Poli Penyakit Dalam', 'kode' => 'R-POLI-PDALAM'],
+            ['nama' => 'THT', 'kode' => 'R-THT'],
 
-            ['nama' => 'Irna Anak', 'kode' => 'R-IRNA-ANAK', 'lantai' => 'Lantai 3 Gedung A'],
-            ['nama' => 'Irna Bedah', 'kode' => 'R-IRNA-BEDAH', 'lantai' => 'Lantai 3 Gedung B'],
-            ['nama' => 'Irna Penyakit Dalam', 'kode' => 'R-IRNA-PDALAM', 'lantai' => 'Lantai 3 Gedung B'],
-            ['nama' => 'Irna Perinatology', 'kode' => 'R-IRNA-PERI', 'lantai' => 'Lantai 2 Gedung A'],
-            ['nama' => 'VK', 'kode' => 'R-VK', 'lantai' => 'Lantai 2 Gedung A'],
+            ['nama' => 'Irna Anak', 'kode' => 'R-IRNA-ANAK'],
+            ['nama' => 'Irna Bedah', 'kode' => 'R-IRNA-BEDAH'],
+            ['nama' => 'Irna Penyakit Dalam', 'kode' => 'R-IRNA-PDALAM'],
+            ['nama' => 'Irna Perinatology', 'kode' => 'R-IRNA-PERI'],
+            ['nama' => 'VK', 'kode' => 'R-VK'],
 
-            ['nama' => 'ICU', 'kode' => 'R-ICU', 'lantai' => 'Lantai 3 Gedung Utama'],
+            ['nama' => 'ICU', 'kode' => 'R-ICU'],
 
-            ['nama' => 'Fisioterapi', 'kode' => 'R-FISIO', 'lantai' => 'Lantai 1 Gedung C'],
+            ['nama' => 'Fisioterapi', 'kode' => 'R-FISIO'],
 
-            ['nama' => 'Hemodialisa', 'kode' => 'R-HEMO', 'lantai' => 'Basemen Gedung B'],
+            ['nama' => 'Hemodialisa', 'kode' => 'R-HEMO'],
         ];
 
         $ruanganModels = [];
@@ -52,7 +53,6 @@ class SiakerSeeder extends Seeder
                 ['nama_ruangan' => $r['nama']],
                 [
                     'kode_ruangan' => $r['kode'],
-                    'lokasi_lantai' => $r['lantai'],
                 ]
             );
         }
@@ -291,7 +291,7 @@ class SiakerSeeder extends Seeder
             $kib = $row[12] ?: false;
             $ket = $row[13];
 
-            // Map Ruangan RS
+            // Map Ruangan
             if (isset($ruanganModels[$ruangName])) {
                 $rObj = $ruanganModels[$ruangName];
                 $ruanganId = $rObj->id;
@@ -340,8 +340,5 @@ class SiakerSeeder extends Seeder
 
             $globalCounter++;
         }
-
-        // CATATAN: DUMMY MUTASI, DUMMY LOG PEMELIHARAAN & DUMMY ACTIVITY LOG TELAH DIHAPUS SEPENUHNYA.
-        // TABEL TRANSAKSI MUTASI & PERBAIKAN AKAN KOSONG / MURNI SAMPAI PETUGAS RS MELAKUKAN INPUT REAL.
     }
 }

@@ -23,6 +23,12 @@
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col">
 
+    @php
+        $currentRole = session('user_role', 'elektromedis');
+        $unreadNotifCount = \App\Models\Notification::where('dibaca', false)->count();
+        $recentNotifs = \App\Models\Notification::with('ruanganAsal')->latest()->take(5)->get();
+    @endphp
+
     <!-- Mobile Drawer Overlay -->
     <div id="mobileSidebarOverlay" onclick="closeMobileSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity duration-300"></div>
 
@@ -59,7 +65,14 @@
 
                 <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
                     <i class="ri-tools-line text-xl"></i>
-                    <span>Perbaikan & Kalibrasi</span>
+                    <div class="flex items-center justify-between w-full">
+                        <span>Perbaikan & Kalibrasi</span>
+                        @if ($unreadNotifCount > 0)
+                            <span class="px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full animate-pulse">
+                                {{ $unreadNotifCount }}
+                            </span>
+                        @endif
+                    </div>
                 </a>
 
                 <!-- MASTER DATA -->
@@ -89,12 +102,81 @@
 
     <div class="md:ml-72 min-h-screen flex flex-col flex-1 bg-slate-50">
         <!-- Top Right Header -->
-        <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-20">
+        <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
             <div class="flex items-center gap-3">
                 <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none" title="Buka Menu Navigasi">
                     <i class="ri-menu-line text-xl"></i>
                 </button>
-                <h2 class="font-extrabold text-slate-800 text-base tracking-tight">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT (SIAKER)</h2>
+                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT (SIAKER)</h2>
+            </div>
+
+            <!-- Header Action Controls: Notification Bell & Role Switcher -->
+            <div class="flex items-center gap-3">
+
+                <!-- Role Switcher -->
+                <div class="relative inline-block text-left">
+                    <span class="text-xs text-slate-500 font-medium mr-1 hidden sm:inline">Peran Aktif:</span>
+                    @if ($currentRole === 'elektromedis')
+                        <a href="{{ route('switch-role', 'ruangan') }}" class="px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold hover:bg-amber-100 transition inline-flex items-center gap-1.5" title="Klik untuk beralih peran ke Petugas Ruangan Operasional">
+                            <i class="ri-shield-user-fill text-amber-600 text-sm"></i>
+                            <span>Ruangan Elektromedis (Admin)</span>
+                            <i class="ri-arrow-down-s-line text-slate-400"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('switch-role', 'elektromedis') }}" class="px-3 py-1.5 bg-teal-50 text-teal-900 border border-teal-300 rounded-xl text-xs font-bold hover:bg-teal-100 transition inline-flex items-center gap-1.5" title="Klik untuk beralih peran ke Ruangan Elektromedis Admin">
+                            <i class="ri-hospital-line text-teal-600 text-sm"></i>
+                            <span>Petugas Ruangan Operasional</span>
+                            <i class="ri-arrow-down-s-line text-slate-400"></i>
+                        </a>
+                    @endif
+                </div>
+
+                <!-- Notification Bell Center -->
+                <div class="relative">
+                    <button type="button" onclick="toggleNotificationDropdown()" class="relative p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition focus:outline-none">
+                        <i class="ri-notification-3-line text-xl"></i>
+                        @if ($unreadNotifCount > 0)
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                                {{ $unreadNotifCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Dropdown Box -->
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50">
+                        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                            <h4 class="font-bold text-sm flex items-center gap-2">
+                                <i class="ri-notification-3-line text-teal-400"></i>
+                                Notifikasi Laporan Perbaikan
+                            </h4>
+                            @if ($unreadNotifCount > 0)
+                                <form method="POST" action="{{ route('notifications.read-all') }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-teal-400 hover:underline">Tandai Dibaca</button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse ($recentNotifs as $n)
+                                <div class="p-3.5 hover:bg-slate-50 transition {{ !$n->dibaca ? 'bg-amber-50/50' : '' }}">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-bold text-xs text-slate-900 truncate">{{ $n->judul }}</span>
+                                        <span class="text-[10px] text-slate-400 shrink-0">{{ $n->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ $n->pesan }}</p>
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi laporan perbaikan.</p>
+                            @endforelse
+                        </div>
+
+                        <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('pemeliharaan.index') }}" class="text-xs font-bold text-teal-600 hover:underline">Lihat Semua Laporan Perbaikan &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </header>
 
@@ -125,6 +207,11 @@
         function closeMobileSidebar() {
             document.getElementById('sidebarDrawer').classList.add('-translate-x-full');
             document.getElementById('mobileSidebarOverlay').classList.add('hidden');
+        }
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
         }
     </script>
 </body>
