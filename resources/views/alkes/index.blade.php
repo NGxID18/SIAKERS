@@ -80,7 +80,7 @@
             </h3>
             <p class="text-base text-slate-600 mt-1 font-normal">
                 @if ($selectedRuanganObj)
-                    Menampilkan daftar seluruh unit alat kesehatan <strong>RUANG {{ strtoupper($selectedRuanganObj->nama_ruangan) }}</strong>
+                    Menampilkan daftar seluruh unit alat kesehatan milik <strong>RUANG {{ strtoupper($selectedRuanganObj->nama_ruangan) }}</strong>
                 @else
                     Kelola dan tinjau seluruh rekapan data alat kesehatan, kondisi fisik, dan lokasi penempatan unit
                 @endif
@@ -126,7 +126,7 @@
         </form>
     </div>
 
-    <!-- CARD 2: PENYARINGAN RINGKAS (3 DROPDOWN SPACIOUS GRID + CLEAN BOTTOM ACTION BUTTONS) -->
+    <!-- CARD 2: PENYARINGAN RINGKAS -->
     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <label class="block text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
             <i class="ri-filter-3-line text-teal-600 text-lg"></i>
@@ -148,11 +148,11 @@
             <!-- 3 Equal Width Spacious Dropdown Columns -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 
-                <!-- Filter 1: Ruangan -->
+                <!-- Filter 1: Ruangan Pemilik / Penempatan -->
                 <div class="w-full">
-                    <label class="block text-sm font-semibold text-slate-800 mb-1.5">Ruangan</label>
+                    <label class="block text-sm font-semibold text-slate-800 mb-1.5" title="Ruangan pemilik aset inventaris">Ruangan Pemilik Aset</label>
                     <select id="selectRuangan" name="ruangan_id" class="w-full">
-                        <option value="">-- Semua Ruangan --</option>
+                        <option value="">-- Semua Ruangan Pemilik --</option>
                         @foreach ($ruanganList as $ruang)
                             <option value="{{ $ruang->id }}" {{ request('ruangan_id') == $ruang->id ? 'selected' : '' }}>
                                 {{ $ruang->nama_ruangan }}
@@ -161,9 +161,9 @@
                     </select>
                 </div>
 
-                <!-- Filter 2: Lokasi Saat Ini -->
+                <!-- Filter 2: Lokasi Fisik Saat Ini -->
                 <div class="w-full">
-                    <label class="block text-sm font-semibold text-slate-800 mb-1.5">Lokasi Saat Ini</label>
+                    <label class="block text-sm font-semibold text-slate-800 mb-1.5" title="Lokasi fisik tempat alat berada saat ini">Lokasi Fisik Saat Ini</label>
                     <select id="selectLokasi" name="lokasi_ruangan_id" class="w-full">
                         <option value="">-- Semua Lokasi Fisik --</option>
                         @foreach ($ruanganList as $ruang)
@@ -187,7 +187,7 @@
 
             </div>
 
-            <!-- Action Buttons Bar (Baris Bawah Rapi: Reset Filter di Kiri Terapkan Filter) -->
+            <!-- Action Buttons Bar -->
             <div class="flex items-center gap-3 justify-end pt-3 border-t border-slate-100">
                 <a href="{{ route('alkes.index') }}" class="h-[44px] px-6 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 font-semibold text-sm rounded-xl border border-slate-300 transition flex items-center justify-center gap-2 shrink-0" title="Reset Semua Filter & Pencarian">
                     <i class="ri-refresh-line text-lg"></i> Reset Filter
@@ -201,7 +201,7 @@
         </form>
     </div>
 
-    <!-- Excel-Style Data Table Card (Larger Readable Font Size) -->
+    <!-- Data Table Card -->
     <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse border border-slate-300 text-sm">
@@ -266,14 +266,18 @@
                             </a>
                         </th>
 
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[130px]">
-                            <a href="{{ makeSortUrl('ruangan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Ruangan">
-                                <span>Ruangan</span>
+                        <!-- Clear Header 1: Ruangan Pemilik / Penempatan -->
+                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[150px]" title="Ruangan penempatan / pemilik resmi aset inventaris">
+                            <a href="{{ makeSortUrl('ruangan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition">
+                                <span>Ruangan Pemilik</span>
                                 <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'ruangan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
                             </a>
                         </th>
 
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[140px]">Lokasi Saat Ini</th>
+                        <!-- Clear Header 2: Lokasi Fisik Saat Ini -->
+                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[160px]" title="Lokasi fisik tempat alat berada saat ini">
+                            Lokasi Fisik Saat Ini
+                        </th>
 
                         <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[120px]">
                             <a href="{{ makeSortUrl('kondisi', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Kondisi">
@@ -339,19 +343,19 @@
                                 {{ $alkes->nilai_perolehan > 0 ? 'Rp ' . number_format($alkes->nilai_perolehan, 0, ',', '.') : '-' }}
                             </td>
 
-                            <!-- Ruangan -->
-                            <td class="px-3.5 py-3 font-medium text-slate-900 border-r border-slate-200">
+                            <!-- Ruangan Pemilik Aset -->
+                            <td class="px-3.5 py-3 font-semibold text-slate-900 border-r border-slate-200" title="Ruangan penempatan / pemilik resmi aset inventaris">
                                 {{ $alkes->ruangan->nama_ruangan ?? '-' }}
                             </td>
 
-                            <!-- Lokasi Saat Ini -->
-                            <td class="px-3.5 py-3 border-r border-slate-200">
+                            <!-- Lokasi Fisik Saat Ini -->
+                            <td class="px-3.5 py-3 border-r border-slate-200" title="Lokasi fisik tempat alat berada saat ini">
                                 @if ($alkes->lokasi_saat_ini_note)
                                     <span class="font-medium text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                                         {{ $alkes->lokasi_saat_ini_note }}
                                     </span>
                                 @elseif ($alkes->ruangan_id != $alkes->lokasi_ruangan_id)
-                                    <span class="font-medium text-teal-900">
+                                    <span class="font-semibold text-teal-900 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                                         {{ $alkes->lokasiRuangan->nama_ruangan ?? '-' }}
                                     </span>
                                 @else
@@ -422,9 +426,9 @@
             </table>
         </div>
 
-        <!-- SIAKER Custom Pagination UI -->
+        <!-- SIAKER Compact Pagination UI (3 Pertama ... 3 Terakhir) -->
         <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
-            {{ $alkesList->links() }}
+            {{ $alkesList->links('pagination.custom') }}
         </div>
     </div>
 
@@ -435,7 +439,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         new TomSelect('#selectRuangan', {
             create: false,
-            placeholder: '-- Semua Ruangan --',
+            placeholder: '-- Semua Ruangan Pemilik --',
             maxOptions: 50,
         });
 

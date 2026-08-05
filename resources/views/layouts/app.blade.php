@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - SIAKER RSJKO Engku Haji Daud</title>
+    <title>@yield('title', 'Dashboard') - SIAKERS RSJKO Engku Haji Daud</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,13 +19,44 @@
 
     <style>
         body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+
+        /* Dark Mode Theme Classes */
+        body.dark-mode {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+        }
+        body.dark-mode header,
+        body.dark-mode main .bg-white {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+        body.dark-mode main .bg-slate-50 {
+            background-color: #0f172a !important;
+            color: #cbd5e1 !important;
+            border-color: #334155 !important;
+        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode .text-slate-900, body.dark-mode .text-slate-800 {
+            color: #f8fafc !important;
+        }
+        body.dark-mode .text-slate-600, body.dark-mode .text-slate-500 {
+            color: #94a3b8 !important;
+        }
+
+        /* High Contrast Mode CSS Override */
+        body.high-contrast {
+            filter: contrast(150%) !important;
+        }
+        body.high-contrast * {
+            border-color: #000000 !important;
+        }
     </style>
 </head>
-<body class="h-full text-slate-800 antialiased flex flex-col">
+<body id="appBody" class="h-full text-slate-800 antialiased flex flex-col transition-colors duration-300">
 
     @php
         $currentRole = session('user_role', 'elektromedis');
-        $userRoleLabel = session('user_role_label', 'Ruangan Elektromedis (Admin SIAKER)');
+        $userRoleLabel = session('user_role_label', 'Ruangan Elektromedis (Admin SIAKERS)');
         $unreadNotifCount = \App\Models\Notification::where('dibaca', false)->count();
         $recentNotifs = \App\Models\Notification::with('ruanganAsal')->latest()->take(5)->get();
     @endphp
@@ -42,8 +73,8 @@
                         <i class="ri-hospital-line text-2xl"></i>
                     </div>
                     <div class="min-w-0">
-                        <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKER</h1>
-                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan RSJKO Engku Haji Daud</p>
+                        <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKERS</h1>
+                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan Rumah Sakit RSJKO Engku Haji Daud</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
@@ -97,7 +128,7 @@
         </div>
 
         <div class="p-4 border-t border-slate-800/60 text-center">
-            <p class="text-[11px] text-slate-500">&copy; 2026 SIAKER - RSJKO Engku Haji Daud</p>
+            <p class="text-[11px] text-slate-500">&copy; 2026 SIAKERS - RSJKO Engku Haji Daud</p>
         </div>
     </aside>
 
@@ -108,13 +139,13 @@
                 <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none" title="Buka Menu Navigasi">
                     <i class="ri-menu-line text-xl"></i>
                 </button>
-                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RSJKO ENGKU HAJI DAUD (SIAKER)</h2>
+                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT RSJKO ENGKU HAJI DAUD (SIAKERS)</h2>
             </div>
 
             <!-- Header Action Controls: Active Role Badge, Notification Bell & Logout -->
             <div class="flex items-center gap-2.5">
 
-                <!-- Active Role Badge (Static Info, No Direct Switcher - Must Logout to Change Role) -->
+                <!-- Active Role Badge (Static Info - Must Logout to Change Role) -->
                 <div class="px-3 py-1.5 {{ $currentRole === 'elektromedis' ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-teal-50 text-teal-900 border-teal-300' }} border rounded-xl text-xs font-bold flex items-center gap-1.5">
                     <i class="{{ $currentRole === 'elektromedis' ? 'ri-shield-user-fill text-amber-600' : 'ri-hospital-line text-teal-600' }} text-sm"></i>
                     <span>{{ $userRoleLabel }}</span>
@@ -196,7 +227,49 @@
         </main>
     </div>
 
+    <!-- Floating Accessibility Button (Dengan Icon Orang Pinned di Kanan Bawah) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button type="button" onclick="toggleAccessibilityMenu()" class="w-13 h-13 p-3.5 rounded-full bg-teal-600 hover:bg-teal-500 text-white shadow-2xl flex items-center justify-center text-2xl transition hover:scale-110 focus:outline-none border-2 border-white/40 shadow-teal-600/40" title="Menu Aksesibilitas Tampilan">
+            <i class="ri-accessibility-fill text-2xl"></i>
+        </button>
+
+        <!-- Popover Accessibility Options Menu -->
+        <div id="accessibilityMenu" class="hidden absolute bottom-16 right-0 w-72 bg-slate-900 border border-slate-700 text-white rounded-2xl p-4 shadow-2xl space-y-3.5 z-50">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-teal-400 border-b border-slate-800 pb-2.5 flex items-center gap-2">
+                <i class="ri-accessibility-line text-base text-teal-400"></i> Aksesibilitas Tampilan
+            </h4>
+
+            <!-- Option 1: Dark Mode / Light Mode -->
+            <button type="button" onclick="toggleDarkMode()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
+                <span class="flex items-center gap-2 text-slate-200">
+                    <i id="themeIcon" class="ri-moon-line text-amber-400 text-sm"></i>
+                    <span>Mode Terang / Gelap</span>
+                </span>
+                <!-- Interactive Animated Pill Switch -->
+                <div id="themeTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
+                    <div id="themeToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
+                </div>
+            </button>
+
+            <!-- Option 2: High Contrast Mode -->
+            <button type="button" onclick="toggleHighContrast()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
+                <span class="flex items-center gap-2 text-slate-200">
+                    <i class="ri-contrast-2-line text-teal-400 text-sm"></i>
+                    <span>Kontras Tinggi</span>
+                </span>
+                <!-- Interactive Animated Pill Switch -->
+                <div id="hcTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
+                    <div id="hcToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
+                </div>
+            </button>
+        </div>
+    </div>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            applyStoredAccessibility();
+        });
+
         function openMobileSidebar() {
             document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');
             document.getElementById('mobileSidebarOverlay').classList.remove('hidden');
@@ -210,6 +283,72 @@
         function toggleNotificationDropdown() {
             const dropdown = document.getElementById('notificationDropdown');
             dropdown.classList.toggle('hidden');
+        }
+
+        function toggleAccessibilityMenu() {
+            const menu = document.getElementById('accessibilityMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('siakers_theme', isDark ? 'dark' : 'light');
+            updateToggleUI();
+        }
+
+        function toggleHighContrast() {
+            const isHC = document.body.classList.toggle('high-contrast');
+            localStorage.setItem('siakers_high_contrast', isHC ? 'enabled' : 'disabled');
+            updateToggleUI();
+        }
+
+        function applyStoredAccessibility() {
+            if (localStorage.getItem('siakers_theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            if (localStorage.getItem('siakers_high_contrast') === 'enabled') {
+                document.body.classList.add('high-contrast');
+            }
+            updateToggleUI();
+        }
+
+        function updateToggleUI() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const isHC = document.body.classList.contains('high-contrast');
+
+            // Theme Toggle Animation Update
+            const themePill = document.getElementById('themeTogglePill');
+            const themeCircle = document.getElementById('themeToggleCircle');
+            if (themePill && themeCircle) {
+                if (isDark) {
+                    themePill.classList.remove('bg-slate-700');
+                    themePill.classList.add('bg-teal-500');
+                    themeCircle.classList.remove('translate-x-0');
+                    themeCircle.classList.add('translate-x-4');
+                } else {
+                    themePill.classList.remove('bg-teal-500');
+                    themePill.classList.add('bg-slate-700');
+                    themeCircle.classList.remove('translate-x-4');
+                    themeCircle.classList.add('translate-x-0');
+                }
+            }
+
+            // High Contrast Toggle Animation Update
+            const hcPill = document.getElementById('hcTogglePill');
+            const hcCircle = document.getElementById('hcToggleCircle');
+            if (hcPill && hcCircle) {
+                if (isHC) {
+                    hcPill.classList.remove('bg-slate-700');
+                    hcPill.classList.add('bg-teal-500');
+                    hcCircle.classList.remove('translate-x-0');
+                    hcCircle.classList.add('translate-x-4');
+                } else {
+                    hcPill.classList.remove('bg-teal-500');
+                    hcPill.classList.add('bg-slate-700');
+                    hcCircle.classList.remove('translate-x-4');
+                    hcCircle.classList.add('translate-x-0');
+                }
+            }
         }
     </script>
 </body>

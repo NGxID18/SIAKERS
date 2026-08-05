@@ -26,11 +26,11 @@ class AuthController extends Controller
             $elektromedisRuang = Ruangan::where('nama_ruangan', 'Elektromedis')->first();
             session([
                 'user_role' => 'elektromedis',
-                'user_role_label' => 'Ruangan Elektromedis (Admin SIAKER)',
+                'user_role_label' => 'Ruangan Elektromedis (Admin SIAKERS)',
                 'user_ruangan_id' => $elektromedisRuang ? $elektromedisRuang->id : 1,
                 'user_ruangan_name' => 'Elektromedis',
             ]);
-            $msg = 'Berhasil masuk sebagai Ruangan Elektromedis (Admin Utama SIAKER).';
+            $msg = 'Berhasil masuk sebagai Ruangan Elektromedis (Admin Utama SIAKERS).';
         } elseif ($role === 'tata_usaha') {
             session([
                 'user_role' => 'tata_usaha',
@@ -58,6 +58,6 @@ class AuthController extends Controller
     public function logout()
     {
         session()->forget(['user_role', 'user_role_label', 'user_ruangan_id', 'user_ruangan_name']);
-        return redirect()->route('login')->with('success', 'Anda telah keluar dari aplikasi SIAKER.');
+        return redirect()->route('login')->with('success', 'Anda telah keluar dari aplikasi SIAKERS.');
     }
 }
