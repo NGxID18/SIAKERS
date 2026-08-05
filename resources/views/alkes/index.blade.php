@@ -8,6 +8,7 @@
     // Current Sort Params
     $sortBy = request('sort_by', 'nama_barang');
     $sortDir = strtolower(request('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+    $currentRole = session('user_role', 'elektromedis');
 
     // Helper function to generate column sort links
     function makeSortUrl($column, $currentSortBy, $currentSortDir) {
@@ -71,6 +72,19 @@
 
 <div class="space-y-6">
 
+    <!-- Flash Error Alert Jika Akses Ditolak -->
+    @if (session('error'))
+        <div id="flashErrMsg" class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 font-semibold text-sm flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2.5">
+                <i class="ri-error-warning-line text-xl text-rose-600"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="document.getElementById('flashErrMsg').remove()" class="text-rose-500 hover:text-rose-800 text-lg">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+    @endif
+
     <!-- Header Page & Actions -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -87,12 +101,15 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2">
-            <a href="{{ route('alkes.create') }}" class="px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-base rounded-xl shadow-md shadow-teal-600/30 transition flex items-center gap-2">
-                <i class="ri-add-line text-xl"></i>
-                Tambah Alkes
-            </a>
-        </div>
+        <!-- Tombol Tambah Alkes (KHUSUS ELEKTROMEDIS ADMIN) -->
+        @if ($currentRole === 'elektromedis')
+            <div class="flex items-center gap-2">
+                <a href="{{ route('alkes.create') }}" class="px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-base rounded-xl shadow-md shadow-teal-600/30 transition flex items-center gap-2">
+                    <i class="ri-add-line text-xl"></i>
+                    Tambah Alkes
+                </a>
+            </div>
+        @endif
     </div>
 
     <!-- CARD 1: PENCARIAN UNIVERSAL DATA -->
@@ -389,28 +406,30 @@
                                 {{ $alkes->keterangan ?: '-' }}
                             </td>
 
-                            <!-- Aksi -->
+                            <!-- Aksi (Sesuai Peran User) -->
                             <td class="px-3.5 py-3 text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Detail -->
+                                    <!-- Detail (Semua Ruangan Boleh Lihat) -->
                                     <a href="{{ route('alkes.show', $alkes->id) }}" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition" title="Lihat Detail">
                                         <i class="ri-eye-line text-lg"></i>
                                     </a>
 
-                                    <!-- Pindah Ruangan Alat -->
+                                    <!-- Pindah Ruangan Alat (Semua Ruangan Boleh Mutasi) -->
                                     <a href="{{ route('mutasi.create', ['alkes_id' => $alkes->id]) }}" class="p-1.5 text-blue-700 hover:bg-blue-100 rounded-lg transition" title="Pindah Ruangan Alat">
                                         <i class="ri-arrow-left-right-line text-lg"></i>
                                     </a>
 
-                                    <!-- Lapor Perbaikan -->
+                                    <!-- Lapor Perbaikan (Semua Ruangan Boleh Lapor Kerusakan) -->
                                     <a href="{{ route('pemeliharaan.create', ['alkes_id' => $alkes->id]) }}" class="p-1.5 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Lapor Perbaikan">
                                         <i class="ri-tools-line text-lg"></i>
                                     </a>
 
-                                    <!-- Edit -->
-                                    <a href="{{ route('alkes.edit', $alkes->id) }}" class="p-1.5 text-slate-700 hover:bg-slate-200 rounded-lg transition" title="Edit Data">
-                                        <i class="ri-edit-line text-lg"></i>
-                                    </a>
+                                    <!-- Edit (KHUSUS ELEKTROMEDIS ADMIN) -->
+                                    @if ($currentRole === 'elektromedis')
+                                        <a href="{{ route('alkes.edit', $alkes->id) }}" class="p-1.5 text-slate-700 hover:bg-slate-200 rounded-lg transition" title="Edit Data (Elektromedis Only)">
+                                            <i class="ri-edit-line text-lg"></i>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

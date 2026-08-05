@@ -19,40 +19,9 @@
 
     <style>
         body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
-
-        /* Dark Mode Theme Classes */
-        body.dark-mode {
-            background-color: #0f172a !important;
-            color: #f8fafc !important;
-        }
-        body.dark-mode header,
-        body.dark-mode main .bg-white {
-            background-color: #1e293b !important;
-            color: #f8fafc !important;
-            border-color: #334155 !important;
-        }
-        body.dark-mode main .bg-slate-50 {
-            background-color: #0f172a !important;
-            color: #cbd5e1 !important;
-            border-color: #334155 !important;
-        }
-        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode .text-slate-900, body.dark-mode .text-slate-800 {
-            color: #f8fafc !important;
-        }
-        body.dark-mode .text-slate-600, body.dark-mode .text-slate-500 {
-            color: #94a3b8 !important;
-        }
-
-        /* High Contrast Mode CSS Override */
-        body.high-contrast {
-            filter: contrast(150%) !important;
-        }
-        body.high-contrast * {
-            border-color: #000000 !important;
-        }
     </style>
 </head>
-<body id="appBody" class="h-full text-slate-800 antialiased flex flex-col transition-colors duration-300">
+<body id="appBody" class="h-full text-slate-800 antialiased flex flex-col">
 
     @php
         $currentRole = session('user_role', 'elektromedis');
@@ -99,7 +68,7 @@
                     <i class="ri-tools-line text-xl"></i>
                     <div class="flex items-center justify-between w-full">
                         <span>Perbaikan & Kalibrasi</span>
-                        @if ($unreadNotifCount > 0)
+                        @if ($currentRole === 'elektromedis' && $unreadNotifCount > 0)
                             <span class="px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full animate-pulse">
                                 {{ $unreadNotifCount }}
                             </span>
@@ -142,7 +111,7 @@
                 <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT RSJKO ENGKU HAJI DAUD (SIAKERS)</h2>
             </div>
 
-            <!-- Header Action Controls: Active Role Badge, Notification Bell & Logout -->
+            <!-- Header Action Controls: Active Role Badge, Notification Bell (Admin Only) & Logout -->
             <div class="flex items-center gap-2.5">
 
                 <!-- Active Role Badge (Static Info - Must Logout to Change Role) -->
@@ -151,51 +120,53 @@
                     <span>{{ $userRoleLabel }}</span>
                 </div>
 
-                <!-- Notification Bell Center -->
-                <div class="relative">
-                    <button type="button" onclick="toggleNotificationDropdown()" class="relative p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition focus:outline-none">
-                        <i class="ri-notification-3-line text-xl"></i>
-                        @if ($unreadNotifCount > 0)
-                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
-                                {{ $unreadNotifCount }}
-                            </span>
-                        @endif
-                    </button>
-
-                    <!-- Dropdown Box -->
-                    <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50">
-                        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-                            <h4 class="font-bold text-sm flex items-center gap-2">
-                                <i class="ri-notification-3-line text-teal-400"></i>
-                                Notifikasi Laporan Perbaikan
-                            </h4>
+                <!-- Notification Bell Center (KHUSUS ELEKTROMEDIS ADMIN) -->
+                @if ($currentRole === 'elektromedis')
+                    <div class="relative">
+                        <button type="button" onclick="toggleNotificationDropdown()" class="relative p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition focus:outline-none" title="Notifikasi Laporan Perbaikan Masuk">
+                            <i class="ri-notification-3-line text-xl"></i>
                             @if ($unreadNotifCount > 0)
-                                <form method="POST" action="{{ route('notifications.read-all') }}">
-                                    @csrf
-                                    <button type="submit" class="text-xs text-teal-400 hover:underline">Tandai Dibaca</button>
-                                </form>
+                                <span class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                                    {{ $unreadNotifCount }}
+                                </span>
                             @endif
-                        </div>
+                        </button>
 
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                            @forelse ($recentNotifs as $n)
-                                <div class="p-3.5 hover:bg-slate-50 transition {{ !$n->dibaca ? 'bg-amber-50/50' : '' }}">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="font-bold text-xs text-slate-900 truncate">{{ $n->judul }}</span>
-                                        <span class="text-[10px] text-slate-400 shrink-0">{{ $n->created_at->diffForHumans() }}</span>
+                        <!-- Dropdown Box -->
+                        <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50">
+                            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                                <h4 class="font-bold text-sm flex items-center gap-2">
+                                    <i class="ri-notification-3-line text-teal-400"></i>
+                                    Notifikasi Laporan Perbaikan
+                                </h4>
+                                @if ($unreadNotifCount > 0)
+                                    <form method="POST" action="{{ route('notifications.read-all') }}">
+                                        @csrf
+                                        <button type="submit" class="text-xs text-teal-400 hover:underline">Tandai Dibaca</button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                                @forelse ($recentNotifs as $n)
+                                    <div class="p-3.5 hover:bg-slate-50 transition {{ !$n->dibaca ? 'bg-amber-50/50' : '' }}">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="font-bold text-xs text-slate-900 truncate">{{ $n->judul }}</span>
+                                            <span class="text-[10px] text-slate-400 shrink-0">{{ $n->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ $n->pesan }}</p>
                                     </div>
-                                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ $n->pesan }}</p>
-                                </div>
-                            @empty
-                                <p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi laporan perbaikan.</p>
-                            @endforelse
-                        </div>
+                                @empty
+                                    <p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi laporan perbaikan.</p>
+                                @endforelse
+                            </div>
 
-                        <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
-                            <a href="{{ route('pemeliharaan.index') }}" class="text-xs font-bold text-teal-600 hover:underline">Lihat Semua Laporan Perbaikan &rarr;</a>
+                            <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                                <a href="{{ route('pemeliharaan.index') }}" class="text-xs font-bold text-teal-600 hover:underline">Lihat Semua Laporan Perbaikan &rarr;</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
                 <!-- Keluar / Logout Button -->
                 <form method="POST" action="{{ route('logout') }}" class="inline">
@@ -227,49 +198,7 @@
         </main>
     </div>
 
-    <!-- Floating Accessibility Button (Dengan Icon Orang Pinned di Kanan Bawah) -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <button type="button" onclick="toggleAccessibilityMenu()" class="w-13 h-13 p-3.5 rounded-full bg-teal-600 hover:bg-teal-500 text-white shadow-2xl flex items-center justify-center text-2xl transition hover:scale-110 focus:outline-none border-2 border-white/40 shadow-teal-600/40" title="Menu Aksesibilitas Tampilan">
-            <i class="ri-accessibility-fill text-2xl"></i>
-        </button>
-
-        <!-- Popover Accessibility Options Menu -->
-        <div id="accessibilityMenu" class="hidden absolute bottom-16 right-0 w-72 bg-slate-900 border border-slate-700 text-white rounded-2xl p-4 shadow-2xl space-y-3.5 z-50">
-            <h4 class="font-bold text-xs uppercase tracking-wider text-teal-400 border-b border-slate-800 pb-2.5 flex items-center gap-2">
-                <i class="ri-accessibility-line text-base text-teal-400"></i> Aksesibilitas Tampilan
-            </h4>
-
-            <!-- Option 1: Dark Mode / Light Mode -->
-            <button type="button" onclick="toggleDarkMode()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
-                <span class="flex items-center gap-2 text-slate-200">
-                    <i id="themeIcon" class="ri-moon-line text-amber-400 text-sm"></i>
-                    <span>Mode Terang / Gelap</span>
-                </span>
-                <!-- Interactive Animated Pill Switch -->
-                <div id="themeTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
-                    <div id="themeToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
-                </div>
-            </button>
-
-            <!-- Option 2: High Contrast Mode -->
-            <button type="button" onclick="toggleHighContrast()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
-                <span class="flex items-center gap-2 text-slate-200">
-                    <i class="ri-contrast-2-line text-teal-400 text-sm"></i>
-                    <span>Kontras Tinggi</span>
-                </span>
-                <!-- Interactive Animated Pill Switch -->
-                <div id="hcTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
-                    <div id="hcToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
-                </div>
-            </button>
-        </div>
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            applyStoredAccessibility();
-        });
-
         function openMobileSidebar() {
             document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');
             document.getElementById('mobileSidebarOverlay').classList.remove('hidden');
@@ -282,72 +211,8 @@
 
         function toggleNotificationDropdown() {
             const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        function toggleAccessibilityMenu() {
-            const menu = document.getElementById('accessibilityMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('siakers_theme', isDark ? 'dark' : 'light');
-            updateToggleUI();
-        }
-
-        function toggleHighContrast() {
-            const isHC = document.body.classList.toggle('high-contrast');
-            localStorage.setItem('siakers_high_contrast', isHC ? 'enabled' : 'disabled');
-            updateToggleUI();
-        }
-
-        function applyStoredAccessibility() {
-            if (localStorage.getItem('siakers_theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-            if (localStorage.getItem('siakers_high_contrast') === 'enabled') {
-                document.body.classList.add('high-contrast');
-            }
-            updateToggleUI();
-        }
-
-        function updateToggleUI() {
-            const isDark = document.body.classList.contains('dark-mode');
-            const isHC = document.body.classList.contains('high-contrast');
-
-            // Theme Toggle Animation Update
-            const themePill = document.getElementById('themeTogglePill');
-            const themeCircle = document.getElementById('themeToggleCircle');
-            if (themePill && themeCircle) {
-                if (isDark) {
-                    themePill.classList.remove('bg-slate-700');
-                    themePill.classList.add('bg-teal-500');
-                    themeCircle.classList.remove('translate-x-0');
-                    themeCircle.classList.add('translate-x-4');
-                } else {
-                    themePill.classList.remove('bg-teal-500');
-                    themePill.classList.add('bg-slate-700');
-                    themeCircle.classList.remove('translate-x-4');
-                    themeCircle.classList.add('translate-x-0');
-                }
-            }
-
-            // High Contrast Toggle Animation Update
-            const hcPill = document.getElementById('hcTogglePill');
-            const hcCircle = document.getElementById('hcToggleCircle');
-            if (hcPill && hcCircle) {
-                if (isHC) {
-                    hcPill.classList.remove('bg-slate-700');
-                    hcPill.classList.add('bg-teal-500');
-                    hcCircle.classList.remove('translate-x-0');
-                    hcCircle.classList.add('translate-x-4');
-                } else {
-                    hcPill.classList.remove('bg-teal-500');
-                    hcPill.classList.add('bg-slate-700');
-                    hcCircle.classList.remove('translate-x-4');
-                    hcCircle.classList.add('translate-x-0');
-                }
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
             }
         }
     </script>

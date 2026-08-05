@@ -2564,7 +2564,7 @@ class SiakerSeeder extends Seeder
                 'perolehan' => '',
                 'nilai' => 0.0,
                 'ruangan' => 'Irna Bedah',
-                'lokasi_note' => 'Labolatorium',
+                'lokasi_note' => 'Laboratorium',
                 'kondisi' => 'BAIK',
                 'aspak' => '',
                 'kib' => '',

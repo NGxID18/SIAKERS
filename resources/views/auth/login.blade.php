@@ -62,14 +62,6 @@
         .ts-control input {
             color: #ffffff !important;
         }
-
-        /* High Contrast Mode CSS Override */
-        body.high-contrast {
-            filter: contrast(140%) !important;
-        }
-        body.high-contrast * {
-            border-color: #ffffff !important;
-        }
     </style>
 </head>
 <body id="loginBody" class="h-screen w-screen overflow-hidden flex items-center justify-center p-4 relative bg-slate-950">
@@ -153,44 +145,6 @@
 
     </div>
 
-    <!-- Floating Accessibility Button (Dengan Icon Orang Pinned di Kanan Bawah) -->
-    <div class="fixed bottom-5 right-5 z-50">
-        <button type="button" onclick="toggleAccessibilityMenu()" class="w-13 h-13 p-3.5 rounded-full bg-teal-600 hover:bg-teal-500 text-white shadow-2xl flex items-center justify-center text-2xl transition hover:scale-110 focus:outline-none border-2 border-white/40 shadow-teal-600/40" title="Menu Aksesibilitas Tampilan">
-            <i class="ri-accessibility-fill text-2xl"></i>
-        </button>
-
-        <!-- Popover Accessibility Options Menu -->
-        <div id="accessibilityMenu" class="hidden absolute bottom-16 right-0 w-72 bg-slate-900 border border-slate-700 text-white rounded-2xl p-4 shadow-2xl space-y-3.5 z-50">
-            <h4 class="font-bold text-xs uppercase tracking-wider text-teal-400 border-b border-slate-800 pb-2.5 flex items-center gap-2">
-                <i class="ri-accessibility-line text-base text-teal-400"></i> Aksesibilitas Tampilan
-            </h4>
-
-            <!-- Option 1: Dark Mode / Light Mode -->
-            <button type="button" onclick="toggleDarkMode()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
-                <span class="flex items-center gap-2 text-slate-200">
-                    <i id="themeIcon" class="ri-moon-line text-amber-400 text-sm"></i>
-                    <span>Mode Terang / Gelap</span>
-                </span>
-                <!-- Interactive Animated Pill Switch -->
-                <div id="themeTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
-                    <div id="themeToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
-                </div>
-            </button>
-
-            <!-- Option 2: High Contrast Mode -->
-            <button type="button" onclick="toggleHighContrast()" class="w-full px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700/80 rounded-xl text-xs font-semibold flex items-center justify-between transition group">
-                <span class="flex items-center gap-2 text-slate-200">
-                    <i class="ri-contrast-2-line text-teal-400 text-sm"></i>
-                    <span>Kontras Tinggi</span>
-                </span>
-                <!-- Interactive Animated Pill Switch -->
-                <div id="hcTogglePill" class="w-9 h-5 bg-slate-700 rounded-full p-0.5 transition-colors duration-300 flex items-center">
-                    <div id="hcToggleCircle" class="w-4 h-4 bg-white rounded-full shadow-md transform translate-x-0 transition-transform duration-300"></div>
-                </div>
-            </button>
-        </div>
-    </div>
-
     <script>
         let tsControlInstance = null;
 
@@ -204,7 +158,6 @@
                     dropdownParent: 'body'
                 });
             }
-            applyStoredAccessibility();
         });
 
         function toggleRuanganDropdown() {
@@ -223,69 +176,6 @@
                     container.style.overflow = 'hidden';
                     container.style.maxHeight = '0px';
                     container.style.opacity = '0';
-                }
-            }
-        }
-
-        function toggleAccessibilityMenu() {
-            const menu = document.getElementById('accessibilityMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        function toggleDarkMode() {
-            const isLight = document.body.classList.toggle('bg-slate-100');
-            localStorage.setItem('siakers_theme', isLight ? 'light' : 'dark');
-            updateToggleUI();
-        }
-
-        function toggleHighContrast() {
-            const isHC = document.body.classList.toggle('high-contrast');
-            localStorage.setItem('siakers_high_contrast', isHC ? 'enabled' : 'disabled');
-            updateToggleUI();
-        }
-
-        function applyStoredAccessibility() {
-            if (localStorage.getItem('siakers_high_contrast') === 'enabled') {
-                document.body.classList.add('high-contrast');
-            }
-            updateToggleUI();
-        }
-
-        function updateToggleUI() {
-            const isLight = document.body.classList.contains('bg-slate-100');
-            const isHC = document.body.classList.contains('high-contrast');
-
-            // Theme Toggle Animation Update
-            const themePill = document.getElementById('themeTogglePill');
-            const themeCircle = document.getElementById('themeToggleCircle');
-            if (themePill && themeCircle) {
-                if (isLight) {
-                    themePill.classList.remove('bg-slate-700');
-                    themePill.classList.add('bg-teal-500');
-                    themeCircle.classList.remove('translate-x-0');
-                    themeCircle.classList.add('translate-x-4');
-                } else {
-                    themePill.classList.remove('bg-teal-500');
-                    themePill.classList.add('bg-slate-700');
-                    themeCircle.classList.remove('translate-x-4');
-                    themeCircle.classList.add('translate-x-0');
-                }
-            }
-
-            // High Contrast Toggle Animation Update
-            const hcPill = document.getElementById('hcTogglePill');
-            const hcCircle = document.getElementById('hcToggleCircle');
-            if (hcPill && hcCircle) {
-                if (isHC) {
-                    hcPill.classList.remove('bg-slate-700');
-                    hcPill.classList.add('bg-teal-500');
-                    hcCircle.classList.remove('translate-x-0');
-                    hcCircle.classList.add('translate-x-4');
-                } else {
-                    hcPill.classList.remove('bg-teal-500');
-                    hcPill.classList.add('bg-slate-700');
-                    hcCircle.classList.remove('translate-x-4');
-                    hcCircle.classList.add('translate-x-0');
                 }
             }
         }
