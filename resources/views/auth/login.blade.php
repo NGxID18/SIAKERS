@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk Sistem - SIAKER (Sistem Inventaris Alat Kesehatan)</title>
+    <title>Masuk Sistem - SIAKER RSJKO Engku Haji Daud</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,6 +73,7 @@
                 <i class="ri-hospital-line text-3xl"></i>
             </div>
             <h2 class="text-3xl font-extrabold text-white tracking-tight">SIAKER</h2>
+            <p class="text-xs text-teal-400 font-semibold uppercase tracking-wider">RSJKO Engku Haji Daud</p>
             <p class="text-xs text-slate-400">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
         </div>
 
@@ -132,7 +133,7 @@
         </form>
 
         <div class="text-center pt-2 border-t border-slate-800/80">
-            <p class="text-xs text-slate-500">&copy; 2026 SIAKER</p>
+            <p class="text-xs text-slate-500">&copy; 2026 SIAKER - RSJKO Engku Haji Daud</p>
         </div>
 
     </div>

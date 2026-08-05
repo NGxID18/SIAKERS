@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Sistem Inventaris Alat Kesehatan Rumah Sakit</title>
+    <title>@yield('title', 'Dashboard') - SIAKER RSJKO Engku Haji Daud</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,6 +25,7 @@
 
     @php
         $currentRole = session('user_role', 'elektromedis');
+        $userRoleLabel = session('user_role_label', 'Ruangan Elektromedis (Admin SIAKER)');
         $unreadNotifCount = \App\Models\Notification::where('dibaca', false)->count();
         $recentNotifs = \App\Models\Notification::with('ruanganAsal')->latest()->take(5)->get();
     @endphp
@@ -42,7 +43,7 @@
                     </div>
                     <div class="min-w-0">
                         <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKER</h1>
-                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
+                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan RSJKO Engku Haji Daud</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
@@ -96,7 +97,7 @@
         </div>
 
         <div class="p-4 border-t border-slate-800/60 text-center">
-            <p class="text-[11px] text-slate-500">&copy; 2026 SIAKER</p>
+            <p class="text-[11px] text-slate-500">&copy; 2026 SIAKER - RSJKO Engku Haji Daud</p>
         </div>
     </aside>
 
@@ -107,27 +108,16 @@
                 <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none" title="Buka Menu Navigasi">
                     <i class="ri-menu-line text-xl"></i>
                 </button>
-                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT (SIAKER)</h2>
+                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RSJKO ENGKU HAJI DAUD (SIAKER)</h2>
             </div>
 
-            <!-- Header Action Controls: Notification Bell, Role Switcher, & Logout -->
+            <!-- Header Action Controls: Active Role Badge, Notification Bell & Logout -->
             <div class="flex items-center gap-2.5">
 
-                <!-- Role Switcher -->
-                <div class="relative inline-block text-left">
-                    @if ($currentRole === 'elektromedis')
-                        <a href="{{ route('switch-role', 'ruangan') }}" class="px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold hover:bg-amber-100 transition inline-flex items-center gap-1.5" title="Klik untuk beralih peran ke Petugas Ruangan Operasional">
-                            <i class="ri-shield-user-fill text-amber-600 text-sm"></i>
-                            <span>Ruangan Elektromedis (Admin)</span>
-                            <i class="ri-arrow-down-s-line text-slate-400"></i>
-                        </a>
-                    @else
-                        <a href="{{ route('switch-role', 'elektromedis') }}" class="px-3 py-1.5 bg-teal-50 text-teal-900 border border-teal-300 rounded-xl text-xs font-bold hover:bg-teal-100 transition inline-flex items-center gap-1.5" title="Klik untuk beralih peran ke Ruangan Elektromedis Admin">
-                            <i class="ri-hospital-line text-teal-600 text-sm"></i>
-                            <span>Petugas Ruangan Operasional</span>
-                            <i class="ri-arrow-down-s-line text-slate-400"></i>
-                        </a>
-                    @endif
+                <!-- Active Role Badge (Static Info, No Direct Switcher - Must Logout to Change Role) -->
+                <div class="px-3 py-1.5 {{ $currentRole === 'elektromedis' ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-teal-50 text-teal-900 border-teal-300' }} border rounded-xl text-xs font-bold flex items-center gap-1.5">
+                    <i class="{{ $currentRole === 'elektromedis' ? 'ri-shield-user-fill text-amber-600' : 'ri-hospital-line text-teal-600' }} text-sm"></i>
+                    <span>{{ $userRoleLabel }}</span>
                 </div>
 
                 <!-- Notification Bell Center -->
@@ -179,7 +169,7 @@
                 <!-- Keluar / Logout Button -->
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 hover:text-rose-800 transition flex items-center gap-1" title="Keluar dari Aplikasi SIAKER">
+                    <button type="submit" class="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 hover:text-rose-800 transition flex items-center gap-1" title="Keluar / Ganti Akun">
                         <i class="ri-logout-box-r-line text-lg"></i>
                         <span class="text-xs font-bold hidden md:inline">Keluar</span>
                     </button>

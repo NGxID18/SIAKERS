@@ -17,7 +17,7 @@ class AlkesController extends Controller
     {
         $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan']);
 
-        // Universal Search Across ALL Data Fields
+        // Universal Search Across ALL Data Fields (Aman & Bebas Eror Database)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
@@ -35,13 +35,12 @@ class AlkesController extends Controller
                   ->orWhere('keterangan', 'like', "%{$search}%")
                   ->orWhereHas('ruangan', function ($rq) use ($search) {
                       $rq->where('nama_ruangan', 'like', "%{$search}%")
-                        ->orWhere('kode_ruangan', 'like', "%{$search}%")
-                        ->orWhere('lokasi_lantai', 'like', "%{$search}%");
+                        ->orWhere('kode_ruangan', 'like', "%{$search}%");
                   });
             });
         }
 
-        // Filter 1: Ruangan RS (Penempatan)
+        // Filter 1: Ruangan Penempatan
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
@@ -126,7 +125,7 @@ class AlkesController extends Controller
         ]);
 
         if (empty($validated['kode_inventaris'])) {
-            $validated['kode_inventaris'] = 'INV/ALKES/' . date('Y') . '/' . sprintf('%04d', rand(1000, 9999));
+            $validated['kode_inventaris'] = 'INV/ALKES/EHD/' . sprintf('%04d', rand(1000, 9999));
         }
 
         $validated['lokasi_ruangan_id'] = $validated['ruangan_id'];
@@ -135,7 +134,7 @@ class AlkesController extends Controller
         $ruang = Ruangan::find($validated['ruangan_id']);
 
         // Automatic Audit Trail Logging
-        ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nama_barang}'.", $ruang->nama_ruangan ?? 'RS');
+        ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nama_barang}'.", $ruang->nama_ruangan ?? 'Pusat');
 
         return redirect()->route('alkes.index', ['ruangan_id' => $alkes->ruangan_id])
             ->with('success', 'Data Alat Kesehatan berhasil ditambahkan!');
@@ -186,7 +185,7 @@ class AlkesController extends Controller
         $alkes->update($validated);
 
         // Automatic Audit Trail Logging
-        ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nama_barang}'.", $alkes->ruangan->nama_ruangan ?? 'RS');
+        ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nama_barang}'.", $alkes->ruangan->nama_ruangan ?? 'Pusat');
 
         return redirect()->route('alkes.show', $alkes->id)
             ->with('success', 'Data Alat Kesehatan berhasil diperbarui!');

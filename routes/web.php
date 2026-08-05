@@ -11,32 +11,14 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (SIAKER - Sistem Inventaris Alat Kesehatan)
+| Web Routes (SIAKER - RSJKO Engku Haji Daud)
 |--------------------------------------------------------------------------
 */
 
-// Auth Routes (Login Tanpa Password & Logout)
+// Auth Routes (Login & Logout)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// Role Switcher untuk Pengujian Cepat Elektromedis vs Petugas Ruangan
-Route::get('/switch-role/{role}', function ($role) {
-    if ($role === 'elektromedis') {
-        session([
-            'user_role' => 'elektromedis',
-            'user_role_label' => 'Ruangan Elektromedis (Admin SIAKER)',
-            'user_ruangan_name' => 'Elektromedis',
-        ]);
-    } else {
-        session([
-            'user_role' => 'ruangan',
-            'user_role_label' => 'Petugas Ruangan Operasional',
-            'user_ruangan_name' => 'Ruangan Operasional',
-        ]);
-    }
-    return redirect()->back()->with('success', 'Peran diubah ke: ' . session('user_role_label'));
-})->name('switch-role');
 
 // Web Pages (Rate Limit: 60 req/min)
 Route::middleware(['throttle:60,1'])->group(function () {

@@ -16,19 +16,19 @@ class DashboardController extends Controller
     public function index()
     {
         $totalAlkes = Alkes::count();
-        $alkesTersedia = Alkes::where('status', StatusAlkes::TERSEDIA->value)->count();
-        $alkesDigunakan = Alkes::where('status', StatusAlkes::SEDANG_DIGUNAKAN->value)->count();
+
+        // Unit Rusak / Dalam Perbaikan di Elektromedis
         $alkesRusak = Alkes::where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-            ->orWhere('kondisi', KondisiAlkes::RUSAK_BERAT->value)
+            ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value)
             ->count();
-        $alkesKalibrasi = Alkes::where('status', StatusAlkes::PROSES_KALIBRASI->value)->count();
+
+        // Unit Baik / Operasional di Ruangan (Tersedia & Aktif Digunakan)
+        $alkesTersedia = $totalAlkes - $alkesRusak;
 
         // Rekap per Ruangan RS Diurutkan Berdasarkan Abjad Nama Ruangan (A-Z)
-        $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_digunakan_count' => function ($q) {
-            $q->where('status', StatusAlkes::SEDANG_DIGUNAKAN->value);
-        }, 'alkes as alkes_rusak_count' => function ($q) {
+        $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_rusak_count' => function ($q) {
             $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-              ->orWhere('kondisi', KondisiAlkes::RUSAK_BERAT->value);
+              ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
         }])->orderBy('nama_ruangan', 'asc')->get();
 
         // Mutasi / Pindah Ruangan Terbaru
@@ -43,11 +43,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Data Grafik Analytics Chart.js Status
+        // Data Grafik Analytics Status
         $chartStatusData = [
-            'Tersedia' => $alkesTersedia,
-            'Sedang Digunakan' => $alkesDigunakan,
-            'Dalam Perbaikan' => $alkesRusak,
+            'Operasional / Baik' => $alkesTersedia,
+            'Dalam Perbaikan / Rusak' => $alkesRusak,
         ];
 
         // Grafik Kondisi per Ruangan RS (Diurutkan Abjad A-Z)
@@ -81,9 +80,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalAlkes',
             'alkesTersedia',
-            'alkesDigunakan',
             'alkesRusak',
-            'alkesKalibrasi',
             'ruanganList',
             'mutasiTerbaru',
             'logPerbaikanTerbaru',
