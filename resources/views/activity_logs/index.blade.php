@@ -54,34 +54,34 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-slate-100 border-b border-slate-300 text-slate-700 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-6 py-4">Waktu & Tanggal (WIB)</th>
-                        <th class="px-6 py-4">Peran & Ruangan Pengguna</th>
-                        <th class="px-6 py-4">Aktivitas</th>
-                        <th class="px-6 py-4">Deskripsi Perubahan Data</th>
+                    <tr class="bg-slate-900 text-white border-b border-slate-800 text-xs font-bold uppercase tracking-wider">
+                        <th class="px-6 py-4 border-r border-slate-800">Waktu & Tanggal (WIB)</th>
+                        <th class="px-6 py-4 border-r border-slate-800">Peran & Ruangan Pengguna</th>
+                        <th class="px-6 py-4 border-r border-slate-800">Aktivitas</th>
+                        <th class="px-6 py-4 border-r border-slate-800">Deskripsi Perubahan Data</th>
                         <th class="px-6 py-4 text-center">Koneksi Perangkat</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 text-sm font-normal text-slate-900">
                     @forelse ($logs as $log)
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                        <tr class="hover:bg-teal-50/50 transition odd:bg-white even:bg-slate-50/50">
+                            <td class="px-6 py-4 whitespace-nowrap border-r border-slate-200">
                                 <div class="font-semibold text-slate-900 text-sm">{{ $log->created_at->timezone('Asia/Jakarta')->format('d M Y') }}</div>
-                                <div class="text-xs text-slate-500 mt-0.5">{{ $log->created_at->timezone('Asia/Jakarta')->format('H:i:s') }} WIB</div>
+                                <div class="text-xs text-slate-500 font-mono mt-0.5">{{ $log->created_at->timezone('Asia/Jakarta')->format('H:i:s') }} WIB</div>
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 border-r border-slate-200">
                                 <div class="font-semibold text-slate-900 text-sm">{{ $log->user_role }}</div>
                                 <div class="text-xs text-slate-500 mt-0.5">{{ $log->ruangan_name ?? 'Pusat' }}</div>
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 border-r border-slate-200">
                                 <span class="px-3 py-1 rounded text-xs font-semibold bg-teal-100 text-teal-800 border border-teal-200">
                                     {{ $log->action }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 border-r border-slate-200">
                                 <p class="text-sm text-slate-800 font-normal leading-relaxed">{{ $log->description }}</p>
                             </td>
 
@@ -92,6 +92,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-10 text-center text-slate-500 text-base">
+                                <i class="ri-history-line text-5xl block mb-3 text-slate-300"></i>
                                 Belum ada log aktivitas tercatat di sistem.
                             </td>
                         </tr>
@@ -101,7 +102,7 @@
         </div>
 
         <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
-            {{ $logs->links() }}
+            {{ $logs->links('pagination.custom') }}
         </div>
     </div>
 
