@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'System Audit Trail & Log Aktivitas')
+@section('title', 'Riwayat Aktivitas Sistem')
 
 @section('content')
 <div class="space-y-6">
@@ -9,9 +9,9 @@
         <div>
             <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
                 <i class="ri-history-line text-teal-600"></i>
-                Audit Trail & Log Aktivitas Sistem
+                Riwayat Aktivitas Sistem
             </h3>
-            <p class="text-base text-slate-600 mt-1 font-normal">Pelacakan otomatis seluruh aktivitas pengguna, perubahan data, dan transaksi aset</p>
+            <p class="text-base text-slate-600 mt-1 font-normal">Pelacakan otomatis seluruh aktivitas pengguna, perubahan data, dan transaksi aset di Rumah Sakit</p>
         </div>
     </div>
 
@@ -93,7 +93,7 @@
                         <tr>
                             <td colspan="5" class="px-6 py-10 text-center text-slate-500 text-base">
                                 <i class="ri-history-line text-5xl block mb-3 text-slate-300"></i>
-                                Belum ada log aktivitas tercatat di sistem.
+                                Belum ada catatan aktivitas tercatat di sistem.
                             </td>
                         </tr>
                     @endforelse

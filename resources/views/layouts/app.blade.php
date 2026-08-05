@@ -91,7 +91,7 @@
 
                 <a href="{{ route('activity-logs.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('activity-logs.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
                     <i class="ri-history-line text-lg text-teal-400"></i>
-                    <span>Log Aktivitas System</span>
+                    <span>Riwayat Aktivitas Sistem</span>
                 </a>
             </nav>
         </div>
