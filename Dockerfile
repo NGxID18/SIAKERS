@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 # Install system dependencies & PHP extensions for Laravel
 RUN apt-get update && apt-get install -y \
@@ -22,8 +22,11 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
+# Ignore git safe directory warning inside container
+RUN git config --global --add safe.directory /var/www/html
+
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
