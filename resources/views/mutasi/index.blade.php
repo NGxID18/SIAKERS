@@ -20,6 +20,51 @@
         </a>
     </div>
 
+    <!-- Search & Filter Card -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="GET" action="{{ route('mutasi.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Cari Unit / SN / Pemohon / Alasan</label>
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Masukkan kata kunci..." class="w-full pl-10 pr-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <i class="ri-search-line absolute left-3.5 top-3.5 text-slate-400 text-lg"></i>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Ruangan Asal</label>
+                <select name="ruangan_asal_id" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="">-- Semua Ruangan Asal --</option>
+                    @foreach ($ruanganList as $ruang)
+                        <option value="{{ $ruang->id }}" {{ request('ruangan_asal_id') == $ruang->id ? 'selected' : '' }}>{{ $ruang->nama_ruangan }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Ruangan Tujuan</label>
+                <div class="flex items-center gap-2">
+                    <select name="ruangan_tujuan_id" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <option value="">-- Semua Ruangan Tujuan --</option>
+                        @foreach ($ruanganList as $ruang)
+                            <option value="{{ $ruang->id }}" {{ request('ruangan_tujuan_id') == $ruang->id ? 'selected' : '' }}>{{ $ruang->nama_ruangan }}</option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit" class="h-[46px] px-6 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2 shrink-0">
+                        <i class="ri-search-line text-lg"></i> Cari
+                    </button>
+
+                    @if (request()->hasAny(['search', 'ruangan_asal_id', 'ruangan_tujuan_id']))
+                        <a href="{{ route('mutasi.index') }}" class="h-[46px] w-[46px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-xl border border-slate-300 transition flex items-center justify-center shrink-0" title="Reset Filter">
+                            <i class="ri-refresh-line text-xl"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
+
     <!-- Table Card -->
     <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">

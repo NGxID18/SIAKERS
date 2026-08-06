@@ -197,7 +197,7 @@
                     <select id="selectKondisi" name="kondisi" class="w-full">
                         <option value="">-- Semua Kondisi Alat --</option>
                         @foreach ($kondisis as $kd)
-                            <option value="{{ $kd->value }}" {{ request('kondisi') == $kd->value ? 'selected' : '' }}>{{ $kd->label() }}</option>
+                            <option value="{{ $kd->value }}" {{ strtolower(request('kondisi')) == strtolower($kd->value) ? 'selected' : '' }}>{{ $kd->label() }}</option>
                         @endforeach
                     </select>
                 </div>

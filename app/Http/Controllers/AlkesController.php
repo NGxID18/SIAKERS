@@ -50,9 +50,14 @@ class AlkesController extends Controller
             $query->where('lokasi_ruangan_id', $request->lokasi_ruangan_id);
         }
 
-        // Filter 3: Kondisi Fisik Alat
+        // Filter 3: Kondisi Fisik Alat (Fleksibel & Fleksibel Kasus Huruf)
         if ($request->filled('kondisi')) {
-            $query->where('kondisi', $request->kondisi);
+            $val = trim($request->kondisi);
+            $query->where(function ($q) use ($val) {
+                $q->where('kondisi', $val)
+                  ->orWhere('kondisi', strtolower($val))
+                  ->orWhere('kondisi', strtoupper($val));
+            });
         }
 
         // Sortir Kolom & Arah (Ascending A-Z / Descending Z-A)

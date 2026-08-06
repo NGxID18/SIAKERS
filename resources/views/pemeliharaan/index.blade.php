@@ -27,15 +27,48 @@
         </a>
     </div>
 
-    <!-- Ringkas & Jelas: Compact 1-Line Info Banner dengan Tombol Tutup -->
-    <div id="infoPerbaikanBanner" class="bg-amber-50/90 px-4 py-3 rounded-xl border border-amber-200 text-amber-900 text-sm font-normal flex items-center justify-between gap-3 shadow-xs">
-        <div class="flex items-center gap-2.5">
-            <i class="ri-information-fill text-amber-600 text-lg shrink-0"></i>
-            <span><strong>Alur Perbaikan:</strong> Unit alkes yang dilaporkan rusak otomatis dipindahkan ke <strong>Ruangan Elektromedis</strong> untuk diperbaiki dan dikembalikan ke ruangan asal setelah selesai.</span>
-        </div>
-        <button type="button" onclick="document.getElementById('infoPerbaikanBanner').remove()" class="text-amber-500 hover:text-amber-800 p-1 text-lg rounded-lg transition" title="Tutup">
-            <i class="ri-close-line"></i>
-        </button>
+    <!-- Search & Filter Card -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="GET" action="{{ route('pemeliharaan.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Cari Unit / SN / Deskripsi Kerusakan</label>
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Masukkan kata kunci..." class="w-full pl-10 pr-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <i class="ri-search-line absolute left-3.5 top-3.5 text-slate-400 text-lg"></i>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Jenis Tindakan</label>
+                <select name="jenis_tindakan" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="">-- Semua Jenis Tindakan --</option>
+                    <option value="Perbaikan (Korektif)" {{ request('jenis_tindakan') == 'Perbaikan (Korektif)' ? 'selected' : '' }}>Perbaikan (Korektif)</option>
+                    <option value="Kalibrasi Alat" {{ request('jenis_tindakan') == 'Kalibrasi Alat' ? 'selected' : '' }}>Kalibrasi Alat</option>
+                    <option value="Pemeliharaan Rutin" {{ request('jenis_tindakan') == 'Pemeliharaan Rutin' ? 'selected' : '' }}>Pemeliharaan Rutin</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Status Perbaikan</label>
+                <div class="flex items-center gap-2">
+                    <select name="status_hasil" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="">-- Semua Status --</option>
+                        <option value="Proses" {{ request('status_hasil') == 'Proses' ? 'selected' : '' }}>Dalam Pengajuan / Perbaikan</option>
+                        <option value="Selesai" {{ request('status_hasil') == 'Selesai' ? 'selected' : '' }}>Selesai & Dikembalikan</option>
+                    </select>
+
+                    <button type="submit" class="h-[46px] px-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2 shrink-0">
+                        <i class="ri-search-line text-lg"></i> Cari
+                    </button>
+
+                    @if (request()->hasAny(['search', 'jenis_tindakan', 'status_hasil']))
+                        <a href="{{ route('pemeliharaan.index') }}" class="h-[46px] w-[46px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-xl border border-slate-300 transition flex items-center justify-center shrink-0" title="Reset Filter">
+                            <i class="ri-refresh-line text-xl"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- Table Card -->

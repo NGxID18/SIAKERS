@@ -10,20 +10,45 @@ use Illuminate\Http\Request;
 
 class MutasiAlkesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mutasiList = MutasiAlkes::with(['alkes.ruangan', 'ruanganAsal', 'ruanganTujuan'])
-            ->latest()
-            ->paginate(30);
+        $query = MutasiAlkes::with(['alkes.ruangan', 'ruanganAsal', 'ruanganTujuan']);
 
-        return view('mutasi.index', compact('mutasiList'));
+        // Search Bar (Cari Alkes, SN, Pemohon, atau Alasan Mutasi)
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('alasan_mutasi', 'like', "%{$search}%")
+                  ->orWhere('pemohon', 'like', "%{$search}%")
+                  ->orWhere('penanggung_jawab', 'like', "%{$search}%")
+                  ->orWhereHas('alkes', function ($aq) use ($search) {
+                      $aq->where('nama_barang', 'like', "%{$search}%")
+                         ->orWhere('nomor_seri', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter 1: Ruangan Asal
+        if ($request->filled('ruangan_asal_id')) {
+            $query->where('ruangan_asal_id', $request->ruangan_asal_id);
+        }
+
+        // Filter 2: Ruangan Tujuan
+        if ($request->filled('ruangan_tujuan_id')) {
+            $query->where('ruangan_tujuan_id', $request->ruangan_tujuan_id);
+        }
+
+        $mutasiList = $query->latest()->paginate(30)->withQueryString();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
+
+        return view('mutasi.index', compact('mutasiList', 'ruanganList'));
     }
 
     public function create(Request $request)
     {
         $selectedAlkesId = $request->query('alkes_id');
         $alkesList = Alkes::with(['ruangan', 'lokasiRuangan'])->get();
-        $ruanganList = Ruangan::all();
+        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
 
         return view('mutasi.create', compact('alkesList', 'ruanganList', 'selectedAlkesId'));
     }

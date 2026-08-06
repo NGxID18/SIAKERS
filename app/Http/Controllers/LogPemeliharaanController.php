@@ -15,11 +15,35 @@ use Illuminate\Support\Facades\DB;
 
 class LogPemeliharaanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $logList = LogPemeliharaan::with(['alkes.ruangan', 'alkes.lokasiRuangan'])
-            ->latest()
-            ->paginate(30);
+        $query = LogPemeliharaan::with(['alkes.ruangan', 'alkes.lokasiRuangan']);
+
+        // Search Bar (Cari Alkes, SN, atau Deskripsi Kerusakan)
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('deskripsi_kerusakan', 'like', "%{$search}%")
+                  ->orWhere('tindakan_perbaikan', 'like', "%{$search}%")
+                  ->orWhere('pelaksana_vendor', 'like', "%{$search}%")
+                  ->orWhereHas('alkes', function ($aq) use ($search) {
+                      $aq->where('nama_barang', 'like', "%{$search}%")
+                         ->orWhere('nomor_seri', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter 1: Jenis Tindakan
+        if ($request->filled('jenis_tindakan')) {
+            $query->where('jenis_tindakan', $request->jenis_tindakan);
+        }
+
+        // Filter 2: Status Hasil / Perbaikan
+        if ($request->filled('status_hasil')) {
+            $query->where('status_hasil', $request->status_hasil);
+        }
+
+        $logList = $query->latest()->paginate(30)->withQueryString();
 
         $notifications = Notification::with(['alkes', 'ruanganAsal'])
             ->latest()
