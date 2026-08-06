@@ -56,8 +56,10 @@ class DashboardController extends Controller
 
         foreach ($ruanganList->take(12) as $ruang) {
             $chartRuanganLabels[] = $ruang->nama_ruangan;
-            $chartKondisiBaik[] = Alkes::where('ruangan_id', $ruang->id)->where('kondisi', KondisiAlkes::BAIK->value)->count();
-            $chartKondisiRusak[] = Alkes::where('ruangan_id', $ruang->id)->where('kondisi', '!=', KondisiAlkes::BAIK->value)->count();
+            $rusakCount = (int) $ruang->alkes_rusak_count;
+            $baikCount = max(0, ((int) $ruang->alkes_count) - $rusakCount);
+            $chartKondisiBaik[] = $baikCount;
+            $chartKondisiRusak[] = $rusakCount;
         }
 
         // Grafik Sumber Perolehan (DAK, APBD, BLUD, HIBAH, Beli Sendiri)
