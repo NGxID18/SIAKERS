@@ -27,7 +27,8 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod +x /var/www/html/docker-entrypoint.sh
 
 EXPOSE 8000
 
-CMD php artisan migrate:fresh --seed && php artisan serve --host=0.0.0.0 --port=8000
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
