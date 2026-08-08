@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AlkesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KalibrasiController;
 use App\Http\Controllers\LogPemeliharaanController;
 use App\Http\Controllers\MutasiAlkesController;
 use App\Http\Controllers\RuanganController;
@@ -32,6 +33,8 @@ Route::middleware(['throttle:60,1', EnsureSessionRole::class])->group(function (
     Route::get('pemeliharaan', [LogPemeliharaanController::class, 'index'])->name('pemeliharaan.index');
     Route::get('pemeliharaan/buat', [LogPemeliharaanController::class, 'create'])->name('pemeliharaan.create');
 
+    Route::get('kalibrasi', [KalibrasiController::class, 'index'])->name('kalibrasi.index');
+
     Route::get('ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
@@ -41,6 +44,7 @@ Route::middleware(['throttle:20,1', EnsureSessionRole::class])->group(function (
     Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
     Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
     Route::post('pemeliharaan', [LogPemeliharaanController::class, 'store'])->name('pemeliharaan.store');
+    Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->name('kalibrasi.update');
     
     // Otoritas Elektromedis: Selesaikan Perbaikan & Kembalikan Alat
     Route::post('pemeliharaan/{id}/selesai', [LogPemeliharaanController::class, 'resolve'])->name('pemeliharaan.resolve');

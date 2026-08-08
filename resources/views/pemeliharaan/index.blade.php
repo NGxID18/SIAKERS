@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Perbaikan & Kalibrasi Alkes')
+@section('title', 'Perbaikan Alkes')
 
 @section('content')
 <div class="space-y-6">
@@ -14,10 +14,10 @@
         <div>
             <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
                 <i class="ri-tools-line text-amber-600"></i>
-                Perbaikan & Kalibrasi Alkes
+                Perbaikan Alkes
             </h3>
             <p class="text-base text-slate-600 mt-1 font-normal">
-                Pelaporan perbaikan dari ruangan operasional, penanganan unit di Ruangan Elektromedis, dan riwayat pemeliharaan
+                Pelaporan alkes rusak dari ruangan operasional, penanganan unit di Ruangan Elektromedis, dan riwayat perbaikan
             </p>
         </div>
 

@@ -237,17 +237,23 @@
                             <span class="sidebar-text">Pindah Ruangan Alkes</span>
                         </a>
 
-                        <!-- Menu 3: Perbaikan & Kalibrasi -->
-                        <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Perbaikan & Kalibrasi">
+                        <!-- Menu 3: Perbaikan Alkes -->
+                        <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Perbaikan Alkes">
                             <i class="ri-tools-line text-xl shrink-0"></i>
                             <div class="flex items-center justify-between w-full sidebar-text">
-                                <span>Perbaikan & Kalibrasi</span>
+                                <span>Perbaikan Alkes</span>
                                 @if ($currentRole === 'elektromedis' && $unreadNotifCount > 0)
                                     <span class="px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full animate-pulse">
                                         {{ $unreadNotifCount }}
                                     </span>
                                 @endif
                             </div>
+                        </a>
+
+                        <!-- Menu 4: Kalibrasi Alkes -->
+                        <a href="{{ route('kalibrasi.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('kalibrasi.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Kalibrasi Alkes">
+                            <i class="ri-verified-badge-line text-xl text-emerald-400 shrink-0"></i>
+                            <span class="sidebar-text">Kalibrasi Alkes</span>
                         </a>
 
                         <!-- MASTER DATA HEADER -->
