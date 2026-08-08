@@ -22,53 +22,7 @@
 @section('title', $pageTitle)
 
 @section('content')
-<!-- Tom Select CSS & JS CDN -->
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
-<style>
-    .ts-wrapper {
-        border-radius: 0.75rem !important;
-        width: 100% !important;
-    }
-    .ts-control {
-        border-radius: 0.75rem !important;
-        background-color: #f8fafc !important;
-        border: 1px solid #cbd5e1 !important;
-        padding: 0.6rem 0.95rem !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
-        color: #0f172a !important;
-        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important;
-        transition: all 0.2s ease !important;
-    }
-    .ts-wrapper.focus .ts-control {
-        border-color: #0d9488 !important;
-        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
-        background-color: #ffffff !important;
-    }
-    .ts-dropdown {
-        border-radius: 0.85rem !important;
-        border: 1px solid #0d9488 !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-        overflow: hidden !important;
-        z-index: 9999 !important;
-        padding: 4px !important;
-        background: #ffffff !important;
-    }
-    .ts-dropdown .option {
-        padding: 9px 14px !important;
-        border-radius: 0.5rem !important;
-        font-size: 0.925rem !important;
-        font-weight: 500 !important;
-        color: #334155 !important;
-    }
-    .ts-dropdown .option:hover, 
-    .ts-dropdown .option.active {
-        background-color: #0d9488 !important;
-        color: #ffffff !important;
-    }
-</style>
 
 <div class="space-y-6">
 
@@ -219,11 +173,11 @@
     </div>
 
     <!-- Data Table Card -->
-    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse border border-slate-300 text-sm">
+            <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider select-none">
+                    <tr class="bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800 text-xs font-bold uppercase tracking-wider select-none">
                         <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-12">No</th>
                         
                         <!-- Clickable Column Headers with Sort Icons -->
@@ -397,26 +351,5 @@
 
 </div>
 
-<!-- Interactive TomSelect Initializer Script -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        new TomSelect('#selectRuangan', {
-            create: false,
-            placeholder: '-- Semua Ruangan Pemilik --',
-            maxOptions: 50,
-        });
 
-        new TomSelect('#selectLokasi', {
-            create: false,
-            placeholder: '-- Semua Lokasi Fisik --',
-            maxOptions: 50,
-        });
-
-        new TomSelect('#selectKondisi', {
-            create: false,
-            placeholder: '-- Semua Kondisi Alat --',
-            maxOptions: 10,
-        });
-    });
-</script>
 @endsection

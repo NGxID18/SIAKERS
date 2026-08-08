@@ -17,6 +17,10 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+    <!-- Tom Select CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
     <style>
         body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
 
@@ -55,6 +59,62 @@
             .sidebar-collapsed #collapseBtnIcon {
                 transform: rotate(180deg);
             }
+        }
+
+        /* Premium Tom Select UI Styles */
+        .ts-wrapper {
+            border-radius: 0.75rem !important;
+            width: 100% !important;
+        }
+        .ts-control {
+            border-radius: 0.75rem !important;
+            background-color: #f8fafc !important;
+            border: 1px solid #cbd5e1 !important;
+            padding: 0.5rem 0.9rem !important;
+            min-height: 46px !important;
+            height: 46px !important;
+            display: flex !important;
+            align-items: center !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+            transition: all 0.2s ease !important;
+        }
+        .ts-control .item {
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            color: #0f172a !important;
+        }
+        .ts-control > input {
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            color: #1e293b !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: #0d9488 !important;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
+            background-color: #ffffff !important;
+        }
+        .ts-dropdown {
+            border-radius: 0.85rem !important;
+            border: 1px solid #0d9488 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            overflow: hidden !important;
+            z-index: 9999 !important;
+            padding: 6px !important;
+            background: #ffffff !important;
+        }
+        .ts-dropdown .option {
+            padding: 10px 14px !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            color: #1e293b !important;
+        }
+        .ts-dropdown .option.active, .ts-dropdown .option:hover {
+            background-color: #0d9488 !important;
+            color: #ffffff !important;
         }
 
         /* Animated Notification Bell Swing Keyframes */
@@ -115,16 +175,34 @@
     <div id="mobileSidebarOverlay" onclick="closeMobileSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity duration-300"></div>
 
     <!-- FULL-WIDTH TOP NAVBAR (Teal Dark Palette - Memanjang 100% Left to Right) -->
-    <header class="w-full h-16 bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800 px-4 sm:px-6 flex items-center justify-between shadow-md sticky top-0 z-40 shrink-0">
-        <div class="flex items-center gap-3">
+    <header class="w-full h-16 bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800/80 px-4 sm:px-6 flex items-center justify-between shadow-md sticky top-0 z-40 shrink-0 relative">
+        
+        <!-- Left: SIAKERS Logo & RSJKO Engku Haji Daud Subtitle (Level with Top Bar) -->
+        <div class="flex items-center gap-3 z-10">
             <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-teal-800/80 text-white hover:bg-teal-700 transition focus:outline-none" title="Buka Menu Navigasi">
                 <i class="ri-menu-line text-xl"></i>
             </button>
-            <h2 class="font-extrabold text-white text-xs sm:text-sm md:text-base tracking-tight drop-shadow-xs">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT RSJKO ENGKU HAJI DAUD (SIAKERS)</h2>
+
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-2xl bg-teal-500 text-white flex items-center justify-center shadow-lg shadow-teal-500/30 shrink-0 group-hover:scale-105 transition-transform" title="SIAKERS - RSJKO Engku Haji Daud">
+                    <i class="ri-hospital-line text-2xl"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h2 class="font-black text-white text-base tracking-wide leading-tight group-hover:text-teal-200 transition-colors">SIAKERS</h2>
+                    <p class="text-[10px] text-teal-300 font-semibold tracking-normal leading-none mt-0.5">RSJKO Engku Haji Daud</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Center: Prominent SIAKERS Title (Centered with Title Font Size) -->
+        <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none z-10">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-[0.2em] text-white drop-shadow-md">
+                <span class="bg-gradient-to-r from-teal-200 via-white to-teal-200 bg-clip-text text-transparent">SIAKERS</span>
+            </h1>
         </div>
 
         <!-- Header Action Controls: Active Role Badge, Notification Bell (Admin Only) & Logout -->
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2.5 z-10 ml-auto">
 
             <!-- Active Role Badge (Static Info - Must Logout to Change Role) -->
             <div class="h-9 px-3 py-1.5 {{ $currentRole === 'elektromedis' ? 'bg-amber-500/20 text-amber-200 border-amber-400/40' : 'bg-teal-800/80 text-teal-100 border-teal-600/60' }} border rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs shrink-0">
@@ -206,40 +284,32 @@
             <!-- Inner Scrollable Sidebar Container -->
             <div class="w-full h-full flex flex-col justify-between overflow-y-auto overflow-x-hidden">
                 <div>
-                    <!-- Brand Section Inside Sidebar -->
-                    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between sidebar-brand">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-teal-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 shrink-0" title="RSJKO Engku Haji Daud">
-                                <i class="ri-hospital-line text-2xl"></i>
-                            </div>
-                            <div class="min-w-0 sidebar-text">
-                                <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKERS</h1>
-                                <p class="text-[11px] text-slate-400 leading-tight">RSJKO Engku Haji Daud</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                    <!-- Mobile Close Sidebar Header (Mobile Only) -->
+                    <div class="px-4 py-3 flex items-center justify-between md:hidden border-b border-slate-800">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Navigasi System</span>
+                        <button type="button" onclick="closeMobileSidebar()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
                             <i class="ri-close-line text-xl"></i>
                         </button>
                     </div>
 
-                    <nav class="p-3 space-y-1.5">
+                    <nav class="p-3 pt-4 space-y-1.5">
                         <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider sidebar-text">Menu Utama</div>
 
                         <!-- Menu 1: Dashboard Inventaris -->
-                        <a href="{{ route('dashboard') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Dashboard Inventaris">
-                            <i class="ri-dashboard-3-line text-xl shrink-0"></i>
+                        <a href="{{ route('dashboard') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Dashboard Inventaris">
+                            <i class="ri-dashboard-3-line text-xl text-sky-400 shrink-0"></i>
                             <span class="sidebar-text">Dashboard Inventaris</span>
                         </a>
 
                         <!-- Menu 2: Pindah Ruangan Alkes -->
-                        <a href="{{ route('mutasi.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('mutasi.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Pindah Ruangan Alkes">
-                            <i class="ri-arrow-left-right-line text-xl shrink-0"></i>
+                        <a href="{{ route('mutasi.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('mutasi.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Pindah Ruangan Alkes">
+                            <i class="ri-arrow-left-right-line text-xl text-indigo-400 shrink-0"></i>
                             <span class="sidebar-text">Pindah Ruangan Alkes</span>
                         </a>
 
                         <!-- Menu 3: Perbaikan Alkes -->
                         <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Perbaikan Alkes">
-                            <i class="ri-tools-line text-xl shrink-0"></i>
+                            <i class="ri-tools-line text-xl text-amber-400 shrink-0"></i>
                             <div class="flex items-center justify-between w-full sidebar-text">
                                 <span>Perbaikan Alkes</span>
                                 @if ($currentRole === 'elektromedis' && $unreadNotifCount > 0)
@@ -259,21 +329,21 @@
                         <!-- MASTER DATA HEADER -->
                         <div class="px-3 pt-5 pb-1 text-xs font-bold text-slate-400 uppercase tracking-wider sidebar-text">Master Data</div>
 
-                        <!-- Menu 4: Inventaris Alkes -->
-                        <a href="{{ route('alkes.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('alkes.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Inventaris Alkes">
-                            <i class="ri-stethoscope-line text-xl shrink-0"></i>
+                        <!-- Menu 5: Inventaris Alkes -->
+                        <a href="{{ route('alkes.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('alkes.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Inventaris Alkes">
+                            <i class="ri-stethoscope-line text-xl text-teal-300 shrink-0"></i>
                             <span class="sidebar-text">Inventaris Alkes</span>
                         </a>
 
-                        <!-- Menu 5: Daftar Ruangan -->
+                        <!-- Menu 6: Daftar Ruangan -->
                         <a href="{{ route('ruangan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('ruangan.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Daftar Ruangan">
-                            <i class="ri-building-4-line text-xl shrink-0"></i>
+                            <i class="ri-building-4-line text-xl text-purple-400 shrink-0"></i>
                             <span class="sidebar-text">Daftar Ruangan</span>
                         </a>
 
-                        <!-- Menu 6: Riwayat Aktivitas Sistem -->
+                        <!-- Menu 7: Riwayat Aktivitas Sistem -->
                         <a href="{{ route('activity-logs.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('activity-logs.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Riwayat Aktivitas Sistem">
-                            <i class="ri-history-line text-xl text-teal-400 shrink-0"></i>
+                            <i class="ri-history-line text-xl text-cyan-400 shrink-0"></i>
                             <span class="sidebar-text">Riwayat Aktivitas Sistem</span>
                         </a>
                     </nav>
@@ -351,6 +421,18 @@
             document.documentElement.classList.toggle('sidebar-collapsed', isCollapsed);
             localStorage.setItem('siakers_sidebar_collapsed', isCollapsed ? 'true' : 'false');
         }
+
+        // Global Auto-initialize Tom Select UI for all select elements
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select').forEach(function(selectEl) {
+                if (!selectEl.tomselect && !selectEl.classList.contains('no-tomselect')) {
+                    new TomSelect(selectEl, {
+                        create: false,
+                        maxOptions: 100
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>

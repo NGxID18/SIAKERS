@@ -72,11 +72,11 @@
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider">
+                    <tr class="bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800 text-xs font-bold uppercase tracking-wider">
                         <th class="px-4 py-3.5 border-r border-teal-700/60">Tanggal Lapor</th>
                         <th class="px-4 py-3.5 border-r border-teal-700/60">Unit Alkes</th>
                         <th class="px-4 py-3.5 border-r border-teal-700/60">Ruangan Asal & Lokasi Fisik</th>
