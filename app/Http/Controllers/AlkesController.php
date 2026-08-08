@@ -27,8 +27,6 @@ class AlkesController extends Controller
                   ->orWhere('nomor_seri', 'like', "%{$search}%")
                   ->orWhere('tahun_pengadaan', 'like', "%{$search}%")
                   ->orWhere('jumlah', 'like', "%{$search}%")
-                  ->orWhere('cara_perolehan', 'like', "%{$search}%")
-                  ->orWhere('nilai_perolehan', 'like', "%{$search}%")
                   ->orWhere('lokasi_saat_ini_note', 'like', "%{$search}%")
                   ->orWhere('kondisi', 'like', "%{$search}%")
                   ->orWhere('aspak_status', 'like', "%{$search}%")
@@ -71,8 +69,6 @@ class AlkesController extends Controller
             'nomor_seri' => 'nomor_seri',
             'tahun_pengadaan' => 'tahun_pengadaan',
             'jumlah' => 'jumlah',
-            'cara_perolehan' => 'cara_perolehan',
-            'nilai_perolehan' => 'nilai_perolehan',
             'kondisi' => 'kondisi',
             'aspak_status' => 'aspak_status',
             'kib_status' => 'kib_status',
@@ -131,8 +127,6 @@ class AlkesController extends Controller
             'tipe' => 'nullable|string',
             'tahun_pengadaan' => 'nullable|string',
             'jumlah' => 'nullable|integer|min:1',
-            'cara_perolehan' => 'nullable|string',
-            'nilai_perolehan' => 'nullable|numeric',
             'ruangan_id' => 'required|exists:ruangan,id',
             'status' => 'required',
             'kondisi' => 'required',
@@ -201,8 +195,6 @@ class AlkesController extends Controller
             'tipe' => 'nullable|string',
             'tahun_pengadaan' => 'nullable|string',
             'jumlah' => 'nullable|integer|min:1',
-            'cara_perolehan' => 'nullable|string',
-            'nilai_perolehan' => 'nullable|numeric',
             'ruangan_id' => 'required|exists:ruangan,id',
             'status' => 'required',
             'kondisi' => 'required',

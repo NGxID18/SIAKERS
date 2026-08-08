@@ -70,12 +70,12 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-slate-900 text-white border-b border-slate-800 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-6 py-4 border-r border-slate-800">Waktu Pemindahan</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Alat Kesehatan</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Perpindahan Ruangan</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Pemohon & Penanggung Jawab</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Alasan Pemindahan</th>
+                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider">
+                        <th class="px-6 py-4 border-r border-teal-700/60">Waktu Pemindahan</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Alat Kesehatan</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Perpindahan Ruangan</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Pemohon & Penanggung Jawab</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Alasan Pemindahan</th>
                         <th class="px-6 py-4 text-center">Status</th>
                     </tr>
                 </thead>

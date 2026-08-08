@@ -19,13 +19,94 @@
 
     <style>
         body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+
+        /* Smooth Collapsible Sidebar Transitions */
+        #sidebarDrawer {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #mainContentWrapper {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #collapseBtnIcon {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Collapsed Mini Sidebar Styles (When body has .sidebar-collapsed) */
+        @media (min-width: 768px) {
+            .sidebar-collapsed #sidebarDrawer {
+                width: 5rem !important; /* 80px */
+            }
+            .sidebar-collapsed #mainContentWrapper {
+                margin-left: 5rem !important; /* 80px */
+            }
+            .sidebar-collapsed .sidebar-text {
+                display: none !important;
+            }
+            .sidebar-collapsed .sidebar-item {
+                justify-content: center !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .sidebar-collapsed .sidebar-brand {
+                justify-content: center !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .sidebar-collapsed #collapseBtnIcon {
+                transform: rotate(180deg);
+            }
+        }
+
+        /* Animated Notification Bell Swing Keyframes */
+        @keyframes bellRing {
+            0% { transform: rotate(0deg) scale(1); }
+            15% { transform: rotate(20deg) scale(1.2); }
+            30% { transform: rotate(-20deg) scale(1.2); }
+            45% { transform: rotate(15deg) scale(1.15); }
+            60% { transform: rotate(-15deg) scale(1.1); }
+            75% { transform: rotate(8deg) scale(1.05); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+        .animate-bell-ring {
+            display: inline-block;
+            animation: bellRing 0.55s ease-in-out;
+        }
+
+        /* Smooth Dropdown Popover Animations */
+        #notificationDropdown {
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+            opacity: 0;
+            transform: translateY(-12px) scale(0.94);
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #notificationDropdown.dropdown-active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            visibility: visible;
+            pointer-events: auto;
+        }
     </style>
+
+    <script>
+        // Restore Sidebar Fold/Expand State Immediately to Prevent FLC
+        if (localStorage.getItem('siakers_sidebar_collapsed') === 'true' && window.innerWidth >= 768) {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
+    </script>
 </head>
-<body id="appBody" class="h-full text-slate-800 antialiased flex flex-col">
+<body id="appBody" class="h-full text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <script>
+        // Sync class from html to body if present
+        if (document.documentElement.classList.contains('sidebar-collapsed')) {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    </script>
 
     @php
         $currentRole = session('user_role', 'elektromedis');
-        $userRoleLabel = session('user_role_label', 'Ruangan Elektromedis (Admin SIAKERS)');
+        $userRoleLabel = session('user_role_label', 'Instalasi Elektromedis');
         $unreadNotifCount = \App\Models\Notification::where('dibaca', false)->count();
         $recentNotifs = \App\Models\Notification::with('ruanganAsal')->latest()->take(5)->get();
     @endphp
@@ -33,169 +114,192 @@
     <!-- Mobile Drawer Overlay -->
     <div id="mobileSidebarOverlay" onclick="closeMobileSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity duration-300"></div>
 
-    <!-- Responsive Sidebar Drawer -->
-    <aside id="sidebarDrawer" class="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 text-white flex flex-col justify-between shadow-2xl z-50 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-        <div>
-            <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-teal-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 shrink-0">
-                        <i class="ri-hospital-line text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKERS</h1>
-                        <p class="text-[11px] text-slate-400 leading-tight">Sistem Inventaris Alat Kesehatan Rumah Sakit RSJKO Engku Haji Daud</p>
-                    </div>
-                </div>
-                <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
-                    <i class="ri-close-line text-xl"></i>
-                </button>
+    <!-- FULL-WIDTH TOP NAVBAR (Teal Dark Palette - Memanjang 100% Left to Right) -->
+    <header class="w-full h-16 bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800 px-4 sm:px-6 flex items-center justify-between shadow-md sticky top-0 z-40 shrink-0">
+        <div class="flex items-center gap-3">
+            <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-teal-800/80 text-white hover:bg-teal-700 transition focus:outline-none" title="Buka Menu Navigasi">
+                <i class="ri-menu-line text-xl"></i>
+            </button>
+            <h2 class="font-extrabold text-white text-xs sm:text-sm md:text-base tracking-tight drop-shadow-xs">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT RSJKO ENGKU HAJI DAUD (SIAKERS)</h2>
+        </div>
+
+        <!-- Header Action Controls: Active Role Badge, Notification Bell (Admin Only) & Logout -->
+        <div class="flex items-center gap-2.5">
+
+            <!-- Active Role Badge (Static Info - Must Logout to Change Role) -->
+            <div class="h-9 px-3 py-1.5 {{ $currentRole === 'elektromedis' ? 'bg-amber-500/20 text-amber-200 border-amber-400/40' : 'bg-teal-800/80 text-teal-100 border-teal-600/60' }} border rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs shrink-0">
+                <i class="{{ $currentRole === 'elektromedis' ? 'ri-shield-user-fill text-amber-300' : 'ri-hospital-line text-teal-300' }} text-sm"></i>
+                <span>{{ $userRoleLabel }}</span>
             </div>
 
-            <nav class="p-4 space-y-1.5">
-                <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Menu Utama</div>
-
-                <a href="{{ route('dashboard') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-dashboard-3-line text-xl"></i>
-                    <span>Dashboard Inventaris</span>
-                </a>
-
-                <a href="{{ route('mutasi.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('mutasi.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-arrow-left-right-line text-xl"></i>
-                    <span>Pindah Ruangan Alkes</span>
-                </a>
-
-                <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-tools-line text-xl"></i>
-                    <div class="flex items-center justify-between w-full">
-                        <span>Perbaikan & Kalibrasi</span>
-                        @if ($currentRole === 'elektromedis' && $unreadNotifCount > 0)
-                            <span class="px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full animate-pulse">
+            <!-- Notification Bell Center (KHUSUS ELEKTROMEDIS ADMIN) -->
+            @if ($currentRole === 'elektromedis')
+                <div class="relative">
+                    <button type="button" id="notifBellBtn" onclick="toggleNotificationDropdown()" class="h-9 px-3 py-1.5 rounded-xl bg-teal-800/80 text-white hover:bg-teal-700 transition focus:outline-none border border-teal-600/60 flex items-center justify-center relative group shrink-0" title="Notifikasi Laporan Perbaikan Masuk">
+                        <i id="notifBellIcon" class="ri-notification-3-line text-base block transition-transform group-hover:scale-110"></i>
+                        @if ($unreadNotifCount > 0)
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-teal-950 animate-bounce">
                                 {{ $unreadNotifCount }}
                             </span>
                         @endif
-                    </div>
-                </a>
+                    </button>
 
-                <!-- MASTER DATA -->
-                <div class="px-3 pt-6 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Master Data</div>
-
-                <a href="{{ route('alkes.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('alkes.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-stethoscope-line text-xl"></i>
-                    <span>Inventaris Alkes</span>
-                </a>
-
-                <a href="{{ route('ruangan.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('ruangan.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-building-4-line text-lg"></i>
-                    <span>Daftar Ruangan</span>
-                </a>
-
-                <a href="{{ route('activity-logs.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('activity-logs.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}">
-                    <i class="ri-history-line text-lg text-teal-400"></i>
-                    <span>Riwayat Aktivitas Sistem</span>
-                </a>
-            </nav>
-        </div>
-
-        <div class="p-4 border-t border-slate-800/60 text-center">
-            <p class="text-[11px] text-slate-500">&copy; 2026 SIAKERS - RSJKO Engku Haji Daud</p>
-        </div>
-    </aside>
-
-    <div class="md:ml-72 min-h-screen flex flex-col flex-1 bg-slate-50">
-        <!-- Top Right Header -->
-        <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
-            <div class="flex items-center gap-3">
-                <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none" title="Buka Menu Navigasi">
-                    <i class="ri-menu-line text-xl"></i>
-                </button>
-                <h2 class="font-extrabold text-slate-800 text-base tracking-tight hidden sm:block">SISTEM INVENTARIS ALAT KESEHATAN RUMAH SAKIT RSJKO ENGKU HAJI DAUD (SIAKERS)</h2>
-            </div>
-
-            <!-- Header Action Controls: Active Role Badge, Notification Bell (Admin Only) & Logout -->
-            <div class="flex items-center gap-2.5">
-
-                <!-- Active Role Badge (Static Info - Must Logout to Change Role) -->
-                <div class="px-3 py-1.5 {{ $currentRole === 'elektromedis' ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-teal-50 text-teal-900 border-teal-300' }} border rounded-xl text-xs font-bold flex items-center gap-1.5">
-                    <i class="{{ $currentRole === 'elektromedis' ? 'ri-shield-user-fill text-amber-600' : 'ri-hospital-line text-teal-600' }} text-sm"></i>
-                    <span>{{ $userRoleLabel }}</span>
-                </div>
-
-                <!-- Notification Bell Center (KHUSUS ELEKTROMEDIS ADMIN) -->
-                @if ($currentRole === 'elektromedis')
-                    <div class="relative">
-                        <button type="button" onclick="toggleNotificationDropdown()" class="relative p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition focus:outline-none" title="Notifikasi Laporan Perbaikan Masuk">
-                            <i class="ri-notification-3-line text-xl"></i>
+                    <!-- Animated Dropdown Box -->
+                    <div id="notificationDropdown" class="absolute right-0 mt-3 w-80 sm:w-96 bg-white text-slate-800 rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50">
+                        <div class="p-4 bg-teal-950 text-white flex items-center justify-between">
+                            <h4 class="font-bold text-sm flex items-center gap-2">
+                                <i class="ri-notification-3-line text-teal-400"></i>
+                                Notifikasi Laporan Perbaikan
+                            </h4>
                             @if ($unreadNotifCount > 0)
-                                <span class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white animate-bounce">
-                                    {{ $unreadNotifCount }}
-                                </span>
+                                <form method="POST" action="{{ route('notifications.read-all') }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-teal-300 hover:underline">Tandai Dibaca</button>
+                                </form>
                             @endif
-                        </button>
+                        </div>
 
-                        <!-- Dropdown Box -->
-                        <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50">
-                            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-                                <h4 class="font-bold text-sm flex items-center gap-2">
-                                    <i class="ri-notification-3-line text-teal-400"></i>
-                                    Notifikasi Laporan Perbaikan
-                                </h4>
-                                @if ($unreadNotifCount > 0)
-                                    <form method="POST" action="{{ route('notifications.read-all') }}">
-                                        @csrf
-                                        <button type="submit" class="text-xs text-teal-400 hover:underline">Tandai Dibaca</button>
-                                    </form>
-                                @endif
-                            </div>
-
-                            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                                @forelse ($recentNotifs as $n)
-                                    <div class="p-3.5 hover:bg-slate-50 transition {{ !$n->dibaca ? 'bg-amber-50/50' : '' }}">
-                                        <div class="flex items-center justify-between gap-2">
-                                            <span class="font-bold text-xs text-slate-900 truncate">{{ $n->judul }}</span>
-                                            <span class="text-[10px] text-slate-400 shrink-0">{{ $n->created_at->diffForHumans() }}</span>
-                                        </div>
-                                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ $n->pesan }}</p>
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse ($recentNotifs as $n)
+                                <div class="p-3.5 hover:bg-slate-50 transition {{ !$n->dibaca ? 'bg-amber-50/50' : '' }}">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-bold text-xs text-slate-900 truncate">{{ $n->judul }}</span>
+                                        <span class="text-[10px] text-slate-400 shrink-0">{{ $n->created_at->diffForHumans() }}</span>
                                     </div>
-                                @empty
-                                    <p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi laporan perbaikan.</p>
-                                @endforelse
-                            </div>
+                                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ $n->pesan }}</p>
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi laporan perbaikan.</p>
+                            @endforelse
+                        </div>
 
-                            <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
-                                <a href="{{ route('pemeliharaan.index') }}" class="text-xs font-bold text-teal-600 hover:underline">Lihat Semua Laporan Perbaikan &rarr;</a>
-                            </div>
+                        <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('pemeliharaan.index') }}" class="text-xs font-bold text-teal-700 hover:underline">Lihat Semua Laporan Perbaikan &rarr;</a>
                         </div>
                     </div>
-                @endif
-
-                <!-- Keluar / Logout Button -->
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="p-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 hover:text-rose-800 transition flex items-center gap-1" title="Keluar / Ganti Akun">
-                        <i class="ri-logout-box-r-line text-lg"></i>
-                        <span class="text-xs font-bold hidden md:inline">Keluar</span>
-                    </button>
-                </form>
-
-            </div>
-        </header>
-
-        <!-- Main Workspace Content -->
-        <main class="p-4 sm:p-6 lg:p-8 flex-1">
-            @if (session('success'))
-                <div id="flashSuccessMsg" class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 font-semibold text-sm flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-2.5">
-                        <i class="ri-checkbox-circle-line text-xl text-emerald-600"></i>
-                        <span>{{ session('success') }}</span>
-                    </div>
-                    <button type="button" onclick="document.getElementById('flashSuccessMsg').remove()" class="text-emerald-500 hover:text-emerald-800 text-lg">
-                        <i class="ri-close-line"></i>
-                    </button>
                 </div>
             @endif
 
-            @yield('content')
-        </main>
+            <!-- Keluar / Logout Button -->
+            <form method="POST" action="{{ route('logout') }}" class="inline">
+                @csrf
+                <button type="submit" class="h-9 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm border border-rose-500 shrink-0" title="Keluar / Ganti Akun">
+                    <i class="ri-logout-box-r-line text-base"></i>
+                    <span class="hidden md:inline">Keluar</span>
+                </button>
+            </form>
+
+        </div>
+    </header>
+
+    <!-- BODY CONTAINER BELOW TOP HEADER -->
+    <div class="flex flex-1 relative">
+
+        <!-- Responsive Sidebar Drawer (Collapsible) -->
+        <aside id="sidebarDrawer" class="fixed top-16 left-0 bottom-0 w-72 bg-slate-900 text-white z-30 transform -translate-x-full md:translate-x-0">
+            
+            <!-- Animated Collapse/Expand Floating Button (Layer Paling Atas z-50, Unclipped) -->
+            <button type="button" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-teal-600 hover:bg-teal-500 text-white rounded-full items-center justify-center shadow-xl border-2 border-slate-900 transition-all duration-300 hover:scale-110 z-50 focus:outline-none" title="Ciutkan / Perluas Sidebar">
+                <i id="collapseBtnIcon" class="ri-arrow-left-s-line text-lg"></i>
+            </button>
+
+            <!-- Inner Scrollable Sidebar Container -->
+            <div class="w-full h-full flex flex-col justify-between overflow-y-auto overflow-x-hidden">
+                <div>
+                    <!-- Brand Section Inside Sidebar -->
+                    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between sidebar-brand">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-teal-500 flex items-center justify-center text-white shadow-lg shadow-teal-500/30 shrink-0" title="RSJKO Engku Haji Daud">
+                                <i class="ri-hospital-line text-2xl"></i>
+                            </div>
+                            <div class="min-w-0 sidebar-text">
+                                <h1 class="font-extrabold text-xl tracking-wide text-teal-400">SIAKERS</h1>
+                                <p class="text-[11px] text-slate-400 leading-tight">RSJKO Engku Haji Daud</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+
+                    <nav class="p-3 space-y-1.5">
+                        <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider sidebar-text">Menu Utama</div>
+
+                        <!-- Menu 1: Dashboard Inventaris -->
+                        <a href="{{ route('dashboard') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Dashboard Inventaris">
+                            <i class="ri-dashboard-3-line text-xl shrink-0"></i>
+                            <span class="sidebar-text">Dashboard Inventaris</span>
+                        </a>
+
+                        <!-- Menu 2: Pindah Ruangan Alkes -->
+                        <a href="{{ route('mutasi.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('mutasi.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Pindah Ruangan Alkes">
+                            <i class="ri-arrow-left-right-line text-xl shrink-0"></i>
+                            <span class="sidebar-text">Pindah Ruangan Alkes</span>
+                        </a>
+
+                        <!-- Menu 3: Perbaikan & Kalibrasi -->
+                        <a href="{{ route('pemeliharaan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('pemeliharaan.index') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Perbaikan & Kalibrasi">
+                            <i class="ri-tools-line text-xl shrink-0"></i>
+                            <div class="flex items-center justify-between w-full sidebar-text">
+                                <span>Perbaikan & Kalibrasi</span>
+                                @if ($currentRole === 'elektromedis' && $unreadNotifCount > 0)
+                                    <span class="px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full animate-pulse">
+                                        {{ $unreadNotifCount }}
+                                    </span>
+                                @endif
+                            </div>
+                        </a>
+
+                        <!-- MASTER DATA HEADER -->
+                        <div class="px-3 pt-5 pb-1 text-xs font-bold text-slate-400 uppercase tracking-wider sidebar-text">Master Data</div>
+
+                        <!-- Menu 4: Inventaris Alkes -->
+                        <a href="{{ route('alkes.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('alkes.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Inventaris Alkes">
+                            <i class="ri-stethoscope-line text-xl shrink-0"></i>
+                            <span class="sidebar-text">Inventaris Alkes</span>
+                        </a>
+
+                        <!-- Menu 5: Daftar Ruangan -->
+                        <a href="{{ route('ruangan.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('ruangan.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Daftar Ruangan">
+                            <i class="ri-building-4-line text-xl shrink-0"></i>
+                            <span class="sidebar-text">Daftar Ruangan</span>
+                        </a>
+
+                        <!-- Menu 6: Riwayat Aktivitas Sistem -->
+                        <a href="{{ route('activity-logs.index') }}" onclick="closeMobileSidebar()" class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 {{ request()->routeIs('activity-logs.*') ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' : 'text-slate-300 hover:bg-slate-800' }}" title="Riwayat Aktivitas Sistem">
+                            <i class="ri-history-line text-xl text-teal-400 shrink-0"></i>
+                            <span class="sidebar-text">Riwayat Aktivitas Sistem</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Sidebar Footer -->
+                <div class="p-4 border-t border-slate-800/60 text-center sidebar-text">
+                    <p class="text-[11px] text-slate-500">&copy; 2026 SIAKERS - RSJKO Engku Haji Daud</p>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Main Workspace Content (Shifted for Sidebar on Desktop) -->
+        <div id="mainContentWrapper" class="md:ml-72 flex-1 min-h-[calc(100vh-64px)] flex flex-col bg-slate-50">
+            <main class="p-4 sm:p-6 lg:p-8 flex-1">
+                @if (session('success'))
+                    <div id="flashSuccessMsg" class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 font-semibold text-sm flex items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ri-checkbox-circle-line text-xl text-emerald-600"></i>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                        <button type="button" onclick="document.getElementById('flashSuccessMsg').remove()" class="text-emerald-500 hover:text-emerald-800 text-lg">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </div>
+                @endif
+
+                @yield('content')
+            </main>
+        </div>
+
     </div>
 
     <script>
@@ -211,9 +315,35 @@
 
         function toggleNotificationDropdown() {
             const dropdown = document.getElementById('notificationDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('hidden');
+            const bellIcon = document.getElementById('notifBellIcon');
+
+            // Trigger physical bell ring animation
+            if (bellIcon) {
+                bellIcon.classList.remove('animate-bell-ring');
+                void bellIcon.offsetWidth; // Trigger DOM reflow
+                bellIcon.classList.add('animate-bell-ring');
             }
+
+            // Toggle dropdown with smooth scale-fade transition
+            if (dropdown) {
+                dropdown.classList.toggle('dropdown-active');
+            }
+        }
+
+        // Close notification dropdown smoothly when clicking outside
+        document.addEventListener('click', function(event) {
+            const bellBtn = document.getElementById('notifBellBtn');
+            const dropdown = document.getElementById('notificationDropdown');
+
+            if (bellBtn && dropdown && !bellBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('dropdown-active');
+            }
+        });
+
+        function toggleSidebarCollapse() {
+            const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+            document.documentElement.classList.toggle('sidebar-collapsed', isCollapsed);
+            localStorage.setItem('siakers_sidebar_collapsed', isCollapsed ? 'true' : 'false');
         }
     </script>
 </body>

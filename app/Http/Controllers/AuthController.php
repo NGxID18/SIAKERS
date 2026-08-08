@@ -31,30 +31,30 @@ class AuthController extends Controller
             $elektromedisRuang = Ruangan::where('nama_ruangan', 'Elektromedis')->first();
             session([
                 'user_role' => 'elektromedis',
-                'user_role_label' => 'Ruangan Elektromedis (Admin SIAKERS)',
+                'user_role_label' => 'Instalasi Elektromedis',
                 'user_ruangan_id' => $elektromedisRuang ? $elektromedisRuang->id : 1,
                 'user_ruangan_name' => 'Elektromedis',
             ]);
-            $msg = 'Berhasil masuk sebagai Ruangan Elektromedis (Admin Utama SIAKERS).';
+            $msg = 'Berhasil masuk sebagai Instalasi Elektromedis.';
         } elseif ($role === 'tata_usaha') {
             session([
                 'user_role' => 'tata_usaha',
-                'user_role_label' => 'Tata Usaha / Direksi (Read-Only)',
+                'user_role_label' => 'Manajemen / Penunjang (Read-Only)',
                 'user_ruangan_id' => 0,
-                'user_ruangan_name' => 'Direksi & Tata Usaha',
+                'user_ruangan_name' => 'Manajemen & Penunjang',
             ]);
-            $msg = 'Berhasil masuk sebagai Tata Usaha / Direksi (Pengawasan Read-Only).';
+            $msg = 'Berhasil masuk sebagai Manajemen / Penunjang (Pengawasan Read-Only).';
         } else {
             $ruanganId = (int) ($validated['ruangan_id'] ?? 1);
             $ruangan = Ruangan::find($ruanganId);
-            $namaRuangan = $ruangan ? $ruangan->nama_ruangan : 'Ruangan Operasional';
+            $namaRuangan = $ruangan ? $ruangan->nama_ruangan : 'Instalasi / Ruangan';
             session([
                 'user_role' => 'ruangan',
-                'user_role_label' => "Petugas Ruangan {$namaRuangan}",
+                'user_role_label' => "Instalasi / Ruangan {$namaRuangan}",
                 'user_ruangan_id' => $ruanganId,
                 'user_ruangan_name' => $namaRuangan,
             ]);
-            $msg = "Berhasil masuk sebagai Petugas Ruangan {$namaRuangan}.";
+            $msg = "Berhasil masuk sebagai Instalasi / Ruangan {$namaRuangan}.";
         }
 
         return redirect()->route('dashboard')->with('success', $msg);

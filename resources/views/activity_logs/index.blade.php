@@ -54,11 +54,11 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-slate-900 text-white border-b border-slate-800 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-6 py-4 border-r border-slate-800">Waktu & Tanggal (WIB)</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Peran & Ruangan Pengguna</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Aktivitas</th>
-                        <th class="px-6 py-4 border-r border-slate-800">Deskripsi Perubahan Data</th>
+                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider">
+                        <th class="px-6 py-4 border-r border-teal-700/60">Waktu & Tanggal (WIB)</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Peran & Ruangan Pengguna</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Aktivitas</th>
+                        <th class="px-6 py-4 border-r border-teal-700/60">Deskripsi Perubahan Data</th>
                         <th class="px-6 py-4 text-center">Koneksi Perangkat</th>
                     </tr>
                 </thead>

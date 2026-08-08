@@ -13,7 +13,7 @@
     <div id="welcomeBanner" class="p-4 bg-teal-50 border border-teal-200 rounded-2xl text-teal-900 text-sm font-semibold flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-2.5">
             <i class="ri-checkbox-circle-fill text-xl text-teal-600"></i>
-            <span>Berhasil masuk sebagai <strong>{{ session('user_role_label', 'Ruangan Elektromedis (Admin)') }}</strong>.</span>
+            <span>Berhasil masuk sebagai <strong>{{ session('user_role_label', 'Instalasi Elektromedis') }}</strong>.</span>
         </div>
         <button type="button" onclick="document.getElementById('welcomeBanner').remove()" class="text-teal-500 hover:text-teal-800 text-lg">
             <i class="ri-close-line"></i>
@@ -47,10 +47,10 @@
             </div>
         </a>
 
-        <!-- Stat 3: Unit di Ruangan Elektromedis (Perlu Perbaikan / Kalibrasi) -->
+        <!-- Stat 3: Unit Rusak (Dalam Perbaikan / Kalibrasi) -->
         <a href="{{ route('pemeliharaan.index') }}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-rose-400 hover:shadow-md transition group flex items-center justify-between">
             <div>
-                <p class="text-xs font-bold text-rose-800 uppercase tracking-wider">Di Ruangan Elektromedis</p>
+                <p class="text-xs font-bold text-rose-800 uppercase tracking-wider">Unit Perlu Perbaikan</p>
                 <h3 class="text-4xl font-extrabold text-rose-700 mt-2 tracking-tight">{{ number_format($alkesRusak) }}</h3>
                 <p class="text-xs text-rose-800 font-semibold mt-1">Dalam Perbaikan / Kalibrasi</p>
             </div>
@@ -75,28 +75,17 @@
             </div>
         </div>
 
-        <!-- Chart 2: Stacked Bar Chart Kondisi Alkes per Ruangan Utama -->
+        <!-- Chart 2: Stacked Bar Chart Kondisi Alkes per Ruangan -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2 border-b border-slate-100 pb-3">
                 <i class="ri-bar-chart-grouped-line text-teal-600"></i>
-                Kondisi Alkes per Ruangan Utama
+                Kondisi Alkes per Ruangan
             </h4>
             <div class="relative h-64">
                 <canvas id="chartRuanganKondisi"></canvas>
             </div>
         </div>
 
-    </div>
-
-    <!-- Chart 3: Distribusi Alat Berdasarkan Cara Perolehan (DAK/APBD/BLUD/HIBAH) -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2 border-b border-slate-100 pb-3">
-            <i class="ri-price-tag-3-line text-teal-600"></i>
-            Distribusi Alkes Berdasarkan Cara Perolehan (Sumber Dana)
-        </h4>
-        <div class="relative h-64">
-            <canvas id="chartPerolehan"></canvas>
-        </div>
     </div>
 
     <!-- Grid Rekapitulasi Ruangan -->
@@ -148,23 +137,22 @@
 
             <div class="space-y-3">
                 @forelse ($recentActivityLogs as $log)
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-teal-100 text-teal-700 font-semibold flex items-center justify-center shrink-0 mt-0.5 text-sm">
-                            <i class="ri-user-follow-line"></i>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm shrink-0">
+                            <i class="ri-pulse-line"></i>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-semibold text-sm text-slate-900 truncate">{{ $log->user_role }} ({{ $log->ruangan_name ?? 'Pusat' }})</span>
-                                <span class="text-xs text-slate-400 shrink-0 font-mono">{{ $log->created_at->diffForHumans() }}</span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold text-slate-900 text-sm">{{ $log->action }}</span>
+                                <span class="text-[11px] text-slate-500 font-mono">{{ $log->created_at->diffForHumans() }}</span>
                             </div>
-                            <span class="inline-block px-2.5 py-0.5 bg-teal-50 text-teal-800 text-xs font-semibold rounded border border-teal-200 mt-1">
-                                {{ $log->action }}
-                            </span>
-                            <p class="text-sm text-slate-600 mt-1 truncate font-normal">{{ $log->description }}</p>
+                            <p class="text-xs text-slate-600 mt-0.5 leading-snug">{{ $log->description }}</p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-slate-500 text-center py-6">Belum ada catatan aktivitas.</p>
+                    <div class="text-center py-6 text-slate-400 text-sm">
+                        Belum ada riwayat aktivitas recorded.
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -174,30 +162,30 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2">
                     <i class="ri-arrow-left-right-line text-teal-600"></i>
-                    Pindah Ruangan Alkes Terbaru
+                    Pindah Ruangan Terbaru
                 </h4>
                 <a href="{{ route('mutasi.index') }}" class="text-sm font-semibold text-teal-600 hover:text-teal-800 transition flex items-center gap-1">
-                    Lihat Histori <i class="ri-arrow-right-line"></i>
+                    Lihat Semua Mutasi <i class="ri-arrow-right-line"></i>
                 </a>
             </div>
 
             <div class="space-y-3">
-                @forelse ($mutasiTerbaru as $mut)
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 font-semibold flex items-center justify-center shrink-0 mt-0.5 text-sm">
-                            <i class="ri-swap-line"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-sm text-slate-900 truncate">{{ $mut->alkes->nama_barang ?? 'Alkes' }}</div>
-                            <div class="flex items-center gap-1.5 text-xs mt-1">
-                                <span class="px-2 py-0.5 bg-slate-200 text-slate-700 rounded font-semibold">{{ $mut->ruanganAsal->nama_ruangan ?? 'Ruangan Asal' }}</span>
+                @forelse ($mutasiTerbaru as $mutasi)
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <h5 class="font-bold text-slate-900 text-sm truncate">{{ $mutasi->alkes->nama_barang ?? 'Alkes' }}</h5>
+                            <div class="flex items-center gap-1.5 text-xs text-slate-600 mt-1">
+                                <span class="px-2 py-0.5 bg-white rounded border border-slate-200 font-medium">{{ $mutasi->ruanganAsal->nama_ruangan ?? '-' }}</span>
                                 <i class="ri-arrow-right-line text-teal-600 font-bold"></i>
-                                <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-semibold">{{ $mut->ruanganTujuan->nama_ruangan ?? 'Ruangan Tujuan' }}</span>
+                                <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded border border-teal-200 font-bold">{{ $mutasi->ruanganTujuan->nama_ruangan ?? '-' }}</span>
                             </div>
                         </div>
+                        <span class="text-xs text-slate-500 font-mono shrink-0">{{ $mutasi->tanggal_mutasi ? $mutasi->tanggal_mutasi->format('d/m/Y') : '-' }}</span>
                     </div>
                 @empty
-                    <p class="text-sm text-slate-500 text-center py-6">Belum ada riwayat pemindahan ruangan alkes.</p>
+                    <div class="text-center py-6 text-slate-400 text-sm">
+                        Belum ada data pemindahan ruangan alkes.
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -206,22 +194,21 @@
 
 </div>
 
-<!-- Chart.js Interactive Initialization Script -->
+<!-- Chart.js Script Configuration -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Chart Status Kondisi (Donut Chart)
+        // Chart 1: Donut Chart Status Kondisi Alkes
         const ctxStatus = document.getElementById('chartStatusKondisi');
         if (ctxStatus) {
             new Chart(ctxStatus, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Operasional / Baik', 'Dalam Perbaikan / Rusak'],
+                    labels: {!! json_encode(array_keys($chartStatusData)) !!},
                     datasets: [{
-                        data: [{{ $alkesTersedia }}, {{ $alkesRusak }}],
+                        data: {!! json_encode(array_values($chartStatusData)) !!},
                         backgroundColor: ['#10b981', '#f43f5e'],
-                        borderWidth: 3,
+                        borderWidth: 2,
                         borderColor: '#ffffff',
-                        hoverOffset: 6
                     }]
                 },
                 options: {
@@ -231,8 +218,8 @@
                         legend: {
                             position: 'bottom',
                             labels: {
+                                font: { size: 12, weight: '600' },
                                 padding: 16,
-                                font: { size: 13, weight: '600' }
                             }
                         }
                     },
@@ -241,7 +228,7 @@
             });
         }
 
-        // 2. Chart Kondisi per Ruangan (Stacked Bar Chart)
+        // Chart 2: Stacked Bar Chart Kondisi per Ruangan
         const ctxRuangan = document.getElementById('chartRuanganKondisi');
         if (ctxRuangan) {
             new Chart(ctxRuangan, {
@@ -253,13 +240,13 @@
                             label: 'Kondisi Baik (Operasional)',
                             data: {!! json_encode($chartKondisiBaik) !!},
                             backgroundColor: '#10b981',
-                            borderRadius: 6
+                            borderRadius: 4,
                         },
                         {
                             label: 'Dalam Perbaikan (Rusak)',
                             data: {!! json_encode($chartKondisiRusak) !!},
                             backgroundColor: '#f43f5e',
-                            borderRadius: 6
+                            borderRadius: 4,
                         }
                     ]
                 },
@@ -267,40 +254,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { stacked: true, grid: { display: false } },
-                        y: { stacked: true, beginAtZero: true }
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { font: { size: 10, weight: '500' }, maxRotation: 45, minRotation: 45 }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 11 } }
+                        }
                     },
                     plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        }
-
-        // 3. Chart Cara Perolehan (Horizontal Bar Chart)
-        const ctxPerolehan = document.getElementById('chartPerolehan');
-        if (ctxPerolehan) {
-            new Chart(ctxPerolehan, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($chartPerolehanLabels) !!},
-                    datasets: [{
-                        label: 'Jumlah Unit Alkes',
-                        data: {!! json_encode($chartPerolehanCounts) !!},
-                        backgroundColor: '#0d9488',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { beginAtZero: true },
-                        y: { grid: { display: false } }
-                    },
-                    plugins: {
-                        legend: { display: false }
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 11, weight: '600' } }
+                        }
                     }
                 }
             });

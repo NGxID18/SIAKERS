@@ -90,20 +90,20 @@
 
                 <div class="grid grid-cols-1 gap-2.5">
                     
-                    <!-- Option 1: Ruangan Elektromedis (Admin SIAKERS) -->
+                    <!-- Option 1: Instalasi Elektromedis -->
                     <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-teal-500/50 rounded-2xl cursor-pointer hover:border-teal-400 transition shadow-inner">
                         <input type="radio" name="role" value="elektromedis" checked onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-teal-300 text-sm sm:text-base">Ruangan Elektromedis (Admin)</p>
+                            <p class="font-bold text-teal-300 text-sm sm:text-base">Instalasi Elektromedis</p>
                             <p class="text-[11px] text-slate-300">Otoritas perbaikan, notifikasi, & pengembalian unit alkes</p>
                         </div>
                     </label>
 
-                    <!-- Option 2: Petugas Ruangan Operasional -->
+                    <!-- Option 2: Instalasi / Ruangan -->
                     <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl cursor-pointer hover:border-teal-500/50 transition shadow-inner">
                         <input type="radio" name="role" value="ruangan" onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Petugas Ruangan Operasional</p>
+                            <p class="font-bold text-white text-sm sm:text-base">Instalasi / Ruangan</p>
                             <p class="text-[11px] text-slate-300">Pelaporan barang rusak & mutasi alkes ruangan</p>
                         </div>
                     </label>
@@ -111,7 +111,7 @@
                     <!-- Smooth Animated Ruangan Select Dropdown -->
                     <div id="ruanganDropdownContainer" class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 ease-in-out">
                         <div class="pt-1 pb-1 space-y-1">
-                            <label class="block text-[11px] font-bold text-teal-300 uppercase tracking-wider">Pilih Ruangan Operasional Anda:</label>
+                            <label class="block text-[11px] font-bold text-teal-300 uppercase tracking-wider">Pilih Instalasi / Ruangan Anda:</label>
                             <select id="ruanganSelect" name="ruangan_id" class="w-full">
                                 @foreach ($ruanganList as $ruang)
                                     @if ($ruang->nama_ruangan !== 'Elektromedis')
@@ -122,11 +122,11 @@
                         </div>
                     </div>
 
-                    <!-- Option 3: Tata Usaha / Direksi -->
+                    <!-- Option 3: Manajemen / Penunjang -->
                     <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl cursor-pointer hover:border-teal-500/50 transition shadow-inner">
                         <input type="radio" name="role" value="tata_usaha" onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Tata Usaha / Direksi</p>
+                            <p class="font-bold text-white text-sm sm:text-base">Manajemen / Penunjang</p>
                             <p class="text-[11px] text-slate-300">Pengawasan rekapitulasi inventaris (Read-Only)</p>
                         </div>
                     </label>

@@ -69,18 +69,6 @@
                 </div>
 
                 <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-xs text-slate-400 font-medium uppercase block">Cara Perolehan (Sumber Dana)</span>
-                    <span class="font-bold text-teal-700 text-sm mt-1 block">{{ $alkes->cara_perolehan ?? 'Pengadaan RS' }}</span>
-                </div>
-
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-xs text-slate-400 font-medium uppercase block">Nilai Perolehan (Harga Aset)</span>
-                    <span class="font-mono font-bold text-emerald-700 text-base mt-1 block">
-                        {{ $alkes->nilai_perolehan > 0 ? 'Rp ' . number_format($alkes->nilai_perolehan, 0, ',', '.') : '-' }}
-                    </span>
-                </div>
-
-                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
                     <span class="text-xs text-slate-400 font-medium uppercase block">Jumlah Unit</span>
                     <span class="font-bold text-slate-800 text-sm mt-1 block">{{ $alkes->jumlah }} Unit</span>
                 </div>

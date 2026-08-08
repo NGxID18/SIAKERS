@@ -76,13 +76,13 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-slate-900 text-white border-b border-slate-800 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-4 py-3.5 border-r border-slate-800">Tanggal Lapor</th>
-                        <th class="px-4 py-3.5 border-r border-slate-800">Unit Alkes</th>
-                        <th class="px-4 py-3.5 border-r border-slate-800">Ruangan Asal & Lokasi Fisik</th>
-                        <th class="px-4 py-3.5 border-r border-slate-800">Jenis Tindakan</th>
-                        <th class="px-4 py-3.5 border-r border-slate-800">Gejala / Deskripsi Kerusakan</th>
-                        <th class="px-4 py-3.5 border-r border-slate-800 text-center">Status Perbaikan</th>
+                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider">
+                        <th class="px-4 py-3.5 border-r border-teal-700/60">Tanggal Lapor</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60">Unit Alkes</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60">Ruangan Asal & Lokasi Fisik</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60">Jenis Tindakan</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60">Gejala / Deskripsi Kerusakan</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60 text-center">Status Perbaikan</th>
                         <th class="px-4 py-3.5 text-center">Otoritas Aksi (Elektromedis)</th>
                     </tr>
                 </thead>

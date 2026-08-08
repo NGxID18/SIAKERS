@@ -9,7 +9,6 @@ use App\Models\Alkes;
 use App\Models\LogPemeliharaan;
 use App\Models\MutasiAlkes;
 use App\Models\Ruangan;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -17,18 +16,21 @@ class DashboardController extends Controller
     {
         $totalAlkes = Alkes::count();
 
-        // Unit Rusak / Dalam Perbaikan di Elektromedis
-        $alkesRusak = Alkes::where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-            ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value)
-            ->count();
+        // Unit Rusak / Dalam Perbaikan
+        $alkesRusak = Alkes::where(function ($q) {
+            $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
+              ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
+        })->count();
 
         // Unit Baik / Operasional di Ruangan (Tersedia & Aktif Digunakan)
         $alkesTersedia = $totalAlkes - $alkesRusak;
 
         // Rekap per Ruangan RS Diurutkan Berdasarkan Abjad Nama Ruangan (A-Z)
         $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_rusak_count' => function ($q) {
-            $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-              ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
+            $q->where(function ($subQ) {
+                $subQ->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
+                     ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
+            });
         }])->orderBy('nama_ruangan', 'asc')->get();
 
         // Mutasi / Pindah Ruangan Terbaru
@@ -54,26 +56,14 @@ class DashboardController extends Controller
         $chartKondisiBaik = [];
         $chartKondisiRusak = [];
 
-        foreach ($ruanganList->take(12) as $ruang) {
-            $chartRuanganLabels[] = $ruang->nama_ruangan;
-            $rusakCount = (int) $ruang->alkes_rusak_count;
-            $baikCount = max(0, ((int) $ruang->alkes_count) - $rusakCount);
-            $chartKondisiBaik[] = $baikCount;
-            $chartKondisiRusak[] = $rusakCount;
-        }
-
-        // Grafik Sumber Perolehan (DAK, APBD, BLUD, HIBAH, Beli Sendiri)
-        $perolehanData = DB::table('alkes')
-            ->select('cara_perolehan', DB::raw('count(id) as total'))
-            ->groupBy('cara_perolehan')
-            ->orderBy('total', 'desc')
-            ->get();
-
-        $chartPerolehanLabels = [];
-        $chartPerolehanCounts = [];
-        foreach ($perolehanData as $p) {
-            $chartPerolehanLabels[] = $p->cara_perolehan ?: 'Pengadaan RS';
-            $chartPerolehanCounts[] = $p->total;
+        foreach ($ruanganList as $ruang) {
+            if ($ruang->alkes_count > 0) {
+                $chartRuanganLabels[] = $ruang->nama_ruangan;
+                $rusakCount = (int) $ruang->alkes_rusak_count;
+                $baikCount = max(0, ((int) $ruang->alkes_count) - $rusakCount);
+                $chartKondisiBaik[] = $baikCount;
+                $chartKondisiRusak[] = $rusakCount;
+            }
         }
 
         // Recent Audit Trail Activity Logs
@@ -90,8 +80,6 @@ class DashboardController extends Controller
             'chartRuanganLabels',
             'chartKondisiBaik',
             'chartKondisiRusak',
-            'chartPerolehanLabels',
-            'chartPerolehanCounts',
             'recentActivityLogs'
         ));
     }

@@ -12,11 +12,11 @@
                 <i class="ri-building-4-line text-teal-600"></i>
                 Daftar Ruangan
             </h3>
-            <p class="text-base text-slate-600 mt-1 font-normal">Daftar 24 unit ruangan penempatan & lokasi fisik alat kesehatan terdaftar (Urut Abjad A-Z)</p>
+            <p class="text-base text-slate-600 mt-1 font-normal">Daftar {{ $ruanganList->count() }} unit ruangan penempatan & lokasi fisik alat kesehatan terdaftar (Urut Abjad A-Z)</p>
         </div>
     </div>
 
-    <!-- Clean Grid Cards for 24 Authentic Hospital Rooms -->
+    <!-- Clean Grid Cards for All Hospital Rooms -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         @foreach ($ruanganList as $ruang)
             <a href="{{ route('alkes.index', ['ruangan_id' => $ruang->id]) }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-400 hover:bg-teal-50/40 transition group flex flex-col justify-between space-y-4">

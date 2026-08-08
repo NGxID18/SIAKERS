@@ -58,18 +58,6 @@
                     <input type="text" name="tahun_pengadaan" value="{{ old('tahun_pengadaan', date('Y')) }}" placeholder="Contoh: 2023" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
                 </div>
 
-                <!-- Cara Perolehan -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Cara Perolehan (Sumber Dana)</label>
-                    <input type="text" name="cara_perolehan" value="{{ old('cara_perolehan') }}" placeholder="Contoh: DAK 2023, APBD 2021, HIBAH, BLUD, Beli Sendiri" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
-                </div>
-
-                <!-- Nilai Perolehan -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nilai Perolehan (Harga Rp)</label>
-                    <input type="number" name="nilai_perolehan" value="{{ old('nilai_perolehan', 0) }}" placeholder="Contoh: 56000000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-teal-500">
-                </div>
-
                 <!-- Jumlah Unit -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Jumlah Unit</label>

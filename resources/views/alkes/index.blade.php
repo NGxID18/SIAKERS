@@ -223,89 +223,43 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse border border-slate-300 text-sm">
                 <thead>
-                    <tr class="bg-emerald-900 text-white border-b border-emerald-950 text-xs font-bold uppercase tracking-wider select-none">
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-800 w-12">No</th>
+                    <tr class="bg-teal-800 text-white border-b border-teal-900 text-xs font-bold uppercase tracking-wider select-none">
+                        <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-12">No</th>
                         
                         <!-- Clickable Column Headers with Sort Icons -->
-                        <th class="px-4 py-3.5 border-r border-emerald-800 min-w-[200px]">
+                        <th class="px-4 py-3.5 border-r border-teal-700/60 min-w-[200px]">
                             <a href="{{ makeSortUrl('nama_barang', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
                                 <span>Nama Barang</span>
                                 <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'nama_barang' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
                             </a>
                         </th>
 
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[120px]">
-                            <a href="{{ makeSortUrl('merk', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
-                                <span>Merk</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'merk' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[120px]">
-                            <a href="{{ makeSortUrl('tipe', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
-                                <span>Tipe</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'tipe' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[150px]">
-                            <a href="{{ makeSortUrl('nomor_seri', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan A-Z / Z-A">
-                                <span>Serial Number</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'nomor_seri' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-800 w-20">
-                            <a href="{{ makeSortUrl('tahun_pengadaan', $sortBy, $sortDir) }}" class="flex items-center justify-center gap-1 hover:text-teal-200 transition" title="Klik untuk mengurutkan Tahun">
-                                <span>Tahun</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'tahun_pengadaan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-800 w-20">
-                            <a href="{{ makeSortUrl('jumlah', $sortBy, $sortDir) }}" class="flex items-center justify-center gap-1 hover:text-teal-200 transition" title="Klik untuk mengurutkan Jumlah">
-                                <span>Jumlah</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'jumlah' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[140px]">
-                            <a href="{{ makeSortUrl('cara_perolehan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Perolehan">
-                                <span>Cara Perolehan</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'cara_perolehan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
-
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[140px]">
-                            <a href="{{ makeSortUrl('nilai_perolehan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Harga">
-                                <span>Nilai Perolehan</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'nilai_perolehan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
-                        </th>
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[120px]">Merk</th>
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[120px]">Tipe</th>
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[150px]">Serial Number</th>
+                        <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-20">Tahun</th>
+                        <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-20">Jumlah</th>
 
                         <!-- Clear Header 1: Ruangan Pemilik / Penempatan -->
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[150px]" title="Ruangan penempatan / pemilik resmi aset inventaris">
-                            <a href="{{ makeSortUrl('ruangan', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition">
-                                <span>Ruangan Pemilik</span>
-                                <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'ruangan' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
-                            </a>
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[150px]" title="Ruangan penempatan / pemilik resmi aset inventaris">
+                            Ruangan Pemilik
                         </th>
 
                         <!-- Clear Header 2: Lokasi Fisik Saat Ini -->
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[160px]" title="Lokasi fisik tempat alat berada saat ini">
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[160px]" title="Lokasi fisik tempat alat berada saat ini">
                             Lokasi Fisik Saat Ini
                         </th>
 
-                        <th class="px-3.5 py-3.5 border-r border-emerald-800 min-w-[120px]">
+                        <th class="px-3.5 py-3.5 border-r border-teal-700/60 min-w-[120px]">
                             <a href="{{ makeSortUrl('kondisi', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-teal-200 transition" title="Klik untuk mengurutkan Kondisi">
                                 <span>Kondisi Alat</span>
                                 <i class="ri-arrow-up-down-line text-sm opacity-75 {{ $sortBy == 'kondisi' ? 'text-teal-300 font-black opacity-100' : '' }}"></i>
                             </a>
                         </th>
 
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-800 w-28">ASPAK</th>
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-800 w-24">KIB</th>
-                        <th class="px-4 py-3.5 border-r border-emerald-800 min-w-[150px]">Keterangan</th>
+                        <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-28">ASPAK</th>
+                        <th class="px-3.5 py-3.5 text-center border-r border-teal-700/60 w-24">KIB</th>
+                        <th class="px-4 py-3.5 border-r border-teal-700/60 min-w-[150px]">Keterangan</th>
                         <th class="px-3.5 py-3.5 text-center min-w-[130px]">Aksi</th>
                     </tr>
                 </thead>
@@ -348,16 +302,6 @@
                             <!-- Jumlah -->
                             <td class="px-3.5 py-3 text-center font-semibold text-slate-900 border-r border-slate-200">
                                 {{ $alkes->jumlah }}
-                            </td>
-
-                            <!-- Cara Perolehan -->
-                            <td class="px-3.5 py-3 text-slate-800 border-r border-slate-200">
-                                {{ $alkes->cara_perolehan ?: '-' }}
-                            </td>
-
-                            <!-- Nilai Perolehan -->
-                            <td class="px-3.5 py-3 font-mono font-medium text-emerald-800 border-r border-slate-200">
-                                {{ $alkes->nilai_perolehan > 0 ? 'Rp ' . number_format($alkes->nilai_perolehan, 0, ',', '.') : '-' }}
                             </td>
 
                             <!-- Ruangan Pemilik Aset -->
@@ -435,7 +379,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="16" class="px-6 py-10 text-center text-slate-500 text-base">
+                            <td colspan="14" class="px-6 py-10 text-center text-slate-500 text-base">
                                 <i class="ri-inbox-line text-5xl block mb-3 text-slate-300"></i>
                                 Tidak ada data alat kesehatan ditemukan.
                             </td>
