@@ -9,7 +9,6 @@ use App\Models\Alkes;
 use App\Models\Nomenklatur;
 use App\Models\Ruangan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AlkesController extends Controller
 {
@@ -17,7 +16,6 @@ class AlkesController extends Controller
     {
         $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan']);
 
-        // Universal Search Across ALL Data Fields (Aman & Bebas Eror Database)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
@@ -38,17 +36,14 @@ class AlkesController extends Controller
             });
         }
 
-        // Filter 1: Ruangan Penempatan
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
 
-        // Filter 2: Lokasi Saat Ini (Fisik)
         if ($request->filled('lokasi_ruangan_id')) {
             $query->where('lokasi_ruangan_id', $request->lokasi_ruangan_id);
         }
 
-        // Filter 3: Kondisi Fisik Alat (Fleksibel & Fleksibel Kasus Huruf)
         if ($request->filled('kondisi')) {
             $val = trim($request->kondisi);
             $query->where(function ($q) use ($val) {
@@ -58,7 +53,6 @@ class AlkesController extends Controller
             });
         }
 
-        // Sortir Kolom & Arah (Ascending A-Z / Descending Z-A)
         $sortBy = $request->input('sort_by', 'nama_barang');
         $sortDir = strtolower($request->input('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
 
@@ -96,7 +90,6 @@ class AlkesController extends Controller
 
     public function create()
     {
-        // Otoritas Khusus: Hanya Ruangan Elektromedis (Admin)
         if (session('user_role') !== 'elektromedis') {
             return redirect()->route('alkes.index')
                 ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menambah data inventaris alkes.');
@@ -112,7 +105,6 @@ class AlkesController extends Controller
 
     public function store(Request $request)
     {
-        // Otoritas Khusus: Hanya Ruangan Elektromedis (Admin)
         if (session('user_role') !== 'elektromedis') {
             return redirect()->route('alkes.index')
                 ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menambah data inventaris alkes.');
@@ -144,7 +136,6 @@ class AlkesController extends Controller
         $alkes = Alkes::create($validated);
         $ruang = Ruangan::find($validated['ruangan_id']);
 
-        // Automatic Audit Trail Logging
         ActivityLog::record('Tambah Alkes', "Registrasi aset alkes baru '{$alkes->nama_barang}'.", $ruang->nama_ruangan ?? 'Pusat');
 
         return redirect()->route('alkes.index', ['ruangan_id' => $alkes->ruangan_id])
@@ -160,7 +151,6 @@ class AlkesController extends Controller
 
     public function edit($id)
     {
-        // Otoritas Khusus: Hanya Ruangan Elektromedis (Admin)
         if (session('user_role') !== 'elektromedis') {
             return redirect()->route('alkes.index')
                 ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang merubah data inventaris alkes.');
@@ -178,7 +168,6 @@ class AlkesController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Otoritas Khusus: Hanya Ruangan Elektromedis (Admin)
         if (session('user_role') !== 'elektromedis') {
             return redirect()->route('alkes.index')
                 ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang merubah data inventaris alkes.');
@@ -205,7 +194,6 @@ class AlkesController extends Controller
 
         $alkes->update($validated);
 
-        // Automatic Audit Trail Logging
         ActivityLog::record('Edit Alkes', "Memperbarui informasi aset alkes '{$alkes->nama_barang}'.", $alkes->ruangan->nama_ruangan ?? 'Pusat');
 
         return redirect()->route('alkes.show', $alkes->id)
@@ -214,7 +202,6 @@ class AlkesController extends Controller
 
     public function destroy($id)
     {
-        // Otoritas Khusus: Hanya Ruangan Elektromedis (Admin)
         if (session('user_role') !== 'elektromedis') {
             return redirect()->route('alkes.index')
                 ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menghapus data inventaris alkes.');
@@ -225,7 +212,6 @@ class AlkesController extends Controller
         $namaAlat = $alkes->nama_barang;
         $alkes->delete();
 
-        // Automatic Audit Trail Logging
         ActivityLog::record('Hapus Alkes', "Menghapus data aset alkes '{$namaAlat}'.");
 
         return redirect()->route('alkes.index')

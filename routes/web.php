@@ -11,18 +11,10 @@ use App\Http\Controllers\RuanganController;
 use App\Http\Middleware\EnsureSessionRole;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes (SIAKERS - RSJKO Engku Haji Daud)
-|--------------------------------------------------------------------------
-*/
-
-// Auth Routes (Login & Logout)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Web Pages Protected by Session Role (Default: Must Login First)
 Route::middleware(['throttle:60,1', EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('alkes', AlkesController::class)->except(['store']);
@@ -39,14 +31,11 @@ Route::middleware(['throttle:60,1', EnsureSessionRole::class])->group(function (
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
 
-// Form Submissions Protected by Session Role
 Route::middleware(['throttle:20,1', EnsureSessionRole::class])->group(function () {
     Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
     Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
     Route::post('pemeliharaan', [LogPemeliharaanController::class, 'store'])->name('pemeliharaan.store');
     Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->name('kalibrasi.update');
-    
-    // Otoritas Elektromedis: Selesaikan Perbaikan & Kembalikan Alat
     Route::post('pemeliharaan/{id}/selesai', [LogPemeliharaanController::class, 'resolve'])->name('pemeliharaan.resolve');
     Route::post('notifications/read-all', [LogPemeliharaanController::class, 'markNotificationsRead'])->name('notifications.read-all');
 });

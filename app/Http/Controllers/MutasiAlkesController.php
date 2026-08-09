@@ -14,7 +14,6 @@ class MutasiAlkesController extends Controller
     {
         $query = MutasiAlkes::with(['alkes.ruangan', 'ruanganAsal', 'ruanganTujuan']);
 
-        // Search Bar (Cari Alkes, SN, Pemohon, atau Alasan Mutasi)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
@@ -28,12 +27,10 @@ class MutasiAlkesController extends Controller
             });
         }
 
-        // Filter 1: Ruangan Asal
         if ($request->filled('ruangan_asal_id')) {
             $query->where('ruangan_asal_id', $request->ruangan_asal_id);
         }
 
-        // Filter 2: Ruangan Tujuan
         if ($request->filled('ruangan_tujuan_id')) {
             $query->where('ruangan_tujuan_id', $request->ruangan_tujuan_id);
         }
@@ -70,7 +67,6 @@ class MutasiAlkesController extends Controller
             return back()->withErrors(['ruangan_tujuan_id' => 'Ruangan tujuan harus berbeda dari ruangan asal fisik saat ini!']);
         }
 
-        // Simpan Log Mutasi
         $mutasi = MutasiAlkes::create([
             'alkes_id' => $alkes->id,
             'ruangan_asal_id' => $ruanganAsalId,
@@ -82,7 +78,6 @@ class MutasiAlkesController extends Controller
             'status_persetujuan' => 'Disetujui',
         ]);
 
-        // Perbarui Lokasi Keberadaan Fisik Alat (ruangan_id Asli Aset Tetap Tidak Berubah)
         $alkes->update([
             'lokasi_ruangan_id' => $validated['ruangan_tujuan_id'],
         ]);
@@ -91,7 +86,6 @@ class MutasiAlkesController extends Controller
         $rAsal = $mutasi->ruanganAsal->nama_ruangan ?? 'Ruangan Asal';
         $rTujuan = $mutasi->ruanganTujuan->nama_ruangan ?? 'Ruangan Tujuan';
 
-        // Audit Trail Logging
         ActivityLog::record(
             'Pindah Ruangan Alkes',
             "Memindahkan lokasi fisik unit '{$alkes->nama_barang}' ({$alkes->kode_inventaris}) dari {$rAsal} ke {$rTujuan}.",

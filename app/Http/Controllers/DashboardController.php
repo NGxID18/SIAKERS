@@ -16,16 +16,13 @@ class DashboardController extends Controller
     {
         $totalAlkes = Alkes::count();
 
-        // Unit Rusak / Dalam Perbaikan
         $alkesRusak = Alkes::where(function ($q) {
             $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
               ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
         })->count();
 
-        // Unit Baik / Operasional di Ruangan (Tersedia & Aktif Digunakan)
         $alkesTersedia = $totalAlkes - $alkesRusak;
 
-        // Rekap per Ruangan RS Diurutkan Berdasarkan Abjad Nama Ruangan (A-Z)
         $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_rusak_count' => function ($q) {
             $q->where(function ($subQ) {
                 $subQ->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
@@ -33,25 +30,21 @@ class DashboardController extends Controller
             });
         }])->orderBy('nama_ruangan', 'asc')->get();
 
-        // Mutasi / Pindah Ruangan Terbaru
         $mutasiTerbaru = MutasiAlkes::with(['alkes', 'ruanganAsal', 'ruanganTujuan'])
             ->latest()
             ->take(6)
             ->get();
 
-        // Log Perbaikan Terbaru
         $logPerbaikanTerbaru = LogPemeliharaan::with(['alkes.ruangan'])
             ->latest()
             ->take(5)
             ->get();
 
-        // Data Grafik Analytics Status
         $chartStatusData = [
             'Operasional / Baik' => $alkesTersedia,
             'Dalam Perbaikan / Rusak' => $alkesRusak,
         ];
 
-        // Grafik Kondisi per Ruangan RS (Diurutkan Abjad A-Z)
         $chartRuanganLabels = [];
         $chartKondisiBaik = [];
         $chartKondisiRusak = [];
@@ -66,7 +59,6 @@ class DashboardController extends Controller
             }
         }
 
-        // Recent Audit Trail Activity Logs
         $recentActivityLogs = ActivityLog::latest()->take(6)->get();
 
         return view('dashboard', compact(

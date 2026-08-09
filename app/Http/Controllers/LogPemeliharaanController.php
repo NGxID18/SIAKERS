@@ -19,7 +19,6 @@ class LogPemeliharaanController extends Controller
     {
         $query = LogPemeliharaan::with(['alkes.ruangan', 'alkes.lokasiRuangan']);
 
-        // Search Bar (Cari Alkes, SN, atau Deskripsi Kerusakan)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
@@ -33,12 +32,10 @@ class LogPemeliharaanController extends Controller
             });
         }
 
-        // Filter 1: Jenis Tindakan
         if ($request->filled('jenis_tindakan')) {
             $query->where('jenis_tindakan', $request->jenis_tindakan);
         }
 
-        // Filter 2: Status Hasil / Perbaikan
         if ($request->filled('status_hasil')) {
             $query->where('status_hasil', $request->status_hasil);
         }
@@ -87,7 +84,6 @@ class LogPemeliharaanController extends Controller
             $ruanganAsalFisikId = $alkes->lokasi_ruangan_id ?: $alkes->ruangan_id;
             $ruanganTujuanId = $elektromedisRuang ? $elektromedisRuang->id : $ruanganAsalFisikId;
 
-            // 1. Simpan Log Pemeliharaan
             $log = LogPemeliharaan::create([
                 'alkes_id' => $alkes->id,
                 'jenis_tindakan' => $validated['jenis_tindakan'],
@@ -99,7 +95,6 @@ class LogPemeliharaanController extends Controller
                 'status_hasil' => 'Proses',
             ]);
 
-            // 2. OTOMATIS TAMBAH KE LOG MUTASI PINDAH RUANGAN
             MutasiAlkes::create([
                 'alkes_id' => $alkes->id,
                 'ruangan_asal_id' => $ruanganAsalFisikId,
@@ -111,7 +106,6 @@ class LogPemeliharaanController extends Controller
                 'status_persetujuan' => 'Disetujui',
             ]);
 
-            // 3. OTOMATIS: Pindahkan Lokasi Fisik Alkes ke Elektromedis & ubah status
             $alkes->update([
                 'status' => StatusAlkes::DALAM_PERBAIKAN->value,
                 'kondisi' => KondisiAlkes::RUSAK_BERAT->value,
@@ -119,7 +113,6 @@ class LogPemeliharaanController extends Controller
                 'lokasi_saat_ini_note' => 'Di Ruangan Elektromedis (Dalam Perbaikan)',
             ]);
 
-            // 4. Notifikasi ke Elektromedis
             Notification::create([
                 'alkes_id' => $alkes->id,
                 'ruangan_asal_id' => $alkes->ruangan_id,
@@ -128,7 +121,6 @@ class LogPemeliharaanController extends Controller
                 'tipe' => 'laporan_kerusakan',
             ]);
 
-            // 5. Audit Trail Log
             ActivityLog::record(
                 'Lapor Perbaikan',
                 "Melaporkan kerusakan '{$alkes->nama_barang}'. Lokasi fisik unit otomatis dipindahkan ke Ruangan Elektromedis dan dicatat pada log mutasi.",
@@ -139,9 +131,6 @@ class LogPemeliharaanController extends Controller
         return redirect()->route('pemeliharaan.index')->with('success', 'Laporan kerusakan berhasil dikirim! Mutasi fisik unit ke Ruangan Elektromedis telah otomatis tercatat pada Riwayat Mutasi Alkes.');
     }
 
-    /**
-     * OTORITAS ELEKTROMEDIS: Menyelesaikan perbaikan & mengembalikan unit ke ruangan asal.
-     */
     public function resolve(Request $request, $id)
     {
         DB::transaction(function () use ($id, $request) {
@@ -151,14 +140,12 @@ class LogPemeliharaanController extends Controller
 
             $ruanganAsalElektroId = $elektromedisRuang ? $elektromedisRuang->id : $alkes->lokasi_ruangan_id;
 
-            // 1. Update Log Pemeliharaan
             $log->update([
                 'status_hasil' => 'Selesai',
                 'tanggal_selesai' => now(),
                 'tindakan_perbaikan' => $request->input('tindakan_perbaikan', $log->tindakan_perbaikan ?: 'Perbaikan dan kalibrasi selesai oleh Elektromedis.'),
             ]);
 
-            // 2. OTOMATIS TAMBAH KE LOG MUTASI PINDAH RUANGAN (Pengembalian ke Ruangan Pemilik Asal)
             MutasiAlkes::create([
                 'alkes_id' => $alkes->id,
                 'ruangan_asal_id' => $ruanganAsalElektroId,
@@ -170,7 +157,6 @@ class LogPemeliharaanController extends Controller
                 'status_persetujuan' => 'Disetujui',
             ]);
 
-            // 3. OTOMATIS ELEKTROMEDIS: Kembalikan lokasi fisik alkes ke ruangan asal
             $alkes->update([
                 'status' => StatusAlkes::TERSEDIA->value,
                 'kondisi' => KondisiAlkes::BAIK->value,
@@ -178,7 +164,6 @@ class LogPemeliharaanController extends Controller
                 'lokasi_saat_ini_note' => null,
             ]);
 
-            // 4. Notifikasi Pengembalian
             Notification::create([
                 'alkes_id' => $alkes->id,
                 'ruangan_asal_id' => $alkes->ruangan_id,
@@ -187,7 +172,6 @@ class LogPemeliharaanController extends Controller
                 'tipe' => 'perbaikan_selesai',
             ]);
 
-            // 5. Audit Trail Log
             ActivityLog::record(
                 'Perbaikan Selesai',
                 "Elektromedis telah menyelesaikan perbaikan '{$alkes->nama_barang}' dan mengembalikan unit ke Ruang " . ($alkes->ruangan->nama_ruangan ?? 'Asal') . '.',
@@ -198,9 +182,6 @@ class LogPemeliharaanController extends Controller
         return redirect()->route('pemeliharaan.index')->with('success', 'Perbaikan berhasil diselesaikan! Mutasi pengembalian unit alkes ke ruangan asal telah tercatat pada Riwayat Mutasi Alkes.');
     }
 
-    /**
-     * Tandai semua notifikasi telah dibaca
-     */
     public function markNotificationsRead()
     {
         Notification::where('dibaca', false)->update(['dibaca' => true]);

@@ -9,7 +9,6 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        // Jika pengguna sudah login, langsung arahkan ke Dashboard
         if (session()->has('user_role')) {
             return redirect()->route('dashboard');
         }

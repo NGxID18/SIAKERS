@@ -14,7 +14,6 @@ class KalibrasiController extends Controller
     {
         $query = Alkes::with(['ruangan', 'lokasiRuangan', 'nomenklatur']);
 
-        // Search Filter
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
@@ -26,12 +25,10 @@ class KalibrasiController extends Controller
             });
         }
 
-        // Filter 1: Ruangan Pemilik
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
 
-        // Filter 2: Status Kalibrasi (TERKALIBRASI, EXPIRED, BELUM)
         if ($request->filled('status_kalibrasi')) {
             $status = $request->status_kalibrasi;
             $today = now()->toDateString();
@@ -54,7 +51,6 @@ class KalibrasiController extends Controller
 
         $ruanganList = Ruangan::orderBy('nama_ruangan')->get();
 
-        // Hitung Statistik Kalibrasi
         $totalAlkes = Alkes::count();
         $totalTerkalibrasi = Alkes::whereNotNull('tanggal_kalibrasi_terakhir')
             ->where('tanggal_kalibrasi_berikutnya', '>=', now()->toDateString())

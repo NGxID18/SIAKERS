@@ -3,45 +3,37 @@
 @section('title', 'Perbaikan Alkes')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
     @php
         $currentRole = session('user_role', 'elektromedis');
     @endphp
 
-    <!-- Header & Action -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-                <i class="ri-tools-line text-amber-600"></i>
-                Perbaikan Alkes
-            </h3>
-            <p class="text-base text-slate-600 mt-1 font-normal">
-                Pelaporan alkes rusak dari ruangan operasional, penanganan unit di Ruangan Elektromedis, dan riwayat perbaikan
-            </p>
+            <h3 class="text-xl font-bold text-slate-900 tracking-tight">Perbaikan Alkes</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Pelaporan alkes rusak, penanganan, dan riwayat perbaikan</p>
         </div>
-
-        <a href="{{ route('pemeliharaan.create') }}" class="px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-base rounded-xl shadow-md shadow-amber-600/30 transition flex items-center gap-2">
-            <i class="ri-add-line text-xl"></i>
-            Lapor Barang Rusak / Perbaikan
+        <a href="{{ route('pemeliharaan.create') }}" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm rounded-lg transition flex items-center gap-1.5 shrink-0">
+            <i class="ri-add-line text-base"></i>
+            Lapor Kerusakan
         </a>
     </div>
 
-    <!-- Search & Filter Card -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <form method="GET" action="{{ route('pemeliharaan.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+    <div class="bg-white p-4 rounded-xl border border-slate-200">
+        <form method="GET" action="{{ route('pemeliharaan.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Cari Unit / SN / Deskripsi Kerusakan</label>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Cari Unit / SN / Deskripsi</label>
                 <div class="relative">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Masukkan kata kunci..." class="w-full pl-10 pr-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <i class="ri-search-line absolute left-3.5 top-3.5 text-slate-400 text-lg"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Kata kunci..." class="w-full pl-9 pr-4 h-10 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                    <i class="ri-search-line absolute left-3 top-2.5 text-slate-400 text-sm"></i>
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Jenis Tindakan</label>
-                <select name="jenis_tindakan" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="">-- Semua Jenis Tindakan --</option>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Jenis Tindakan</label>
+                <select name="jenis_tindakan" class="w-full px-3 h-10 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
+                    <option value="">-- Semua --</option>
                     <option value="Perbaikan (Korektif)" {{ request('jenis_tindakan') == 'Perbaikan (Korektif)' ? 'selected' : '' }}>Perbaikan (Korektif)</option>
                     <option value="Kalibrasi Alat" {{ request('jenis_tindakan') == 'Kalibrasi Alat' ? 'selected' : '' }}>Kalibrasi Alat</option>
                     <option value="Pemeliharaan Rutin" {{ request('jenis_tindakan') == 'Pemeliharaan Rutin' ? 'selected' : '' }}>Pemeliharaan Rutin</option>
@@ -49,21 +41,19 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1.5">Status Perbaikan</label>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
                 <div class="flex items-center gap-2">
-                    <select name="status_hasil" class="w-full px-4 h-[46px] bg-slate-50 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        <option value="">-- Semua Status --</option>
-                        <option value="Proses" {{ request('status_hasil') == 'Proses' ? 'selected' : '' }}>Dalam Pengajuan / Perbaikan</option>
-                        <option value="Selesai" {{ request('status_hasil') == 'Selesai' ? 'selected' : '' }}>Selesai & Dikembalikan</option>
+                    <select name="status_hasil" class="w-full px-3 h-10 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
+                        <option value="">-- Semua --</option>
+                        <option value="Proses" {{ request('status_hasil') == 'Proses' ? 'selected' : '' }}>Dalam Perbaikan</option>
+                        <option value="Selesai" {{ request('status_hasil') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                     </select>
-
-                    <button type="submit" class="h-[46px] px-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2 shrink-0">
-                        <i class="ri-search-line text-lg"></i> Cari
+                    <button type="submit" class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition flex items-center shrink-0">
+                        <i class="ri-search-line"></i>
                     </button>
-
                     @if (request()->hasAny(['search', 'jenis_tindakan', 'status_hasil']))
-                        <a href="{{ route('pemeliharaan.index') }}" class="h-[46px] w-[46px] bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-xl border border-slate-300 transition flex items-center justify-center shrink-0" title="Reset Filter">
-                            <i class="ri-refresh-line text-xl"></i>
+                        <a href="{{ route('pemeliharaan.index') }}" class="h-10 w-10 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-lg border border-slate-200 transition flex items-center justify-center shrink-0">
+                            <i class="ri-refresh-line text-sm"></i>
                         </a>
                     @endif
                 </div>
@@ -71,98 +61,87 @@
         </form>
     </div>
 
-    <!-- Table Card -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 overflow-hidden">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                    <tr class="bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-b border-teal-800 text-xs font-bold uppercase tracking-wider">
-                        <th class="px-4 py-3.5 border-r border-teal-700/60">Tanggal Lapor</th>
-                        <th class="px-4 py-3.5 border-r border-teal-700/60">Unit Alkes</th>
-                        <th class="px-4 py-3.5 border-r border-teal-700/60">Ruangan Asal & Lokasi Fisik</th>
-                        <th class="px-4 py-3.5 border-r border-teal-700/60">Jenis Tindakan</th>
-                        <th class="px-4 py-3.5 border-r border-teal-700/60">Gejala / Deskripsi Kerusakan</th>
-                        <th class="px-4 py-3.5 border-r border-teal-700/60 text-center">Status Perbaikan</th>
-                        <th class="px-4 py-3.5 text-center">Otoritas Aksi (Elektromedis)</th>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider">
+                        <th class="px-3 py-3">Tanggal</th>
+                        <th class="px-3 py-3">Unit Alkes</th>
+                        <th class="px-3 py-3">Ruangan & Lokasi</th>
+                        <th class="px-3 py-3">Jenis</th>
+                        <th class="px-3 py-3">Deskripsi Kerusakan</th>
+                        <th class="px-3 py-3 text-center">Status</th>
+                        <th class="px-3 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 font-normal text-slate-900">
+                <tbody class="divide-y divide-slate-100 text-[13px]">
                     @forelse ($logList as $log)
-                        <tr class="hover:bg-amber-50/40 transition odd:bg-white even:bg-slate-50/50">
-                            <!-- Tanggal Lapor -->
-                            <td class="px-4 py-3.5 border-r border-slate-200 whitespace-nowrap font-medium text-slate-600">
+                        <tr class="hover:bg-indigo-50/30 transition">
+                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-500 text-xs font-medium">
                                 {{ $log->tanggal_mulai ? \Carbon\Carbon::parse($log->tanggal_mulai)->translatedFormat('d M Y') : '-' }}
                             </td>
 
-                            <!-- Unit Alkes -->
-                            <td class="px-4 py-3.5 border-r border-slate-200">
-                                <a href="{{ route('alkes.show', $log->alkes_id) }}" class="font-bold text-slate-900 hover:text-amber-600 transition block">
+                            <td class="px-3 py-2.5">
+                                <a href="{{ route('alkes.show', $log->alkes_id) }}" class="font-medium text-slate-800 hover:text-indigo-600 transition block text-sm">
                                     {{ $log->alkes->nama_barang ?? 'Alkes' }}
                                 </a>
-                                <span class="text-xs text-slate-500 font-mono">SN: {{ $log->alkes->nomor_seri ?? '-' }}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">SN: {{ $log->alkes->nomor_seri ?? '-' }}</span>
                             </td>
 
-                            <!-- Ruangan Asal & Lokasi Fisik -->
-                            <td class="px-4 py-3.5 border-r border-slate-200">
-                                <div class="font-medium text-slate-900">Asal: {{ $log->alkes->ruangan->nama_ruangan ?? '-' }}</div>
-                                <div class="text-xs text-amber-700 font-semibold mt-0.5">
-                                    Fisik saat ini: {{ $log->alkes->lokasiRuangan->nama_ruangan ?? 'Elektromedis' }}
+                            <td class="px-3 py-2.5">
+                                <div class="text-xs text-slate-700 font-medium">{{ $log->alkes->ruangan->nama_ruangan ?? '-' }}</div>
+                                <div class="text-[10px] text-indigo-600 font-medium mt-0.5">
+                                    Fisik: {{ $log->alkes->lokasiRuangan->nama_ruangan ?? 'Elektromedis' }}
                                 </div>
                             </td>
 
-                            <!-- Jenis Tindakan -->
-                            <td class="px-4 py-3.5 border-r border-slate-200">
-                                <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                            <td class="px-3 py-2.5">
+                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                                     {{ $log->jenis_tindakan ?? 'Perbaikan' }}
                                 </span>
                             </td>
 
-                            <!-- Gejala / Deskripsi Kerusakan -->
-                            <td class="px-4 py-3.5 border-r border-slate-200 text-slate-700 max-w-xs leading-relaxed">
+                            <td class="px-3 py-2.5 text-slate-600 text-xs max-w-[200px] leading-relaxed">
                                 {{ $log->deskripsi_kerusakan ?: '-' }}
                             </td>
 
-                            <!-- Status Perbaikan -->
-                            <td class="px-4 py-3.5 border-r border-slate-200 text-center">
+                            <td class="px-3 py-2.5 text-center">
                                 @if ($log->status_hasil === 'Selesai')
-                                    <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold border border-emerald-300 inline-flex items-center gap-1">
-                                        <i class="ri-checkbox-circle-line"></i> Selesai & Dikembalikan
+                                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-semibold border border-emerald-200 inline-flex items-center gap-1">
+                                        <i class="ri-checkbox-circle-line text-[10px]"></i> Selesai
                                     </span>
                                 @else
-                                    <span class="px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-bold border border-amber-300 inline-flex items-center gap-1 animate-pulse">
-                                        <i class="ri-time-line"></i> Dalam Pengajuan / Perbaikan
+                                    <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full text-[10px] font-semibold border border-amber-200 inline-flex items-center gap-1">
+                                        <i class="ri-time-line text-[10px]"></i> Proses
                                     </span>
                                 @endif
                             </td>
 
-                            <!-- Otoritas Aksi (Hanya Elektromedis) -->
-                            <td class="px-4 py-3.5 text-center">
+                            <td class="px-3 py-2.5 text-center">
                                 @if ($log->status_hasil !== 'Selesai')
                                     @if ($currentRole === 'elektromedis')
-                                        <form method="POST" action="{{ route('pemeliharaan.resolve', $log->id) }}" onsubmit="return confirm('Apakah Anda yakin perbaikan telah selesai dan unit akan dikembalikan ke ruangan asal?')">
+                                        <form method="POST" action="{{ route('pemeliharaan.resolve', $log->id) }}" onsubmit="return confirm('Selesaikan perbaikan dan kembalikan unit ke ruangan asal?')">
                                             @csrf
-                                            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 mx-auto">
-                                                <i class="ri-check-double-line text-sm"></i>
-                                                Selesaikan & Kembalikan Alat
+                                            <button type="submit" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium rounded-lg transition flex items-center gap-1 mx-auto">
+                                                <i class="ri-check-double-line text-xs"></i> Selesaikan
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 font-semibold" title="Hanya Ruangan Elektromedis (Admin) yang dapat menyelesaikan perbaikan">
-                                            Proses Elektromedis
-                                        </span>
+                                        <span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">Proses Elektromedis</span>
                                     @endif
                                 @else
-                                    <span class="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1">
-                                        <i class="ri-check-line text-emerald-600"></i> Alat Kembali di Ruangan
+                                    <span class="text-[10px] text-emerald-600 font-medium flex items-center justify-center gap-1">
+                                        <i class="ri-check-line"></i> Kembali
                                     </span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-10 text-center text-slate-500 text-base">
-                                <i class="ri-tools-line text-5xl block mb-3 text-slate-300"></i>
-                                Belum ada catatan laporan perbaikan alat kesehatan.
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                                <i class="ri-tools-line text-3xl block mb-2 text-slate-300"></i>
+                                <span class="text-sm">Belum ada laporan perbaikan.</span>
                             </td>
                         </tr>
                     @endforelse
@@ -170,7 +149,7 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
+        <div class="px-4 py-3 bg-slate-50/50 border-t border-slate-100">
             {{ $logList->links('pagination.custom') }}
         </div>
     </div>

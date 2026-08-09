@@ -4,34 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk Sistem - SIAKERS RSJKO Engku Haji Daud</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Source+Sans+3:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
-    <!-- Tom Select UI CDN -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
     <style>
-        body { font-family: 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+        body, input, button, select, textarea { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-        .role-card {
-            transition: all 0.2s ease-in-out;
-        }
-        .role-card:hover {
-            transform: translateY(-2px);
-        }
+        .role-option { transition: all 0.15s ease; }
+        .role-option:hover { transform: translateY(-1px); }
+        .role-option.selected { border-color: #facc15 !important; background-color: #065f46 !important; }
 
         .ts-control {
-            background-color: #020617 !important;
-            border: 1.5px solid #0d9488 !important;
-            border-radius: 1rem !important;
-            padding: 0.65rem 1rem !important;
-            font-size: 0.9rem !important;
-            font-weight: 600 !important;
+            background-color: #064e3b !important;
+            border: 1.5px solid #facc15 !important;
+            border-radius: 0.625rem !important;
+            padding: 0.6rem 0.875rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
             color: #ffffff !important;
         }
         .ts-wrapper.dropdown-active .ts-control {
@@ -39,79 +33,75 @@
             border-bottom-right-radius: 0 !important;
         }
         .ts-dropdown {
-            background-color: #0f172a !important;
-            border: 1.5px solid #0d9488 !important;
-            border-radius: 1rem !important;
+            background-color: #064e3b !important;
+            border: 1.5px solid #facc15 !important;
+            border-radius: 0.625rem !important;
             color: #ffffff !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9) !important;
+            box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.8) !important;
             z-index: 999999 !important;
-            max-height: 220px !important;
+            max-height: 200px !important;
             overflow-y: auto !important;
         }
         .ts-dropdown .option {
-            padding: 0.75rem 1rem !important;
-            color: #f1f5f9 !important;
-            font-size: 0.925rem !important;
-            font-weight: 500 !important;
-        }
-        .ts-dropdown .option:hover, 
-        .ts-dropdown .option.active {
-            background-color: #0d9488 !important;
+            padding: 0.65rem 0.875rem !important;
             color: #ffffff !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
         }
-        .ts-control input {
-            color: #ffffff !important;
+        .ts-dropdown .option:hover, .ts-dropdown .option.active {
+            background-color: #059669 !important;
+            color: #facc15 !important;
         }
+        .ts-control input { color: #ffffff !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .login-card { animation: fadeIn 0.4s ease-out; }
     </style>
 </head>
-<body id="loginBody" class="h-screen w-screen overflow-hidden flex items-center justify-center p-4 relative bg-slate-950">
+<body class="h-screen w-screen overflow-hidden flex items-center justify-center p-4 relative bg-slate-950">
 
-    <!-- Background Hospital Image with Blur Overlay -->
     <div class="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105 filter blur-xs" style="background-image: url('{{ asset('images/RSJKO EHD.jpg') }}');"></div>
-    <div id="bgOverlay" class="fixed inset-0 z-0 bg-gradient-to-tr from-slate-950/90 via-slate-950/80 to-teal-950/85 backdrop-blur-sm transition-colors duration-300"></div>
+    <div class="fixed inset-0 z-0 bg-gradient-to-br from-emerald-950/65 via-slate-950/55 to-emerald-950/70 backdrop-blur-xs"></div>
 
-    <!-- Login Glassmorphic Container (Compact Height, No Page Scrollbar) -->
-    <div id="loginCard" class="relative z-10 w-full max-w-md bg-slate-950/85 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 my-auto transition-all duration-300">
+    <div class="login-card relative z-10 w-full max-w-md bg-slate-900/75 backdrop-blur-md border-2 border-emerald-400/60 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
 
-        <div class="text-center space-y-1.5">
-            <div class="w-14 h-14 bg-teal-500 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-teal-500/40">
-                <i class="ri-hospital-line text-2xl"></i>
+        <div class="text-center space-y-3">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-400 text-white shadow-xl shadow-emerald-600/50 mx-auto flex items-center justify-center border-2 border-amber-300">
+                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35zM10.5 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2z"/></svg>
             </div>
-            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIAKERS</h2>
-            <p class="text-[11px] text-teal-400 font-bold uppercase tracking-wider">RSJKO Engku Haji Daud</p>
-            <p class="text-xs text-slate-300 font-medium">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
+            <div>
+                <h2 class="text-3xl font-black text-white tracking-wider">SIAKERS</h2>
+                <p class="text-xs font-black text-amber-300 tracking-wider uppercase mt-1">RSJKO Engku Haji Daud</p>
+                <p class="text-xs text-slate-100 font-semibold mt-1">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
+            </div>
         </div>
 
-        <form method="POST" action="{{ route('login') }}" class="space-y-3.5">
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-200 uppercase tracking-wider">Pilih Otoritas Login Anda (Tanpa Password):</label>
+            <div class="space-y-2.5">
+                <label class="block text-xs font-black text-amber-300 uppercase tracking-wider">PILIH PERAN AKSES</label>
 
-                <div class="grid grid-cols-1 gap-2.5">
-                    
-                    <!-- Option 1: Instalasi Elektromedis -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-teal-500/50 rounded-2xl cursor-pointer hover:border-teal-400 transition shadow-inner">
-                        <input type="radio" name="role" value="elektromedis" checked onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                <div class="space-y-2.5">
+                    <label class="role-option selected flex items-center gap-3 p-3.5 bg-emerald-900/80 backdrop-blur-xs border-2 border-amber-400 rounded-xl cursor-pointer shadow-sm">
+                        <input type="radio" name="role" value="elektromedis" checked onchange="handleRoleChange(this)" class="w-4 h-4 text-amber-400 focus:ring-amber-400 border-slate-600 bg-transparent">
                         <div>
-                            <p class="font-bold text-teal-300 text-sm sm:text-base">Instalasi Elektromedis</p>
-                            <p class="text-[11px] text-slate-300">Otoritas perbaikan, notifikasi, & pengembalian unit alkes</p>
+                            <p class="font-extrabold text-white text-sm">Instalasi Elektromedis</p>
+                            <p class="text-xs text-slate-100 font-semibold">Otoritas perbaikan & pengembalian unit alkes</p>
                         </div>
                     </label>
 
-                    <!-- Option 2: Instalasi / Ruangan -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl cursor-pointer hover:border-teal-500/50 transition shadow-inner">
-                        <input type="radio" name="role" value="ruangan" onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                    <label class="role-option flex items-center gap-3 p-3.5 bg-slate-900/60 backdrop-blur-xs border border-slate-700/80 rounded-xl cursor-pointer shadow-sm">
+                        <input type="radio" name="role" value="ruangan" onchange="handleRoleChange(this)" class="w-4 h-4 text-amber-400 focus:ring-amber-400 border-slate-600 bg-transparent">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Instalasi / Ruangan</p>
-                            <p class="text-[11px] text-slate-300">Pelaporan barang rusak & mutasi alkes ruangan</p>
+                            <p class="font-extrabold text-white text-sm">Instalasi / Ruangan</p>
+                            <p class="text-xs text-slate-200 font-semibold">Pelaporan kerusakan & mutasi alkes</p>
                         </div>
                     </label>
 
-                    <!-- Smooth Animated Ruangan Select Dropdown -->
-                    <div id="ruanganDropdownContainer" class="overflow-hidden max-h-0 opacity-0 transition-all duration-300 ease-in-out">
-                        <div class="pt-1 pb-1 space-y-1">
-                            <label class="block text-[11px] font-bold text-teal-300 uppercase tracking-wider">Pilih Instalasi / Ruangan Anda:</label>
+                    <div id="ruanganDropdownContainer" class="overflow-hidden transition-all duration-250 ease-in-out" style="max-height:0;opacity:0">
+                        <div class="pt-1 pb-1 space-y-1.5">
+                            <label class="block text-xs font-black text-amber-300 uppercase tracking-wider">PILIH RUANGAN</label>
                             <select id="ruanganSelect" name="ruangan_id" class="w-full">
                                 @foreach ($ruanganList as $ruang)
                                     @if ($ruang->nama_ruangan !== 'Elektromedis')
@@ -122,36 +112,34 @@
                         </div>
                     </div>
 
-                    <!-- Option 3: Manajemen / Penunjang -->
-                    <label class="role-card flex items-center gap-3 p-3.5 bg-slate-900/90 border border-slate-700 rounded-2xl cursor-pointer hover:border-teal-500/50 transition shadow-inner">
-                        <input type="radio" name="role" value="tata_usaha" onchange="toggleRuanganDropdown()" class="w-4 h-4 text-teal-500 focus:ring-teal-500 border-slate-600 bg-slate-950">
+                    <label class="role-option flex items-center gap-3 p-3.5 bg-slate-900/60 backdrop-blur-xs border border-slate-700/80 rounded-xl cursor-pointer shadow-sm">
+                        <input type="radio" name="role" value="tata_usaha" onchange="handleRoleChange(this)" class="w-4 h-4 text-amber-400 focus:ring-amber-400 border-slate-600 bg-transparent">
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Manajemen / Penunjang</p>
-                            <p class="text-[11px] text-slate-300">Pengawasan rekapitulasi inventaris (Read-Only)</p>
+                            <p class="font-extrabold text-white text-sm">Manajemen / Penunjang</p>
+                            <p class="text-xs text-slate-200 font-semibold">Pengawasan inventaris (Read-Only)</p>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg shadow-teal-600/40 transition flex items-center justify-center gap-2 mt-2">
-                <i class="ri-login-box-line text-lg"></i>
-                Masuk ke Aplikasi SIAKERS
+            <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-emerald-600/90 to-emerald-700/90 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-base rounded-xl shadow-xl shadow-emerald-950/60 border border-amber-300/50 backdrop-blur-xs transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h6a3 3 0 013 3v1"/></svg>
+                Masuk ke SIAKERS
             </button>
         </form>
 
-        <div class="text-center pt-2 border-t border-slate-800">
-            <p class="text-[11px] text-slate-400 font-medium">&copy; 2026 SIAKERS - RSJKO Engku Haji Daud</p>
+        <div class="text-center pt-2 border-t border-slate-800/80">
+            <p class="text-xs text-amber-300/90 font-bold">&copy; 2026 SIAKERS &middot; RSJKO Engku Haji Daud</p>
         </div>
-
     </div>
 
     <script>
-        let tsControlInstance = null;
+        let tsInstance = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            const selectEl = document.getElementById('ruanganSelect');
-            if (selectEl) {
-                tsControlInstance = new TomSelect('#ruanganSelect', {
+            const sel = document.getElementById('ruanganSelect');
+            if (sel) {
+                tsInstance = new TomSelect('#ruanganSelect', {
                     create: false,
                     placeholder: 'Ketik nama ruangan...',
                     maxOptions: 50,
@@ -160,23 +148,30 @@
             }
         });
 
-        function toggleRuanganDropdown() {
-            const role = document.querySelector('input[name="role"]:checked')?.value;
+        function handleRoleChange(radio) {
+            document.querySelectorAll('.role-option').forEach(function(el) {
+                el.classList.remove('selected');
+                el.style.borderColor = '#334155';
+                el.style.backgroundColor = 'rgba(15, 23, 42, 0.6)';
+            });
+            const parent = radio.closest('.role-option');
+            parent.classList.add('selected');
+            parent.style.borderColor = '#facc15';
+            parent.style.backgroundColor = 'rgba(6, 95, 70, 0.85)';
+
             const container = document.getElementById('ruanganDropdownContainer');
-            if (container) {
-                if (role === 'ruangan') {
-                    container.style.maxHeight = '90px';
-                    container.style.opacity = '1';
-                    setTimeout(() => {
-                        if (document.querySelector('input[name="role"]:checked')?.value === 'ruangan') {
-                            container.style.overflow = 'visible';
-                        }
-                    }, 300);
-                } else {
-                    container.style.overflow = 'hidden';
-                    container.style.maxHeight = '0px';
-                    container.style.opacity = '0';
-                }
+            if (radio.value === 'ruangan') {
+                container.style.maxHeight = '90px';
+                container.style.opacity = '1';
+                setTimeout(function() {
+                    if (document.querySelector('input[name="role"]:checked')?.value === 'ruangan') {
+                        container.style.overflow = 'visible';
+                    }
+                }, 250);
+            } else {
+                container.style.overflow = 'hidden';
+                container.style.maxHeight = '0px';
+                container.style.opacity = '0';
             }
         }
     </script>
