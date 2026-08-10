@@ -227,8 +227,8 @@
 
     <div class="flex flex-1 pt-16 relative">
         <aside id="sidebarDrawer" class="fixed top-16 left-0 bottom-0 w-64 bg-emerald-950/85 backdrop-blur-md text-white border-r border-emerald-800/60 z-30 transform -translate-x-full md:translate-x-0 shadow-lg">
-            <button type="button" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute -right-3.5 top-6 w-7 h-7 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full items-center justify-center shadow-xl border-2 border-emerald-950 transition-all z-50 focus:outline-none" title="Ciutkan Sidebar">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            <button type="button" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full items-center justify-center shadow-xl border-2 border-emerald-950 transition-all z-50 focus:outline-none" title="Ciutkan Sidebar">
+                <svg id="collapseBtnIcon" class="w-4 h-4 text-white transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             </button>
 
             <div class="w-full h-full flex flex-col justify-between overflow-y-auto overflow-x-hidden scrollbar-thin">

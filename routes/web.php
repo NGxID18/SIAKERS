@@ -15,7 +15,7 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware(['throttle:60,1', EnsureSessionRole::class])->group(function () {
+Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('alkes', AlkesController::class)->except(['store']);
 
@@ -31,7 +31,7 @@ Route::middleware(['throttle:60,1', EnsureSessionRole::class])->group(function (
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
 
-Route::middleware(['throttle:20,1', EnsureSessionRole::class])->group(function () {
+Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
     Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
     Route::post('pemeliharaan', [LogPemeliharaanController::class, 'store'])->name('pemeliharaan.store');

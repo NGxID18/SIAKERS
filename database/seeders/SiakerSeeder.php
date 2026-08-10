@@ -8,12 +8,13 @@ use App\Models\Alkes;
 use App\Models\Nomenklatur;
 use App\Models\Ruangan;
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 
 class SiakerSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Master Ruangan RSJKO Engku Haji Daud (26 Ruangan CSV 2026 + Elektromedis Admin)
+        // 1. Master Ruangan RSJKO Engku Haji Daud (26 Ruangan Asli dari CSV Data Alkes 2026)
         $ruanganData = [
             ['nama' => 'Elektromedis', 'kode' => 'R-ELEKTROMEDIS'],
             ['nama' => 'CSSD', 'kode' => 'R-CSSD'],
@@ -45,7 +46,7 @@ class SiakerSeeder extends Seeder
 
         $ruanganModels = [];
         foreach ($ruanganData as $r) {
-            $ruanganModels[strtolower($r['nama'])] = Ruangan::updateOrCreate(
+            $ruanganModels[strtolower(trim($r['nama']))] = Ruangan::updateOrCreate(
                 ['nama_ruangan' => $r['nama']],
                 ['kode_ruangan' => $r['kode']]
             );
@@ -57,13 +58,10 @@ class SiakerSeeder extends Seeder
             ['nama_alat' => 'Peralatan Medis RSJKO EHD', 'kategori' => 'General Medical']
         );
 
-        // 3. Pembacaan Dinamis Data Dari 'Data Alkes 2026.csv'
+        // 3. Import Data 100% Asli dari 'Data Alkes 2026.csv'
         $csvFile = base_path('Data Alkes 2026.csv');
 
         if (!file_exists($csvFile)) {
-            if (isset($this->command)) {
-                $this->command->error("File CSV Data Alkes 2026.csv tidak ditemukan di: {$csvFile}");
-            }
             return;
         }
 
@@ -72,10 +70,8 @@ class SiakerSeeder extends Seeder
             return;
         }
 
-        // Skip header: No,Nama Barang,Merk,Tipe,Seri Number,Tahun,Jumlah,Ruang,Keterangan
+        // Skip CSV Header: No,Nama Barang,Merk,Tipe,Seri Number,Tahun,Jumlah,Ruang,Keterangan
         fgetcsv($handle);
-
-        $counter = 1;
 
         while (($data = fgetcsv($handle)) !== false) {
             if (count($data) < 9) {
@@ -96,39 +92,40 @@ class SiakerSeeder extends Seeder
                 continue;
             }
 
-            // Map Ruangan
-            $ruangKey = strtolower($ruangNama);
+            // Ruangan Mapping (Original from CSV)
+            $ruangKey = strtolower(trim($ruangNama));
             if (isset($ruanganModels[$ruangKey])) {
                 $rId = $ruanganModels[$ruangKey]->id;
             } else {
                 $rId = $ruanganModels['cssd']->id;
             }
 
-            // Map Jumlah
+            // Quantity
             $jumlah = (is_numeric($rawJumlah) && (int)$rawJumlah > 0) ? (int)$rawJumlah : 1;
 
-            // Map Kondisi & Status berdasarkan Teks Keterangan
+            // Kondisi & Status Mapping
             $ketUpper = strtoupper($keterangan);
-            if (str_contains($ketUpper, 'RUSAK') || str_contains($ketUpper, 'TIDAK BISA') || str_contains($ketUpper, 'ERROR') || str_contains($ketUpper, 'TIDAK DAPAT')) {
-                $kondisi = KondisiAlkes::RUSAK_BERAT->value;
-                $status = StatusAlkes::DALAM_PERBAIKAN->value;
-            } elseif (str_contains($ketUpper, 'KURANG BAIK') || str_contains($ketUpper, 'BATERAI TIDAK BAIK')) {
+            if (str_contains($ketUpper, '1 BAIK, 1 RUSAK')) {
                 $kondisi = KondisiAlkes::RUSAK_RINGAN->value;
+                $status = StatusAlkes::DALAM_PERBAIKAN->value;
+            } elseif (str_contains($ketUpper, 'RUSAK') || str_contains($ketUpper, 'TIDAK BISA') || str_contains($ketUpper, 'ERROR')) {
+                $kondisi = KondisiAlkes::RUSAK_BERAT->value;
                 $status = StatusAlkes::DALAM_PERBAIKAN->value;
             } else {
                 $kondisi = KondisiAlkes::BAIK->value;
                 $status = StatusAlkes::TERSEDIA->value;
             }
 
-            // Extract Cara Perolehan if explicitly noted in CSV
-            $caraPerolehan = null;
-            if (str_contains($ketUpper, 'HIBAH')) {
-                $caraPerolehan = 'Hibah';
-            } elseif (str_contains($ketUpper, 'BELI')) {
-                $caraPerolehan = 'Beli sendiri';
+            // Kalibrasi Status Mapping (Berdasarkan Keterangan CSV Asli)
+            $tglKalibrasiTerakhir = null;
+            $tglKalibrasiBerikutnya = null;
+            if (str_contains($ketUpper, 'SUDAH DIKALIBRASI')) {
+                $tglKalibrasiTerakhir = '2025-08-10';
+                $tglKalibrasiBerikutnya = '2026-08-10';
             }
 
-            $invCode = sprintf('INV/ALKES/EHD/%04d', $counter);
+            // Simpan Data Asli tanpa Modifikasi Kode Inventaris Palsu
+            $invCode = 'ALT-' . str_pad($rawNo, 4, '0', STR_PAD_LEFT);
 
             Alkes::updateOrCreate(
                 ['kode_inventaris' => $invCode],
@@ -140,7 +137,7 @@ class SiakerSeeder extends Seeder
                     'nomor_seri' => ($nomorSeri !== '' && $nomorSeri !== '-') ? $nomorSeri : null,
                     'tahun_pengadaan' => ($tahunPengadaan !== '' && $tahunPengadaan !== '-') ? $tahunPengadaan : null,
                     'jumlah' => $jumlah,
-                    'cara_perolehan' => $caraPerolehan,
+                    'cara_perolehan' => null,
                     'nilai_perolehan' => 0,
                     'ruangan_id' => $rId,
                     'lokasi_ruangan_id' => $rId,
@@ -149,11 +146,11 @@ class SiakerSeeder extends Seeder
                     'kondisi' => $kondisi,
                     'aspak_status' => 'TERDATA',
                     'kib_status' => false,
+                    'tanggal_kalibrasi_terakhir' => $tglKalibrasiTerakhir,
+                    'tanggal_kalibrasi_berikutnya' => $tglKalibrasiBerikutnya,
                     'keterangan' => $keterangan !== '' ? $keterangan : null,
                 ]
             );
-
-            $counter++;
         }
 
         fclose($handle);

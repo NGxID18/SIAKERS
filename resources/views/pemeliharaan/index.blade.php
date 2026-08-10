@@ -89,7 +89,7 @@
                         <option value="Proses" {{ request('status_hasil') == 'Proses' ? 'selected' : '' }}>Dalam Perbaikan (Proses)</option>
                         <option value="Selesai" {{ request('status_hasil') == 'Selesai' ? 'selected' : '' }}>Selesai Diperbaiki</option>
                     </select>
-                    <button type="submit" class="h-11 px-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition shrink-0 flex items-center justify-center">
+                    <button type="submit" class="h-11 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-xs transition shrink-0 flex items-center justify-center">
                         <i class="ri-search-line"></i>
                     </button>
                     @if (request()->hasAny(['search', 'jenis_tindakan', 'status_hasil']))

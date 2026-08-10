@@ -94,7 +94,7 @@
             </div>
 
             <div class="lg:col-span-1">
-                <button type="submit" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition shadow-xs flex items-center justify-center">
+                <button type="submit" class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm transition shadow-xs flex items-center justify-center">
                     <i class="ri-filter-3-line text-lg"></i>
                 </button>
             </div>
@@ -114,7 +114,7 @@
                         <th class="py-3.5 px-4 border-r border-emerald-900">Kalibrasi Terakhir</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Jadwal Ulang</th>
                         <th class="py-3.5 px-4 text-center border-r border-emerald-900">Sertifikat / Dokumen PDF</th>
-                        <th class="py-3.5 px-4 text-center w-28">Aksi</th>
+                        <th class="py-3.5 px-4 text-center w-36">Aksi & Catatan</th>
                     </tr>
                 </thead>
 
@@ -131,7 +131,6 @@
                             <td class="py-3.5 px-4 text-center text-slate-700 font-bold border-r border-slate-200">{{ $alkesList->firstItem() + $index }}</td>
 
                             <td class="py-3.5 px-4 border-r border-slate-200">
-                                <span class="text-[11px] font-mono font-bold text-slate-500 block">{{ $item->kode_inventaris ?: 'N/A' }}</span>
                                 <span class="font-extrabold text-slate-900 text-sm block">{{ $item->nama_barang }}</span>
                             </td>
 
@@ -189,9 +188,21 @@
                             </td>
 
                             <td class="py-3.5 px-4 text-center">
-                                <button type="button" onclick="openUpdateModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}', '{{ $tglTerakhir ? $tglTerakhir->format('Y-m-d') : '' }}', '{{ $tglBerikutnya ? $tglBerikutnya->format('Y-m-d') : '' }}')" class="px-3 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1 mx-auto shadow-xs">
-                                    <i class="ri-edit-box-line"></i> Update
-                                </button>
+                                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                    @if (session('user_role') === 'elektromedis')
+                                        <button type="button" onclick="openUpdateModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}', '{{ $tglTerakhir ? $tglTerakhir->format('Y-m-d') : '' }}', '{{ $tglBerikutnya ? $tglBerikutnya->format('Y-m-d') : '' }}')" class="px-3 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1 shadow-xs">
+                                            <i class="ri-edit-box-line"></i> Update
+                                        </button>
+                                    @endif
+
+                                    @if ($item->keterangan)
+                                        <button type="button" onclick="openViewNoteModal('{{ addslashes($item->nama_barang) }}', '{{ addslashes($item->keterangan) }}')" class="px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 rounded-xl font-bold text-xs transition inline-flex items-center gap-1 shadow-xs" title="Lihat Catatan Kalibrasi">
+                                            <i class="ri-file-text-line text-amber-600"></i> Catatan
+                                        </button>
+                                    @elseif (session('user_role') !== 'elektromedis')
+                                        <span class="text-xs text-slate-400 font-semibold italic">Lihat Saja</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -269,6 +280,35 @@
     </div>
 </div>
 
+<div id="viewNoteModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-300 overflow-hidden animate-fade-in">
+        <div class="px-5 py-4 bg-emerald-950 text-white flex items-center justify-between">
+            <h4 class="font-bold text-base flex items-center gap-2">
+                <i class="ri-file-text-line text-amber-300"></i>
+                Catatan Kalibrasi Elektromedis
+            </h4>
+            <button type="button" onclick="closeViewNoteModal()" class="text-slate-300 hover:text-white p-1 rounded-lg transition">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Alat Kesehatan</label>
+                <p id="viewModalNamaAlkes" class="font-extrabold text-slate-900 text-base"></p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Riwayat & Catatan Elektromedis</label>
+                <div id="viewModalKeterangan" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 whitespace-pre-line leading-relaxed"></div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200 flex justify-end">
+                <button type="button" onclick="closeViewNoteModal()" class="px-5 py-2 bg-slate-100 text-slate-800 hover:bg-slate-200 rounded-xl text-xs font-bold transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function openUpdateModal(id, namaAlkes, tglTerakhir, tglBerikutnya) {
         document.getElementById('updateKalibrasiForm').action = '/kalibrasi/' + id;
@@ -280,6 +320,16 @@
 
     function closeUpdateModal() {
         document.getElementById('updateKalibrasiModal').classList.add('hidden');
+    }
+
+    function openViewNoteModal(namaAlkes, keterangan) {
+        document.getElementById('viewModalNamaAlkes').innerText = namaAlkes;
+        document.getElementById('viewModalKeterangan').innerText = keterangan || 'Tidak ada catatan kalibrasi.';
+        document.getElementById('viewNoteModal').classList.remove('hidden');
+    }
+
+    function closeViewNoteModal() {
+        document.getElementById('viewNoteModal').classList.add('hidden');
     }
 
     function autoCalculateNextDate(lastDateStr) {

@@ -72,6 +72,10 @@ class KalibrasiController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (session('user_role') !== 'elektromedis') {
+            return redirect()->back()->with('error', 'Akses Ditolak! Hanya peran Elektromedis yang memiliki otoritas memperbarui data & sertifikat kalibrasi.');
+        }
+
         $request->validate([
             'tanggal_kalibrasi_terakhir' => 'required|date',
             'tanggal_kalibrasi_berikutnya' => 'required|date|after_or_equal:tanggal_kalibrasi_terakhir',
@@ -93,7 +97,7 @@ class KalibrasiController extends Controller
             $file = $request->file('sertifikat_pdf');
             $uploadDir = public_path('uploads/sertifikat');
             if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
+                @mkdir($uploadDir, 0777, true);
             }
             $filename = 'sertifikat_' . $alkes->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move($uploadDir, $filename);
