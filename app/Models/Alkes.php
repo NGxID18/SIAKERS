@@ -35,6 +35,7 @@ class Alkes extends Model
         'kib_status',
         'tanggal_kalibrasi_terakhir',
         'tanggal_kalibrasi_berikutnya',
+        'sertifikat_kalibrasi',
         'foto_alat',
         'keterangan',
     ];

@@ -11,7 +11,7 @@
                 <i class="ri-verified-badge-line text-emerald-600"></i>
                 Kalibrasi & Pengujian Berkala Alkes
             </h3>
-            <p class="text-sm text-slate-700 mt-1 font-medium">Kelola status kelayakan dan kalibrasi berkala seluruh alat kesehatan sesuai standar Kemenkes RI</p>
+            <p class="text-sm text-slate-700 mt-1 font-medium">Kelola jadwal kalibrasi berkala dan dokumen sertifikat resmi alat kesehatan sesuai standar Kemenkes RI</p>
         </div>
         @if (session('user_role') === 'elektromedis')
             <span class="px-3.5 py-2 bg-amber-400/20 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0">
@@ -113,7 +113,7 @@
                         <th class="py-3.5 px-4 border-r border-emerald-900">Kondisi</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Kalibrasi Terakhir</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Jadwal Ulang</th>
-                        <th class="py-3.5 px-4 text-center border-r border-emerald-900">Status</th>
+                        <th class="py-3.5 px-4 text-center border-r border-emerald-900">Sertifikat / Dokumen PDF</th>
                         <th class="py-3.5 px-4 text-center w-28">Aksi</th>
                     </tr>
                 </thead>
@@ -124,9 +124,7 @@
                             $today = \Carbon\Carbon::today();
                             $tglTerakhir = $item->tanggal_kalibrasi_terakhir;
                             $tglBerikutnya = $item->tanggal_kalibrasi_berikutnya;
-                            $isTerkalibrasi = $tglTerakhir && $tglBerikutnya && $tglBerikutnya->isAfter($today);
                             $isExpired = $tglBerikutnya && $tglBerikutnya->isBefore($today);
-                            $isBelum = !$tglTerakhir;
                         @endphp
 
                         <tr class="hover:bg-emerald-50/40 transition odd:bg-white even:bg-slate-50/70 border-b border-slate-200">
@@ -181,18 +179,12 @@
                             </td>
 
                             <td class="py-3.5 px-4 text-center border-r border-slate-200">
-                                @if ($isTerkalibrasi)
-                                    <span class="px-3 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-full text-xs font-black inline-flex items-center gap-1">
-                                        <i class="ri-verified-badge-fill text-emerald-600"></i> Valid
-                                    </span>
-                                @elseif ($isExpired)
-                                    <span class="px-3 py-1 bg-rose-100 text-rose-900 border border-rose-300 rounded-full text-xs font-black inline-flex items-center gap-1">
-                                        <i class="ri-alarm-warning-fill text-rose-600"></i> Expired
-                                    </span>
+                                @if ($item->sertifikat_kalibrasi)
+                                    <a href="{{ asset($item->sertifikat_kalibrasi) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
+                                        <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Lihat PDF
+                                    </a>
                                 @else
-                                    <span class="px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-black inline-flex items-center gap-1">
-                                        <i class="ri-time-line text-amber-600"></i> Belum
-                                    </span>
+                                    <span class="text-xs text-slate-400 italic">Belum Ada PDF</span>
                                 @endif
                             </td>
 
@@ -228,14 +220,14 @@
         <div class="px-5 py-4 bg-emerald-950 text-white flex items-center justify-between">
             <h4 class="font-bold text-base flex items-center gap-2">
                 <i class="ri-verified-badge-line text-amber-300"></i>
-                Update Kalibrasi Alkes
+                Update Sertifikat & Kalibrasi Alkes
             </h4>
             <button type="button" onclick="closeUpdateModal()" class="text-slate-300 hover:text-white p-1 rounded-lg transition">
                 <i class="ri-close-line text-xl"></i>
             </button>
         </div>
 
-        <form id="updateKalibrasiForm" method="POST" action="" class="p-6 space-y-4">
+        <form id="updateKalibrasiForm" method="POST" action="" enctype="multipart/form-data" class="p-6 space-y-4">
             @csrf
 
             <div>
@@ -257,8 +249,14 @@
             </div>
 
             <div>
+                <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Unggah Sertifikat / Laporan Kalibrasi (PDF)</label>
+                <input type="file" name="sertifikat_pdf" accept=".pdf" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                <span class="text-[10px] text-slate-500 mt-1 font-semibold block">*Format file: PDF (Maksimal 10MB)</span>
+            </div>
+
+            <div>
                 <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Nomor Sertifikat / Catatan</label>
-                <textarea name="keterangan" rows="3" placeholder="Nomor sertifikat kalibrasi atau catatan pengujian..." class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"></textarea>
+                <textarea name="keterangan" rows="2" placeholder="Nomor sertifikat kalibrasi atau catatan pengujian..." class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"></textarea>
             </div>
 
             <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">

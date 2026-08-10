@@ -75,6 +75,7 @@ class KalibrasiController extends Controller
         $request->validate([
             'tanggal_kalibrasi_terakhir' => 'required|date',
             'tanggal_kalibrasi_berikutnya' => 'required|date|after_or_equal:tanggal_kalibrasi_terakhir',
+            'sertifikat_pdf' => 'nullable|file|mimes:pdf|max:10240', // Max 10MB PDF
             'keterangan' => 'nullable|string|max:500',
         ]);
 
@@ -83,10 +84,23 @@ class KalibrasiController extends Controller
         $tglTerakhir = $request->tanggal_kalibrasi_terakhir;
         $tglBerikutnya = $request->tanggal_kalibrasi_berikutnya;
 
-        $alkes->update([
+        $updateData = [
             'tanggal_kalibrasi_terakhir' => $tglTerakhir,
             'tanggal_kalibrasi_berikutnya' => $tglBerikutnya,
-        ]);
+        ];
+
+        if ($request->hasFile('sertifikat_pdf')) {
+            $file = $request->file('sertifikat_pdf');
+            $uploadDir = public_path('uploads/sertifikat');
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $filename = 'sertifikat_' . $alkes->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $updateData['sertifikat_kalibrasi'] = '/uploads/sertifikat/' . $filename;
+        }
+
+        $alkes->update($updateData);
 
         if ($request->filled('keterangan')) {
             $catatanLama = $alkes->keterangan ? $alkes->keterangan . ' | ' : '';
@@ -97,10 +111,10 @@ class KalibrasiController extends Controller
 
         ActivityLog::record(
             'Pembaruan Kalibrasi',
-            "Memperbarui sertifikat & jadwal kalibrasi alat '{$alkes->nama_barang}' (SN: " . ($alkes->nomor_seri ?: '-') . "). Tanggal Kalibrasi Terakhir: " . Carbon::parse($tglTerakhir)->format('d/m/Y') . ", Jadwal Ulang: " . Carbon::parse($tglBerikutnya)->format('d/m/Y') . '.',
+            "Memperbarui sertifikat PDF & jadwal kalibrasi alat '{$alkes->nama_barang}' (SN: " . ($alkes->nomor_seri ?: '-') . "). Tanggal Kalibrasi Terakhir: " . Carbon::parse($tglTerakhir)->format('d/m/Y') . ", Jadwal Ulang: " . Carbon::parse($tglBerikutnya)->format('d/m/Y') . '.',
             session('user_role_label', 'Instalasi Elektromedis')
         );
 
-        return redirect()->back()->with('success', "Sertifikat & Jadwal Kalibrasi untuk unit '{$alkes->nama_barang}' berhasil diperbarui!");
+        return redirect()->back()->with('success', "Sertifikat PDF & Jadwal Kalibrasi untuk unit '{$alkes->nama_barang}' berhasil diperbarui!");
     }
 }

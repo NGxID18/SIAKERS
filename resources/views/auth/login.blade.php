@@ -116,7 +116,7 @@
                         <input type="radio" name="role" value="tata_usaha" onchange="handleRoleChange(this)" class="w-4 h-4 text-amber-400 focus:ring-amber-400 border-slate-600 bg-transparent">
                         <div>
                             <p class="font-extrabold text-white text-sm">Manajemen / Penunjang</p>
-                            <p class="text-xs text-slate-200 font-semibold">Pengawasan inventaris (Read-Only)</p>
+                            <p class="text-xs text-slate-200 font-semibold">Pengawasan inventaris</p>
                         </div>
                     </label>
                 </div>
