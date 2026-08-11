@@ -41,7 +41,8 @@ class LogPemeliharaanController extends Controller
             $query->where('status_hasil', $request->status_hasil);
         }
 
-        $logList = $query->latest()->paginate(30)->withQueryString();
+        $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
+        $logList = $query->latest()->paginate($perPage)->withQueryString();
 
         $notifications = Notification::with(['alkes', 'ruanganAsal'])
             ->latest()

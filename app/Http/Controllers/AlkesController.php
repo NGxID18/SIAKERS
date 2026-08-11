@@ -79,7 +79,8 @@ class AlkesController extends Controller
             $query->orderBy('nama_barang', 'asc');
         }
 
-        $alkesList = $query->paginate(30)->withQueryString();
+        $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
+        $alkesList = $query->paginate($perPage)->withQueryString();
         $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
 
         $statuses = StatusAlkes::cases();
@@ -217,5 +218,97 @@ class AlkesController extends Controller
 
         return redirect()->route('alkes.index')
             ->with('success', 'Data Alat Kesehatan berhasil dihapus!');
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Alkes::with(['ruangan', 'lokasiRuangan']);
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('merk', 'like', "%{$search}%")
+                  ->orWhere('tipe', 'like', "%{$search}%")
+                  ->orWhere('nomor_seri', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('ruangan_id')) {
+            $query->where('ruangan_id', $request->ruangan_id);
+        }
+
+        if ($request->filled('lokasi_ruangan_id')) {
+            $query->where('lokasi_ruangan_id', $request->lokasi_ruangan_id);
+        }
+
+        if ($request->filled('kondisi')) {
+            $val = trim($request->kondisi);
+            $query->where(function ($q) use ($val) {
+                $q->where('kondisi', $val)
+                  ->orWhere('kondisi', strtolower($val))
+                  ->orWhere('kondisi', strtoupper($val));
+            });
+        }
+
+        $items = $query->orderBy('nama_barang', 'asc')->get();
+
+        $filename = "Data_Alkes_RSJKO_EHD_" . date('Y-m-d_H-i') . ".csv";
+
+        $headers = [
+            "Content-type" => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename={$filename}",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function () use ($items) {
+            $file = fopen('php://output', 'w');
+            // UTF-8 BOM for Microsoft Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, [
+                'No',
+                'Nama Barang',
+                'Merk',
+                'Tipe',
+                'Seri Number',
+                'Tahun',
+                'Ruang Pemilik',
+                'Lokasi Fisik saat Ini',
+                'Kondisi',
+                'Status Kalibrasi',
+                'Tanggal Kalibrasi Terakhir',
+                'Keterangan'
+            ]);
+
+            foreach ($items as $index => $item) {
+                fputcsv($file, [
+                    $index + 1,
+                    $item->nama_barang,
+                    $item->merk ?: '',
+                    $item->tipe ?: '',
+                    $item->nomor_seri ?: '',
+                    $item->tahun_pengadaan ?: '',
+                    $item->ruangan->nama_ruangan ?? '',
+                    $item->lokasiRuangan->nama_ruangan ?? '',
+                    $item->kondisi_enum->label(),
+                    $item->status_kalibrasi ?: 'BELUM DIKALIBRASI',
+                    $item->tanggal_kalibrasi_terakhir ? $item->tanggal_kalibrasi_terakhir->format('Y-m-d') : 'Belum ada data',
+                    $item->keterangan ?: ''
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        ActivityLog::record(
+            'Export Data Alkes (CSV)',
+            "Mengunduh ekspor berkas data terbaru alkes ke format CSV (Total " . count($items) . " baris).",
+            session('user_role_label', 'Admin System')
+        );
+
+        return response()->stream($callback, 200, $headers);
     }
 }

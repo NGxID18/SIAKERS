@@ -28,10 +28,13 @@ return new class extends Migration
 
             $table->string('status')->default('tersedia')->index(); // tersedia, sedang_digunakan, dalam_perbaikan
             $table->string('kondisi')->default('baik')->index(); // baik, rusak_ringan, rusak_berat
+            $table->string('status_kalibrasi')->default('BELUM DIKALIBRASI')->index(); // SUDAH DIKALIBRASI, BELUM DIKALIBRASI
             $table->string('aspak_status')->default('TERDATA'); // TERDATA, TIDAK TERDATA
             $table->boolean('kib_status')->default(false); // true / false
             $table->date('tanggal_kalibrasi_terakhir')->nullable();
             $table->date('tanggal_kalibrasi_berikutnya')->nullable();
+            $table->string('sertifikat_kalibrasi')->nullable();
+            $table->json('sertifikat_kalibrasi_history')->nullable();
             $table->string('foto_alat')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();

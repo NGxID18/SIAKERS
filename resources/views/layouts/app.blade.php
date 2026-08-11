@@ -146,27 +146,27 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-400 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 shrink-0 group-hover:scale-105 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35zM10.5 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2z"/></svg>
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-400 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 shrink-0 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35zM10.5 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2z"/></svg>
                 </div>
-                <div class="hidden sm:block">
-                    <h2 class="font-extrabold text-white text-sm tracking-tight leading-tight group-hover:text-amber-300 transition">SIAKERS</h2>
-                    <p class="text-[11px] text-amber-300 font-bold leading-none mt-0.5">RSJKO Engku Haji Daud</p>
+                <div class="block">
+                    <h2 class="font-extrabold text-white text-xs sm:text-sm tracking-tight leading-tight group-hover:text-amber-300 transition">SIAKERS</h2>
+                    <p class="text-[10px] sm:text-[11px] text-amber-300 font-bold leading-none mt-0.5 hidden sm:block">RSJKO Engku Haji Daud</p>
                 </div>
             </a>
         </div>
 
-        <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none z-10">
+        <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none z-10 hidden md:block">
             <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-[0.2em] text-white drop-shadow-md">
                 <span class="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">SIAKERS</span>
             </h1>
         </div>
 
-        <div class="flex items-center gap-2.5 z-10 ml-auto">
-            <div class="h-9 px-3 py-1.5 bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs shrink-0">
+        <div class="flex items-center gap-2 sm:gap-2.5 z-10 ml-auto">
+            <div class="h-9 px-2.5 sm:px-3 py-1.5 bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs shrink-0 max-w-[130px] sm:max-w-[200px] md:max-w-none" title="{{ $userRoleLabel }}">
                 <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-                <span>{{ $userRoleLabel }}</span>
+                <span class="truncate text-[10px] sm:text-xs">{{ $userRoleLabel }}</span>
             </div>
 
             @if ($currentRole === 'elektromedis')
@@ -226,7 +226,7 @@
     </header>
 
     <div class="flex flex-1 pt-16 relative">
-        <aside id="sidebarDrawer" class="fixed top-16 left-0 bottom-0 w-64 bg-emerald-950/85 backdrop-blur-md text-white border-r border-emerald-800/60 z-30 transform -translate-x-full md:translate-x-0 shadow-lg">
+        <aside id="sidebarDrawer" class="fixed top-16 left-0 bottom-0 w-64 bg-emerald-950/85 backdrop-blur-md text-white border-r border-emerald-800/60 z-[45] transform -translate-x-full md:translate-x-0 shadow-lg">
             <button type="button" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full items-center justify-center shadow-xl border-2 border-emerald-950 transition-all z-50 focus:outline-none" title="Ciutkan Sidebar">
                 <svg id="collapseBtnIcon" class="w-4 h-4 text-white transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             </button>

@@ -16,18 +16,14 @@ class DashboardController extends Controller
     {
         $totalAlkes = Alkes::count();
 
-        $alkesRusak = Alkes::where(function ($q) {
-            $q->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-              ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
-        })->count();
+        // Exact Condition Breakdown
+        $alkesBaik = Alkes::where('kondisi', KondisiAlkes::BAIK->value)->count();
+        $alkesRusak = Alkes::where('kondisi', '!=', KondisiAlkes::BAIK->value)->count();
+        $alkesTersedia = $alkesBaik;
 
-        $alkesTersedia = $totalAlkes - $alkesRusak;
-
-        $ruanganList = Ruangan::withCount(['alkes', 'alkes as alkes_rusak_count' => function ($q) {
-            $q->where(function ($subQ) {
-                $subQ->where('status', StatusAlkes::DALAM_PERBAIKAN->value)
-                     ->orWhere('kondisi', '!=', KondisiAlkes::BAIK->value);
-            });
+        // Ruangan List based on Physical Location (Lokasi Fisik saat Ini)
+        $ruanganList = Ruangan::withCount(['alkesLokasi as alkes_count', 'alkesLokasi as alkes_rusak_count' => function ($q) {
+            $q->where('kondisi', '!=', KondisiAlkes::BAIK->value);
         }])->orderBy('nama_ruangan', 'asc')->get();
 
         $mutasiTerbaru = MutasiAlkes::with(['alkes', 'ruanganAsal', 'ruanganTujuan'])
@@ -41,8 +37,8 @@ class DashboardController extends Controller
             ->get();
 
         $chartStatusData = [
-            'Operasional / Baik' => $alkesTersedia,
-            'Dalam Perbaikan / Rusak' => $alkesRusak,
+            'Kondisi Baik' => $alkesBaik,
+            'Rusak / Perlu Perbaikan' => $alkesRusak,
         ];
 
         $chartRuanganLabels = [];

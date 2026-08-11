@@ -3,10 +3,18 @@
 /public/build/
 /public/hot/
 /public/storage/
+/public/uploads/*
+!/public/uploads/.gitignore
+
+/database/sertifikat/*
+!/database/sertifikat/.gitignore
 
 /storage/*.key
+/storage/*.txt
 /storage/app/*
 !/storage/app/.gitignore
+/storage/backups/*
+!/storage/backups/.gitignore
 /storage/framework/cache/*
 !/storage/framework/cache/.gitignore
 /storage/framework/cache/data/*
@@ -36,6 +44,8 @@ yarn-error.log
 
 /.idea/
 /.vscode/
+/*.sqlite*
+!/database/database.sqlite.example
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm

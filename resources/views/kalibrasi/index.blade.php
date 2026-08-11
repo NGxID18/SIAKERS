@@ -13,12 +13,19 @@
             </h3>
             <p class="text-sm text-slate-700 mt-1 font-medium">Kelola jadwal kalibrasi berkala dan dokumen sertifikat resmi alat kesehatan sesuai standar Kemenkes RI</p>
         </div>
-        @if (session('user_role') === 'elektromedis')
-            <span class="px-3.5 py-2 bg-amber-400/20 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0">
-                <i class="ri-shield-check-line text-amber-600 text-sm"></i>
-                Otoritas Elektromedis
-            </span>
-        @endif
+        <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <a href="{{ route('alkes.export', request()->query()) }}" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2" title="Unduh Data Terbaru ke CSV">
+                <i class="ri-file-download-line text-emerald-600 text-base"></i>
+                <span>Export CSV</span>
+            </a>
+
+            @if (session('user_role') === 'elektromedis')
+                <span class="px-3.5 py-2.5 bg-amber-400/20 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0">
+                    <i class="ri-shield-check-line text-amber-600 text-sm"></i>
+                    Otoritas Elektromedis
+                </span>
+            @endif
+        </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -107,13 +114,13 @@
                 <thead>
                     <tr class="bg-emerald-950 text-white text-xs font-black uppercase tracking-wider border-b border-emerald-900">
                         <th class="py-3.5 px-4 text-center w-12 border-r border-emerald-900">No</th>
-                        <th class="py-3.5 px-4 border-r border-emerald-900">Kode & Nama Alkes</th>
+                        <th class="py-3.5 px-4 border-r border-emerald-900">Nama Alkes</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Merk / Tipe / SN</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Ruangan</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Kondisi</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Kalibrasi Terakhir</th>
                         <th class="py-3.5 px-4 border-r border-emerald-900">Jadwal Ulang</th>
-                        <th class="py-3.5 px-4 text-center border-r border-emerald-900">Sertifikat / Dokumen PDF</th>
+                        <th class="py-3.5 px-4 text-center border-r border-emerald-900">Sertifikat / Dokumen</th>
                         <th class="py-3.5 px-4 text-center w-36">Aksi & Catatan</th>
                     </tr>
                 </thead>
@@ -125,6 +132,7 @@
                             $tglTerakhir = $item->tanggal_kalibrasi_terakhir;
                             $tglBerikutnya = $item->tanggal_kalibrasi_berikutnya;
                             $isExpired = $tglBerikutnya && $tglBerikutnya->isBefore($today);
+                            $pdfHistory = is_array($item->sertifikat_kalibrasi_history) ? $item->sertifikat_kalibrasi_history : [];
                         @endphp
 
                         <tr class="hover:bg-emerald-50/40 transition odd:bg-white even:bg-slate-50/70 border-b border-slate-200">
@@ -146,13 +154,7 @@
                             </td>
 
                             <td class="py-3.5 px-4 border-r border-slate-200">
-                                @if ($item->kondisiEnum->value === 'Baik')
-                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-black">Baik</span>
-                                @elseif ($item->kondisiEnum->value === 'Rusak Ringan')
-                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-black">Rusak Ringan</span>
-                                @else
-                                    <span class="px-2.5 py-1 bg-rose-100 text-rose-900 border border-rose-300 rounded-lg text-xs font-black">Rusak Berat</span>
-                                @endif
+                                <span class="px-2.5 py-0.5 rounded text-xs font-black border {{ $item->kondisi_enum->warnaBadge() }}">{{ $item->kondisi_enum->label() }}</span>
                             </td>
 
                             <td class="py-3.5 px-4 border-r border-slate-200">
@@ -161,6 +163,8 @@
                                         <i class="ri-calendar-check-line text-emerald-600"></i>
                                         {{ $tglTerakhir->format('d/m/Y') }}
                                     </span>
+                                @elseif ($item->status_kalibrasi === 'SUDAH DIKALIBRASI')
+                                    <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">SUDAH DIKALIBRASI</span>
                                 @else
                                     <span class="text-xs text-slate-400 italic">Belum Ada</span>
                                 @endif
@@ -178,12 +182,23 @@
                             </td>
 
                             <td class="py-3.5 px-4 text-center border-r border-slate-200">
-                                @if ($item->sertifikat_kalibrasi)
+                                @if (!empty($pdfHistory))
+                                    <div class="flex flex-col items-center gap-1">
+                                        <a href="{{ asset(end($pdfHistory)['file_path']) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
+                                            <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Dokumen Terbaru
+                                        </a>
+                                        @if (count($pdfHistory) > 1)
+                                            <button type="button" onclick="openPdfHistoryModal('{{ addslashes($item->nama_barang) }}', {{ json_encode($pdfHistory) }})" class="px-2.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg text-[10px] font-extrabold transition">
+                                                <i class="ri-history-line"></i> Riwayat {{ count($pdfHistory) }} Tahun
+                                            </button>
+                                        @endif
+                                    </div>
+                                @elseif ($item->sertifikat_kalibrasi)
                                     <a href="{{ asset($item->sertifikat_kalibrasi) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
-                                        <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Lihat PDF
+                                        <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Lihat Dokumen
                                     </a>
                                 @else
-                                    <span class="text-xs text-slate-400 italic">Belum Ada PDF</span>
+                                    <span class="text-xs text-slate-400 italic">Belum ada dokumen</span>
                                 @endif
                             </td>
 
@@ -195,9 +210,9 @@
                                         </button>
                                     @endif
 
-                                    @if ($item->keterangan)
-                                        <button type="button" onclick="openViewNoteModal('{{ addslashes($item->nama_barang) }}', '{{ addslashes($item->keterangan) }}')" class="px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 rounded-xl font-bold text-xs transition inline-flex items-center gap-1 shadow-xs" title="Lihat Catatan Kalibrasi">
-                                            <i class="ri-file-text-line text-amber-600"></i> Catatan
+                                    @if ($item->keterangan || !empty($pdfHistory))
+                                        <button type="button" onclick="openViewNoteModal('{{ addslashes($item->nama_barang) }}', '{{ addslashes($item->keterangan) }}', {{ json_encode($pdfHistory) }})" class="px-2.5 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 rounded-xl font-bold text-xs transition inline-flex items-center gap-1 shadow-xs" title="Lihat Detail & Riwayat Kalibrasi">
+                                            <i class="ri-file-text-line text-amber-600"></i> Detail
                                         </button>
                                     @elseif (session('user_role') !== 'elektromedis')
                                         <span class="text-xs text-slate-400 font-semibold italic">Lihat Saja</span>
@@ -260,9 +275,9 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Unggah Sertifikat / Laporan Kalibrasi (PDF)</label>
+                <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Unggah Sertifikat / Laporan Kalibrasi</label>
                 <input type="file" name="sertifikat_pdf" accept=".pdf" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-                <span class="text-[10px] text-slate-500 mt-1 font-semibold block">*Format file: PDF (Maksimal 10MB)</span>
+                <span class="text-[10px] text-slate-500 mt-1 font-semibold block">*Dokumen baru otomatis diarsipkan tanpa menimpa dokumen tahun-tahun sebelumnya (Maks 10MB)</span>
             </div>
 
             <div>
@@ -281,17 +296,17 @@
 </div>
 
 <div id="viewNoteModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-300 overflow-hidden animate-fade-in">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-300 overflow-hidden">
         <div class="px-5 py-4 bg-emerald-950 text-white flex items-center justify-between">
             <h4 class="font-bold text-base flex items-center gap-2">
                 <i class="ri-file-text-line text-amber-300"></i>
-                Catatan Kalibrasi Elektromedis
+                Detail & Riwayat Kalibrasi Multi-Tahun
             </h4>
             <button type="button" onclick="closeViewNoteModal()" class="text-slate-300 hover:text-white p-1 rounded-lg transition">
                 <i class="ri-close-line text-xl"></i>
             </button>
         </div>
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Alat Kesehatan</label>
                 <p id="viewModalNamaAlkes" class="font-extrabold text-slate-900 text-base"></p>
@@ -300,6 +315,11 @@
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Riwayat & Catatan Elektromedis</label>
                 <div id="viewModalKeterangan" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 whitespace-pre-line leading-relaxed"></div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Arsip Dokumen Sertifikat Berbagai Tahun</label>
+                <div id="viewModalPdfHistory" class="space-y-2"></div>
             </div>
 
             <div class="pt-3 border-t border-slate-200 flex justify-end">
@@ -322,10 +342,37 @@
         document.getElementById('updateKalibrasiModal').classList.add('hidden');
     }
 
-    function openViewNoteModal(namaAlkes, keterangan) {
+    function openViewNoteModal(namaAlkes, keterangan, pdfHistory) {
         document.getElementById('viewModalNamaAlkes').innerText = namaAlkes;
-        document.getElementById('viewModalKeterangan').innerText = keterangan || 'Tidak ada catatan kalibrasi.';
+        document.getElementById('viewModalKeterangan').innerText = keterangan || 'Tidak ada catatan khusus.';
+
+        const pdfContainer = document.getElementById('viewModalPdfHistory');
+        pdfContainer.innerHTML = '';
+
+        if (pdfHistory && Array.isArray(pdfHistory) && pdfHistory.length > 0) {
+            pdfHistory.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between gap-2';
+                card.innerHTML = `
+                    <div>
+                        <span class="font-black text-xs text-emerald-950 block">Tahun ${item.tahun || '-'} (Pengujian ${item.tanggal || '-'})</span>
+                        <span class="text-[11px] text-slate-600 font-medium block">${item.keterangan || 'Sertifikat Kalibrasi'}</span>
+                    </div>
+                    <a href="${item.file_path}" target="_blank" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shrink-0 flex items-center gap-1 shadow-xs">
+                        <i class="ri-file-pdf-fill text-rose-300"></i> Buka Dokumen
+                    </a>
+                `;
+                pdfContainer.appendChild(card);
+            });
+        } else {
+            pdfContainer.innerHTML = '<span class="text-xs text-slate-400 italic">Belum ada dokumen sertifikat diarsipkan.</span>';
+        }
+
         document.getElementById('viewNoteModal').classList.remove('hidden');
+    }
+
+    function openPdfHistoryModal(namaAlkes, pdfHistory) {
+        openViewNoteModal(namaAlkes, '', pdfHistory);
     }
 
     function closeViewNoteModal() {

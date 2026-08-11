@@ -31,11 +31,13 @@ class Alkes extends Model
         'lokasi_saat_ini_note',
         'status',
         'kondisi',
+        'status_kalibrasi',
         'aspak_status',
         'kib_status',
         'tanggal_kalibrasi_terakhir',
         'tanggal_kalibrasi_berikutnya',
         'sertifikat_kalibrasi',
+        'sertifikat_kalibrasi_history',
         'foto_alat',
         'keterangan',
     ];
@@ -48,6 +50,7 @@ class Alkes extends Model
         'kib_status' => 'boolean',
         'tanggal_kalibrasi_terakhir' => 'date',
         'tanggal_kalibrasi_berikutnya' => 'date',
+        'sertifikat_kalibrasi_history' => 'array',
     ];
 
     public function getStatusEnumAttribute(): StatusAlkes

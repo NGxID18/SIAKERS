@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('alkes', 'sertifikat_kalibrasi')) {
+        if (!Schema::hasColumn('alkes', 'sertifikat_kalibrasi_history')) {
             Schema::table('alkes', function (Blueprint $table) {
-                $table->string('sertifikat_kalibrasi')->nullable()->after('tanggal_kalibrasi_berikutnya');
+                $table->text('sertifikat_kalibrasi_history')->nullable()->after('sertifikat_kalibrasi');
             });
         }
     }
@@ -18,7 +18,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('alkes', function (Blueprint $table) {
-            $table->dropColumn('sertifikat_kalibrasi');
+            $table->dropColumn('sertifikat_kalibrasi_history');
         });
     }
 };

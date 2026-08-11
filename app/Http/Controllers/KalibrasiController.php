@@ -34,31 +34,29 @@ class KalibrasiController extends Controller
             $today = now()->toDateString();
 
             if ($status === 'TERKALIBRASI') {
-                $query->whereNotNull('tanggal_kalibrasi_terakhir')
-                      ->where('tanggal_kalibrasi_berikutnya', '>=', $today);
+                $query->where('status_kalibrasi', 'SUDAH DIKALIBRASI');
             } elseif ($status === 'EXPIRED') {
                 $query->whereNotNull('tanggal_kalibrasi_berikutnya')
                       ->where('tanggal_kalibrasi_berikutnya', '<', $today);
             } elseif ($status === 'BELUM') {
-                $query->whereNull('tanggal_kalibrasi_terakhir');
+                $query->where('status_kalibrasi', '!=', 'SUDAH DIKALIBRASI');
             }
         }
 
-        $alkesList = $query->orderByRaw('CASE WHEN tanggal_kalibrasi_berikutnya IS NULL THEN 1 ELSE 0 END')
-                          ->orderBy('tanggal_kalibrasi_berikutnya', 'asc')
-                          ->paginate(25)
+        $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
+        $alkesList = $query->orderByRaw('CASE WHEN status_kalibrasi = "SUDAH DIKALIBRASI" THEN 0 ELSE 1 END')
+                          ->orderBy('nama_barang', 'asc')
+                          ->paginate($perPage)
                           ->withQueryString();
 
         $ruanganList = Ruangan::orderBy('nama_ruangan')->get();
 
         $totalAlkes = Alkes::count();
-        $totalTerkalibrasi = Alkes::whereNotNull('tanggal_kalibrasi_terakhir')
-            ->where('tanggal_kalibrasi_berikutnya', '>=', now()->toDateString())
-            ->count();
+        $totalTerkalibrasi = Alkes::where('status_kalibrasi', 'SUDAH DIKALIBRASI')->count();
         $totalExpired = Alkes::whereNotNull('tanggal_kalibrasi_berikutnya')
             ->where('tanggal_kalibrasi_berikutnya', '<', now()->toDateString())
             ->count();
-        $totalBelum = Alkes::whereNull('tanggal_kalibrasi_terakhir')->count();
+        $totalBelum = Alkes::where('status_kalibrasi', '!=', 'SUDAH DIKALIBRASI')->count();
 
         return view('kalibrasi.index', compact(
             'alkesList',
@@ -95,13 +93,37 @@ class KalibrasiController extends Controller
 
         if ($request->hasFile('sertifikat_pdf')) {
             $file = $request->file('sertifikat_pdf');
-            $uploadDir = public_path('uploads/sertifikat');
+            $uploadDir = base_path('database/sertifikat');
             if (!file_exists($uploadDir)) {
                 @mkdir($uploadDir, 0777, true);
             }
             $filename = 'sertifikat_' . $alkes->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move($uploadDir, $filename);
-            $updateData['sertifikat_kalibrasi'] = '/uploads/sertifikat/' . $filename;
+            $filePath = '/database/sertifikat/' . $filename;
+            $updateData['sertifikat_kalibrasi'] = $filePath;
+
+            $history = is_array($alkes->sertifikat_kalibrasi_history) ? $alkes->sertifikat_kalibrasi_history : [];
+
+            if ($alkes->sertifikat_kalibrasi && empty($history)) {
+                $history[] = [
+                    'tahun' => $alkes->tanggal_kalibrasi_terakhir ? Carbon::parse($alkes->tanggal_kalibrasi_terakhir)->format('Y') : date('Y'),
+                    'tanggal' => $alkes->tanggal_kalibrasi_terakhir ? Carbon::parse($alkes->tanggal_kalibrasi_terakhir)->format('d/m/Y') : '-',
+                    'file_path' => $alkes->sertifikat_kalibrasi,
+                    'keterangan' => 'Sertifikat Kalibrasi Terdaftar',
+                    'uploaded_at' => now()->toDateTimeString(),
+                ];
+            }
+
+            $tahunInput = Carbon::parse($tglTerakhir)->format('Y');
+            $history[] = [
+                'tahun' => $tahunInput,
+                'tanggal' => Carbon::parse($tglTerakhir)->format('d/m/Y'),
+                'file_path' => $filePath,
+                'keterangan' => $request->keterangan ?: ("Sertifikat Kalibrasi Tahun " . $tahunInput),
+                'uploaded_at' => now()->toDateTimeString(),
+            ];
+
+            $updateData['sertifikat_kalibrasi_history'] = array_values($history);
         }
 
         $alkes->update($updateData);
@@ -119,6 +141,20 @@ class KalibrasiController extends Controller
             session('user_role_label', 'Instalasi Elektromedis')
         );
 
-        return redirect()->back()->with('success', "Sertifikat PDF & Jadwal Kalibrasi untuk unit '{$alkes->nama_barang}' berhasil diperbarui!");
+        return redirect()->back()->with('success', "Sertifikat & Jadwal Kalibrasi untuk unit '{$alkes->nama_barang}' berhasil diperbarui!");
+    }
+
+    public function serveCertificate($filename)
+    {
+        $filePath = base_path('database/sertifikat/' . $filename);
+        if (!file_exists($filePath)) {
+            $oldPublicPath = public_path('uploads/sertifikat/' . $filename);
+            if (file_exists($oldPublicPath)) {
+                return response()->file($oldPublicPath);
+            }
+            abort(404, 'Dokumen sertifikat tidak ditemukan.');
+        }
+
+        return response()->file($filePath);
     }
 }

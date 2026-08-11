@@ -132,7 +132,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             @foreach ($ruanganList as $index => $r)
                 @php $colorClass = $bgColors[$index % count($bgColors)]; @endphp
-                <a href="{{ route('alkes.index', ['ruangan_id' => $r->id]) }}" class="bg-slate-50 hover:bg-white p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
+                <a href="{{ route('alkes.index', ['lokasi_ruangan_id' => $r->id]) }}" class="bg-slate-50 hover:bg-white p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all duration-200 group flex flex-col justify-between" title="Klik untuk lihat daftar alkes yang berada di ruangan ini">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 block">Ruangan</span>

@@ -24,41 +24,6 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 border-l-4 border-l-indigo-600 shadow-sm flex items-center justify-between">
-            <div>
-                <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider">Total Riwayat Mutasi</p>
-                <h3 class="text-3xl font-black text-indigo-700 mt-1">{{ number_format($totalMutasi) }} <span class="text-xs font-semibold text-slate-600">Transaksi</span></h3>
-                <p class="text-xs text-slate-600 font-semibold mt-1">Tercatat di sistem SIAKERS</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold shrink-0">
-                <i class="ri-history-line"></i>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 border-l-4 border-l-amber-500 shadow-sm flex items-center justify-between">
-            <div>
-                <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Unit Berada Di Ruang Lain</p>
-                <h3 class="text-3xl font-black text-amber-700 mt-1">{{ number_format($totalDipindahkan) }} <span class="text-xs font-semibold text-slate-600">Unit</span></h3>
-                <p class="text-xs text-slate-600 font-semibold mt-1">Lokasi fisik != Ruangan pemilik</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold shrink-0">
-                <i class="ri-map-pin-line"></i>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 border-l-4 border-l-emerald-600 shadow-sm flex items-center justify-between">
-            <div>
-                <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Status Mutasi Terverifikasi</p>
-                <h3 class="text-3xl font-black text-emerald-700 mt-1">100% <span class="text-xs font-semibold text-slate-600">Disetujui</span></h3>
-                <p class="text-xs text-slate-600 font-semibold mt-1">Audit trail mutasi tercatat</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold shrink-0">
-                <i class="ri-checkbox-circle-line"></i>
-            </div>
-        </div>
-    </div>
-
     <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm">
         <form method="GET" action="{{ route('mutasi.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             <div>

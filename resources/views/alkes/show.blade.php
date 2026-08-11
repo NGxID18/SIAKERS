@@ -61,13 +61,17 @@
                 </div>
 
                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <span class="text-[10px] text-slate-400 font-medium uppercase block">Tahun Pengadaan</span>
-                    <span class="font-medium text-slate-700 text-sm mt-0.5 block">{{ $alkes->tahun_pengadaan ?? '-' }}</span>
+                    <span class="text-[10px] text-slate-400 font-medium uppercase block">Status Kalibrasi</span>
+                    <span class="font-bold text-sm mt-0.5 block {{ $alkes->status_kalibrasi === 'SUDAH DIKALIBRASI' ? 'text-emerald-700' : 'text-slate-700' }}">
+                        {{ $alkes->status_kalibrasi ?: 'BELUM DIKALIBRASI' }}
+                    </span>
                 </div>
 
                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <span class="text-[10px] text-slate-400 font-medium uppercase block">Jumlah Unit</span>
-                    <span class="font-medium text-slate-700 text-sm mt-0.5 block">{{ $alkes->jumlah }} Unit</span>
+                    <span class="text-[10px] text-slate-400 font-medium uppercase block">Tanggal Kalibrasi Terakhir</span>
+                    <span class="font-medium text-slate-700 text-sm mt-0.5 block">
+                        {{ $alkes->tanggal_kalibrasi_terakhir ? $alkes->tanggal_kalibrasi_terakhir->format('d/m/Y') : 'Belum ada data' }}
+                    </span>
                 </div>
             </div>
 
@@ -87,7 +91,7 @@
                 <div class="space-y-3 text-sm">
                     <div>
                         <span class="text-[10px] text-slate-400 block mb-1">Kondisi Fisik:</span>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] font-semibold border {{ $alkes->kondisi_enum->warnaBadge() }}">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] font-black border {{ $alkes->kondisi_enum->warnaBadge() }}">
                             {{ $alkes->kondisi_enum->label() }}
                         </span>
                     </div>
@@ -100,28 +104,14 @@
                         </span>
                     </div>
 
-                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span class="text-[10px] text-slate-400">ASPAK:</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold {{ $alkes->aspak_status == 'TERDATA' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-50 text-slate-500 border border-slate-200' }}">
-                            {{ $alkes->aspak_status ?? 'TERDATA' }}
-                        </span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] text-slate-400">KIB:</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold {{ $alkes->kib_status ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-50 text-slate-500 border border-slate-200' }}">
-                            {{ $alkes->kib_status ? 'TERDAFTAR' : 'NON-KIB' }}
-                        </span>
-                    </div>
-
                     <div class="pt-2 border-t border-slate-100">
-                        <span class="text-[10px] text-slate-400 block">Ruangan Pemilik:</span>
+                        <span class="text-[10px] text-slate-400 block">Ruang Pemilik Aset:</span>
                         <span class="font-semibold text-slate-800 text-sm block mt-0.5"><i class="ri-building-line text-slate-400"></i> {{ $alkes->ruangan->nama_ruangan ?? 'RS' }}</span>
                     </div>
 
                     <div>
-                        <span class="text-[10px] text-slate-400 block">Lokasi Fisik:</span>
-                        <span class="font-semibold text-indigo-700 text-sm block mt-0.5"><i class="ri-map-pin-line text-indigo-400"></i> {{ $alkes->lokasiRuangan->nama_ruangan ?? $alkes->ruangan->nama_ruangan ?? 'RS' }}</span>
+                        <span class="text-[10px] text-slate-400 block">Lokasi Fisik saat Ini:</span>
+                        <span class="font-bold text-emerald-700 text-sm block mt-0.5"><i class="ri-map-pin-line text-emerald-600"></i> {{ $alkes->lokasiRuangan->nama_ruangan ?? $alkes->ruangan->nama_ruangan ?? 'RS' }}</span>
                     </div>
 
                     @if ($alkes->lokasi_saat_ini_note)

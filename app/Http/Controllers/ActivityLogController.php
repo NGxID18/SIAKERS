@@ -25,7 +25,8 @@ class ActivityLogController extends Controller
             $query->where('action', $request->action);
         }
 
-        $logs = $query->latest()->paginate(30)->withQueryString();
+        $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
+        $logs = $query->latest()->paginate($perPage)->withQueryString();
         $actionTypes = ActivityLog::select('action')->distinct()->pluck('action');
 
         return view('activity_logs.index', compact('logs', 'actionTypes'));

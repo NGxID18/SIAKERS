@@ -17,6 +17,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('alkes-export-csv', [AlkesController::class, 'exportCsv'])->name('alkes.export');
     Route::resource('alkes', AlkesController::class)->except(['store']);
 
     Route::get('mutasi', [MutasiAlkesController::class, 'index'])->name('mutasi.index');
@@ -26,6 +27,7 @@ Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('pemeliharaan/buat', [LogPemeliharaanController::class, 'create'])->name('pemeliharaan.create');
 
     Route::get('kalibrasi', [KalibrasiController::class, 'index'])->name('kalibrasi.index');
+    Route::get('database/sertifikat/{filename}', [KalibrasiController::class, 'serveCertificate'])->name('sertifikat.show');
 
     Route::get('ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

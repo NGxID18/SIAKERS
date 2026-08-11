@@ -35,7 +35,8 @@ class MutasiAlkesController extends Controller
             $query->where('ruangan_tujuan_id', $request->ruangan_tujuan_id);
         }
 
-        $mutasiList = $query->latest()->paginate(30)->withQueryString();
+        $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
+        $mutasiList = $query->latest()->paginate($perPage)->withQueryString();
         $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
 
         return view('mutasi.index', compact('mutasiList', 'ruanganList'));
