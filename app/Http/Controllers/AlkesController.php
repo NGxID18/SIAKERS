@@ -128,7 +128,8 @@ class AlkesController extends Controller
         ]);
 
         if (empty($validated['kode_inventaris'])) {
-            $validated['kode_inventaris'] = 'INV/ALKES/EHD/' . sprintf('%04d', rand(1000, 9999));
+            $maxId = Alkes::max('id') ?? 0;
+            $validated['kode_inventaris'] = 'ALT-' . str_pad($maxId + 1, 4, '0', STR_PAD_LEFT);
         }
 
         $validated['lokasi_ruangan_id'] = $validated['ruangan_id'];
