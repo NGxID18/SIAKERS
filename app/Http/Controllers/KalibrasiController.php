@@ -77,7 +77,7 @@ class KalibrasiController extends Controller
         $request->validate([
             'tanggal_kalibrasi_terakhir' => 'required|date',
             'tanggal_kalibrasi_berikutnya' => 'required|date|after_or_equal:tanggal_kalibrasi_terakhir',
-            'sertifikat_pdf' => 'nullable|file|mimes:pdf|max:10240', // Max 10MB PDF
+            'sertifikat_pdf' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:10240', // Max 10MB (PDF/Gambar)
             'keterangan' => 'nullable|string|max:500',
         ]);
 

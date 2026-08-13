@@ -183,9 +183,14 @@
 
                             <td class="py-3.5 px-4 text-center border-r border-slate-200">
                                 @if (!empty($pdfHistory))
+                                    @php
+                                        $lastFile = end($pdfHistory)['file_path'] ?? '';
+                                        $ext = strtolower(pathinfo($lastFile, PATHINFO_EXTENSION));
+                                        $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                    @endphp
                                     <div class="flex flex-col items-center gap-1">
-                                        <a href="{{ asset(end($pdfHistory)['file_path']) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
-                                            <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Dokumen Terbaru
+                                        <a href="{{ asset($lastFile) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
+                                            <i class="{{ $isImg ? 'ri-image-fill text-blue-600' : 'ri-file-pdf-fill text-rose-600' }} text-sm"></i> Dokumen Terbaru
                                         </a>
                                         @if (count($pdfHistory) > 1)
                                             <button type="button" onclick="openPdfHistoryModal('{{ addslashes($item->nama_barang) }}', {{ json_encode($pdfHistory) }})" class="px-2.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg text-[10px] font-extrabold transition">
@@ -194,8 +199,13 @@
                                         @endif
                                     </div>
                                 @elseif ($item->sertifikat_kalibrasi)
-                                    <a href="{{ asset($item->sertifikat_kalibrasi) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
-                                        <i class="ri-file-pdf-fill text-rose-600 text-sm"></i> Lihat Dokumen
+                                    @php
+                                        $lastFile = $item->sertifikat_kalibrasi;
+                                        $ext = strtolower(pathinfo($lastFile, PATHINFO_EXTENSION));
+                                        $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                    @endphp
+                                    <a href="{{ asset($lastFile) }}" target="_blank" class="px-3 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs transition">
+                                        <i class="{{ $isImg ? 'ri-image-fill text-blue-600' : 'ri-file-pdf-fill text-rose-600' }} text-sm"></i> Lihat Dokumen
                                     </a>
                                 @else
                                     <span class="text-xs text-slate-400 italic">Belum ada dokumen</span>
@@ -275,9 +285,9 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Unggah Sertifikat / Laporan Kalibrasi</label>
-                <input type="file" name="sertifikat_pdf" accept=".pdf" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-                <span class="text-[10px] text-slate-500 mt-1 font-semibold block">*Dokumen baru otomatis diarsipkan tanpa menimpa dokumen tahun-tahun sebelumnya (Maks 10MB)</span>
+                <label class="block text-xs font-bold text-slate-800 uppercase mb-1.5">Unggah Sertifikat / Laporan Kalibrasi (PDF / Gambar)</label>
+                <input type="file" name="sertifikat_pdf" accept=".pdf,.jpg,.jpeg,.png,.webp,image/*" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                <span class="text-[10px] text-slate-500 mt-1 font-semibold block">*Format: PDF atau Gambar (JPG, PNG, WEBP), Maks 10MB. Dokumen baru otomatis diarsipkan tanpa menimpa dokumen sebelumnya.</span>
             </div>
 
             <div>
@@ -351,6 +361,9 @@
 
         if (pdfHistory && Array.isArray(pdfHistory) && pdfHistory.length > 0) {
             pdfHistory.forEach((item) => {
+                const ext = (item.file_path || '').split('.').pop().toLowerCase();
+                const isImg = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
+                const iconClass = isImg ? 'ri-image-fill text-blue-300' : 'ri-file-pdf-fill text-rose-300';
                 const card = document.createElement('div');
                 card.className = 'p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between gap-2';
                 card.innerHTML = `
@@ -359,7 +372,7 @@
                         <span class="text-[11px] text-slate-600 font-medium block">${item.keterangan || 'Sertifikat Kalibrasi'}</span>
                     </div>
                     <a href="${item.file_path}" target="_blank" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shrink-0 flex items-center gap-1 shadow-xs">
-                        <i class="ri-file-pdf-fill text-rose-300"></i> Buka Dokumen
+                        <i class="${iconClass}"></i> Buka Dokumen
                     </a>
                 `;
                 pdfContainer.appendChild(card);
