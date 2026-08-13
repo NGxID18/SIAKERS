@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('api/alkes', [AlkesController::class, 'apiIndex'])->name('api.alkes.index');
 
 Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('alkes-export-csv', [AlkesController::class, 'exportCsv'])->name('alkes.export');
     Route::resource('alkes', AlkesController::class)->except(['store']);
 
     Route::get('mutasi', [MutasiAlkesController::class, 'index'])->name('mutasi.index');

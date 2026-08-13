@@ -14,9 +14,9 @@
             <p class="text-sm text-slate-700 mt-1 font-medium">Kelola jadwal kalibrasi berkala dan dokumen sertifikat resmi alat kesehatan sesuai standar Kemenkes RI</p>
         </div>
         <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
-            <a href="{{ route('alkes.export', request()->query()) }}" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2" title="Unduh Data Terbaru ke CSV">
-                <i class="ri-file-download-line text-emerald-600 text-base"></i>
-                <span>Export CSV</span>
+            <a href="{{ env('GOOGLE_SHEET_URL', 'https://docs.google.com/spreadsheets') }}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2" title="Buka Portal Google Sheets Live Data">
+                <i class="ri-file-excel-2-fill text-emerald-600 text-base"></i>
+                <span>Buka Google Sheets</span>
             </a>
 
             @if (session('user_role') === 'elektromedis')
