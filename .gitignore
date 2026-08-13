@@ -1,14 +1,24 @@
-/vendor/
+# Dependencies
 /node_modules/
+/vendor/
+
+# Public & Uploaded Files
 /public/build/
 /public/hot/
 /public/storage/
 /public/uploads/*
 !/public/uploads/.gitignore
 
+# Database & Certificates
+/database/*.sqlite
+/database/*.sqlite-journal
+/database/*.sqlite-wal
+/database/*.sqlite-shm
+!/database/database.sqlite.example
 /database/sertifikat/*
 !/database/sertifikat/.gitignore
 
+# Storage & Temporary Files
 /storage/*.key
 /storage/*.txt
 /storage/app/*
@@ -17,8 +27,6 @@
 !/storage/backups/.gitignore
 /storage/framework/cache/*
 !/storage/framework/cache/.gitignore
-/storage/framework/cache/data/*
-!/storage/framework/cache/data/.gitignore
 /storage/framework/sessions/*
 !/storage/framework/sessions/.gitignore
 /storage/framework/testing/*
@@ -28,27 +36,17 @@
 /storage/logs/*
 !/storage/logs/.gitignore
 
+# Environment & Secret Files
 .env
-.env.backup
-.env.production
-.env.stage
-.env.local
+.env.*
+!.env.example
 
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-
+# Logs & Caches
 *.log
-npm-debug.log
-yarn-error.log
+.phpunit.result.cache
 
-/.idea/
-/.vscode/
-/*.sqlite*
-!/database/database.sqlite.example
-*.sqlite-journal
-*.sqlite-wal
-*.sqlite-shm
-
+# IDE & OS System Files
 .DS_Store
 Thumbs.db
+/.idea/
+/.vscode/
