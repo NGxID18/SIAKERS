@@ -9,7 +9,7 @@ use App\Models\Nomenklatur;
 use App\Models\Ruangan;
 use Illuminate\Database\Seeder;
 
-class SiakerSeeder extends Seeder
+class ZapinSeeder extends Seeder
 {
     public function run(): void
     {

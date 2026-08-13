@@ -53,7 +53,7 @@
             <div>
                 <p class="text-xs font-bold text-teal-800 uppercase tracking-wider">Total Riwayat Penanganan</p>
                 <h3 class="text-3xl font-black text-slate-900 mt-1">{{ number_format($totalLaporan) }} <span class="text-xs font-semibold text-slate-600">Log</span></h3>
-                <p class="text-xs text-slate-600 font-semibold mt-1">Tercatat di sistem SIAKERS</p>
+                <p class="text-xs text-slate-600 font-semibold mt-1">Tercatat di sistem ZAPIN</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl font-bold shrink-0">
                 <i class="ri-history-line"></i>

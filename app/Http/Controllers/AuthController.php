@@ -62,6 +62,6 @@ class AuthController extends Controller
     public function logout()
     {
         session()->forget(['user_role', 'user_role_label', 'user_ruangan_id', 'user_ruangan_name']);
-        return redirect()->route('login')->with('success', 'Anda telah keluar dari aplikasi SIAKERS.');
+        return redirect()->route('login')->with('success', 'Anda telah keluar dari sistem ZAPIN.');
     }
 }

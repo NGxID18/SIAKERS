@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - SIAKERS RSJKO Engku Haji Daud</title>
+    <title>@yield('title', 'Dashboard') - ZAPIN RSJKO Engku Haji Daud</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,7 +117,7 @@
     </style>
 
     <script>
-        if (localStorage.getItem('siakers_sidebar_collapsed') === 'true' && window.innerWidth >= 768) {
+        if (localStorage.getItem('zapin_sidebar_collapsed') === 'true' && window.innerWidth >= 768) {
             document.documentElement.classList.add('sidebar-collapsed');
         }
     </script>
@@ -151,7 +151,7 @@
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35zM10.5 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2z"/></svg>
                 </div>
                 <div class="block">
-                    <h2 class="font-extrabold text-white text-xs sm:text-sm tracking-tight leading-tight group-hover:text-amber-300 transition">SIAKERS</h2>
+                    <h2 class="font-extrabold text-white text-xs sm:text-sm tracking-tight leading-tight group-hover:text-amber-300 transition">ZAPIN</h2>
                     <p class="text-[10px] sm:text-[11px] text-amber-300 font-bold leading-none mt-0.5 hidden sm:block">RSJKO Engku Haji Daud</p>
                 </div>
             </a>
@@ -159,7 +159,7 @@
 
         <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none z-10 hidden md:block">
             <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-[0.2em] text-white drop-shadow-md">
-                <span class="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">SIAKERS</span>
+                <span class="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">ZAPIN</span>
             </h1>
         </div>
 
@@ -304,7 +304,7 @@
                 </div>
 
                 <div class="p-4 border-t border-emerald-900 text-center sidebar-text">
-                    <p class="text-xs text-amber-300/80 font-bold">&copy; 2026 SIAKERS &middot; RSJKO EHD</p>
+                    <p class="text-xs text-amber-300/80 font-bold">&copy; 2026 ZAPIN &middot; RSJKO EHD</p>
                 </div>
             </div>
         </aside>
@@ -355,7 +355,7 @@
         function toggleSidebarCollapse() {
             const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
             document.documentElement.classList.toggle('sidebar-collapsed', isCollapsed);
-            localStorage.setItem('siakers_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            localStorage.setItem('zapin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
         }
 
         document.addEventListener('DOMContentLoaded', function() {

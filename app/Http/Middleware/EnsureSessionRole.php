@@ -12,7 +12,7 @@ class EnsureSessionRole
     {
         if (!session()->has('user_role')) {
             return redirect()->route('login')
-                ->with('error', 'Silakan pilih peran login terlebih dahulu untuk mengakses sistem SIAKERS.');
+                ->with('error', 'Silakan pilih peran login terlebih dahulu untuk mengakses sistem ZAPIN.');
         }
 
         return $next($request);

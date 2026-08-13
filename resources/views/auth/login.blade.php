@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk Sistem - SIAKERS RSJKO Engku Haji Daud</title>
+    <title>Masuk Sistem - ZAPIN RSJKO Engku Haji Daud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,9 +70,9 @@
                 <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35zM10.5 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2z"/></svg>
             </div>
             <div>
-                <h2 class="text-3xl font-black text-white tracking-wider">SIAKERS</h2>
+                <h2 class="text-3xl font-black text-white tracking-wider">ZAPIN</h2>
                 <p class="text-xs font-black text-amber-300 tracking-wider uppercase mt-1">RSJKO Engku Haji Daud</p>
-                <p class="text-xs text-slate-100 font-semibold mt-1">Sistem Inventaris Alat Kesehatan Rumah Sakit</p>
+                <p class="text-xs text-slate-100 font-semibold mt-1">Zona Aplikasi Pengelolaan Inventaris Alat Kesehatan</p>
             </div>
         </div>
 
@@ -124,12 +124,12 @@
 
             <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-emerald-600/90 to-emerald-700/90 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-base rounded-xl shadow-xl shadow-emerald-950/60 border border-amber-300/50 backdrop-blur-xs transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h6a3 3 0 013 3v1"/></svg>
-                Masuk ke SIAKERS
+                Masuk ke ZAPIN
             </button>
         </form>
 
         <div class="text-center pt-2 border-t border-slate-800/80">
-            <p class="text-xs text-amber-300/90 font-bold">&copy; 2026 SIAKERS &middot; RSJKO Engku Haji Daud</p>
+            <p class="text-xs text-amber-300/90 font-bold">&copy; 2026 ZAPIN &middot; RSJKO Engku Haji Daud</p>
         </div>
     </div>
 
