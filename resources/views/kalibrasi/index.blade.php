@@ -108,8 +108,8 @@
         </form>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden min-w-0">
+        <div class="overflow-x-auto w-full scrollbar-thin">
             <table class="w-full text-left border-collapse text-sm">
                 <thead>
                     <tr class="bg-emerald-950 text-white text-xs font-black uppercase tracking-wider border-b border-emerald-900">

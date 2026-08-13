@@ -309,8 +309,8 @@
             </div>
         </aside>
 
-        <div id="mainContentWrapper" class="md:ml-64 flex-1 min-h-[calc(100vh-64px)] flex flex-col">
-            <main class="p-4 sm:p-6 lg:p-8 flex-1">
+        <div id="mainContentWrapper" class="md:ml-64 flex-1 min-h-[calc(100vh-64px)] flex flex-col min-w-0">
+            <main class="p-4 sm:p-6 lg:p-8 flex-1 min-w-0">
                 @if (session('success'))
                     <div id="flashSuccessMsg" class="mb-5 p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 font-bold text-sm flex items-center justify-between shadow-sm animate-fade-in">
                         <div class="flex items-center gap-2.5">

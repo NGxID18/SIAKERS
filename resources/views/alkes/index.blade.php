@@ -158,51 +158,61 @@
         </form>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
+    <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden min-w-0">
+        <div class="overflow-x-auto w-full scrollbar-thin">
+            <table class="w-full text-left border-collapse text-sm table-fixed">
                 <thead>
                     <tr class="bg-emerald-950 text-white border-b border-emerald-900 text-xs font-black uppercase tracking-wider select-none">
-                        <th class="px-3.5 py-3.5 text-center border-r border-emerald-900 w-12">No</th>
-                        <th class="px-4 py-3.5 border-r border-emerald-900 min-w-[200px]">
+                        <th class="px-3 py-3.5 text-center border-r border-emerald-900 w-12">No</th>
+                        <th class="px-4 py-3.5 border-r border-emerald-900 w-52">
                             <a href="{{ makeSortUrl('nama_barang', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-amber-300 transition" title="Urutkan A-Z / Z-A">
                                 <span>Nama Barang</span>
                                 <i class="ri-arrow-up-down-line text-sm {{ $sortBy == 'nama_barang' ? 'text-amber-300 opacity-100' : 'opacity-50' }}"></i>
                             </a>
                         </th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[120px]">Merk</th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[120px]">Tipe</th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[150px]">Serial Number</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-32">Merk</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-32">Tipe</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-36">Serial Number</th>
                         <th class="px-3.5 py-3.5 text-center border-r border-emerald-900 w-20">Tahun</th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[150px]">Ruang Pemilik</th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[160px]">Lokasi Fisik saat Ini</th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[130px]">
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-36">Ruang Pemilik</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-40">Lokasi Fisik saat Ini</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-32">
                             <a href="{{ makeSortUrl('kondisi', $sortBy, $sortDir) }}" class="flex items-center justify-between hover:text-amber-300 transition" title="Urutkan Kondisi">
                                 <span>Kondisi</span>
                                 <i class="ri-arrow-up-down-line text-sm {{ $sortBy == 'kondisi' ? 'text-amber-300 opacity-100' : 'opacity-50' }}"></i>
                             </a>
                         </th>
-                        <th class="px-3.5 py-3.5 border-r border-emerald-900 min-w-[160px]">Status Kalibrasi</th>
-                        <th class="px-4 py-3.5 border-r border-emerald-900 min-w-[150px]">Keterangan</th>
-                        <th class="px-3.5 py-3.5 text-center min-w-[130px]">Aksi</th>
+                        <th class="px-3.5 py-3.5 border-r border-emerald-900 w-40">Status Kalibrasi</th>
+                        <th class="px-4 py-3.5 border-r border-emerald-900 w-44">Keterangan</th>
+                        <th class="px-4 py-3.5 text-center w-40">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 font-medium text-slate-900 text-sm">
                     @forelse ($alkesList as $index => $alkes)
                         @php $rowNumber = $alkesList->firstItem() + $index; @endphp
                         <tr class="hover:bg-emerald-50/50 transition odd:bg-white even:bg-slate-50/70 border-b border-slate-200">
-                            <td class="px-3.5 py-3 text-center font-bold text-slate-700 border-r border-slate-200">{{ $rowNumber }}</td>
-                            <td class="px-4 py-3 font-extrabold text-slate-900 border-r border-slate-200">{{ $alkes->nama_barang }}</td>
-                            <td class="px-3.5 py-3 font-semibold text-slate-800 border-r border-slate-200">{{ $alkes->merk ?: '-' }}</td>
-                            <td class="px-3.5 py-3 text-slate-800 border-r border-slate-200">{{ $alkes->tipe ?: '-' }}</td>
-                            <td class="px-3.5 py-3 font-mono font-bold text-slate-900 border-r border-slate-200">{{ $alkes->nomor_seri ?: '-' }}</td>
+                            <td class="px-3 py-3 text-center font-bold text-slate-700 border-r border-slate-200">{{ $rowNumber }}</td>
+                            <td class="px-4 py-3 border-r border-slate-200">
+                                <div class="font-extrabold text-slate-900 truncate" title="{{ $alkes->nama_barang }}">{{ $alkes->nama_barang }}</div>
+                            </td>
+                            <td class="px-3.5 py-3 border-r border-slate-200">
+                                <div class="font-semibold text-slate-800 truncate" title="{{ $alkes->merk }}">{{ $alkes->merk ?: '-' }}</div>
+                            </td>
+                            <td class="px-3.5 py-3 border-r border-slate-200">
+                                <div class="text-slate-800 truncate" title="{{ $alkes->tipe }}">{{ $alkes->tipe ?: '-' }}</div>
+                            </td>
+                            <td class="px-3.5 py-3 border-r border-slate-200">
+                                <div class="font-mono font-bold text-slate-900 truncate" title="{{ $alkes->nomor_seri }}">{{ $alkes->nomor_seri ?: '-' }}</div>
+                            </td>
                             <td class="px-3.5 py-3 text-center font-bold text-slate-800 border-r border-slate-200">{{ $alkes->tahun_pengadaan ?: '-' }}</td>
-                            <td class="px-3.5 py-3 font-bold text-slate-900 border-r border-slate-200">{{ $alkes->ruangan->nama_ruangan ?? '-' }}</td>
+                            <td class="px-3.5 py-3 border-r border-slate-200">
+                                <div class="font-bold text-slate-900 truncate" title="{{ $alkes->ruangan->nama_ruangan ?? '-' }}">{{ $alkes->ruangan->nama_ruangan ?? '-' }}</div>
+                            </td>
                             <td class="px-3.5 py-3 border-r border-slate-200">
                                 @if ($alkes->ruangan_id != $alkes->lokasi_ruangan_id)
-                                    <span class="font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300" title="Dipinjam / Pindah dari Ruang Pemilik">{{ $alkes->lokasiRuangan->nama_ruangan ?? '-' }}</span>
+                                    <span class="font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 inline-block truncate max-w-full" title="Dipinjam / Pindah dari Ruang Pemilik">{{ $alkes->lokasiRuangan->nama_ruangan ?? '-' }}</span>
                                 @else
-                                    <span class="text-slate-800 font-semibold">{{ $alkes->lokasiRuangan->nama_ruangan ?? $alkes->ruangan->nama_ruangan ?? '-' }}</span>
+                                    <span class="text-slate-800 font-semibold inline-block truncate max-w-full" title="{{ $alkes->lokasiRuangan->nama_ruangan ?? $alkes->ruangan->nama_ruangan ?? '-' }}">{{ $alkes->lokasiRuangan->nama_ruangan ?? $alkes->ruangan->nama_ruangan ?? '-' }}</span>
                                 @endif
                             </td>
                             <td class="px-3.5 py-3 border-r border-slate-200">
@@ -219,9 +229,11 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-slate-800 border-r border-slate-200 max-w-xs truncate font-medium" title="{{ $alkes->keterangan }}">{{ $alkes->keterangan ?: '-' }}</td>
-                            <td class="px-3.5 py-3 text-center whitespace-nowrap">
-                                <div class="flex items-center justify-center gap-1.5">
+                            <td class="px-4 py-3 text-slate-800 border-r border-slate-200 font-medium">
+                                <div class="truncate" title="{{ $alkes->keterangan }}">{{ $alkes->keterangan ?: '-' }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap pr-4">
+                                <div class="flex items-center justify-center gap-1.5 pr-1">
                                     <a href="{{ route('alkes.show', $alkes->id) }}" class="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg transition" title="Lihat Detail">
                                         <i class="ri-eye-line text-lg"></i>
                                     </a>
