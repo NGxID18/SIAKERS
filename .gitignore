@@ -5,7 +5,7 @@
 # Public & Uploaded Files
 /public/build/
 /public/hot/
-/public/storage/
+/public/storage
 /public/uploads/*
 !/public/uploads/.gitignore
 
@@ -45,8 +45,13 @@
 *.log
 .phpunit.result.cache
 
-# IDE & OS System Files
+# IDE, Agent & OS System Files
 .DS_Store
 Thumbs.db
 /.idea/
 /.vscode/
+/.gemini/
+/.antigravity/
+/.agents/
+*.tmp
+*.swp

@@ -19,25 +19,22 @@ Route::get('api/alkes', [AlkesController::class, 'apiIndex'])->name('api.alkes.i
 Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('alkes', AlkesController::class)->except(['store']);
+    Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
 
     Route::get('mutasi', [MutasiAlkesController::class, 'index'])->name('mutasi.index');
     Route::get('mutasi/buat', [MutasiAlkesController::class, 'create'])->name('mutasi.create');
+    Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
 
     Route::get('pemeliharaan', [LogPemeliharaanController::class, 'index'])->name('pemeliharaan.index');
     Route::get('pemeliharaan/buat', [LogPemeliharaanController::class, 'create'])->name('pemeliharaan.create');
+    Route::post('pemeliharaan', [LogPemeliharaanController::class, 'store'])->name('pemeliharaan.store');
+    Route::post('pemeliharaan/{id}/selesai', [LogPemeliharaanController::class, 'resolve'])->name('pemeliharaan.resolve');
 
     Route::get('kalibrasi', [KalibrasiController::class, 'index'])->name('kalibrasi.index');
+    Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->name('kalibrasi.update');
     Route::get('database/sertifikat/{filename}', [KalibrasiController::class, 'serveCertificate'])->name('sertifikat.show');
 
     Route::get('ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-});
-
-Route::middleware([EnsureSessionRole::class])->group(function () {
-    Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
-    Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
-    Route::post('pemeliharaan', [LogPemeliharaanController::class, 'store'])->name('pemeliharaan.store');
-    Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->name('kalibrasi.update');
-    Route::post('pemeliharaan/{id}/selesai', [LogPemeliharaanController::class, 'resolve'])->name('pemeliharaan.resolve');
     Route::post('notifications/read-all', [LogPemeliharaanController::class, 'markNotificationsRead'])->name('notifications.read-all');
 });

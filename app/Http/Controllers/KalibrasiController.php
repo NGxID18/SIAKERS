@@ -146,9 +146,10 @@ class KalibrasiController extends Controller
 
     public function serveCertificate($filename)
     {
-        $filePath = base_path('database/sertifikat/' . $filename);
+        $safeFilename = basename($filename);
+        $filePath = base_path('database/sertifikat/' . $safeFilename);
         if (!file_exists($filePath)) {
-            $oldPublicPath = public_path('uploads/sertifikat/' . $filename);
+            $oldPublicPath = public_path('uploads/sertifikat/' . $safeFilename);
             if (file_exists($oldPublicPath)) {
                 return response()->file($oldPublicPath);
             }
