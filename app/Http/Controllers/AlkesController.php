@@ -452,6 +452,3 @@ class AlkesController extends Controller
         ]);
     }
 }
-
-
-

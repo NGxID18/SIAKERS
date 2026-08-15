@@ -145,7 +145,7 @@ function renderAlkesViewSheet(sheet, rawData) {
     2: 220, // Nama Barang (B)
     3: 140, // Merk (C)
     4: 140, // Tipe (D)
-    5: 150, // Seri Number (E)
+    5: 150, // Seri Number (D)
     6: 65,  // Tahun (F)
     7: 140, // Ruang Pemilik (G)
     8: 140, // Lokasi Alkes (H)

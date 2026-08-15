@@ -16,13 +16,13 @@ function getOrCreateSheet_(name) {
 }
 
 /**
- * Menu Utama pada Google Spreadsheet (RefreshData)
+ * Menu Utama pada Google Spreadsheet (ZAPIN)
  */
 function onOpen() {
   try {
     const ui = SpreadsheetApp.getUi();
-    ui.createMenu("RefreshData")
-      .addItem("Alkes ZAPIN", "refreshAlkesZAPIN")
+    ui.createMenu("ZAPIN")
+      .addItem("Refresh Data Alkes", "refreshAlkesZAPIN")
       .addItem("Tambah Alkes", "submitTambahAlkes")
       .addSeparator()
       .addItem("Data Studio", "openDataStudio")
@@ -34,7 +34,7 @@ function onOpen() {
 
 /**
  * Pilihan 3: Data Studio
- * Membuka dashboard visual Google Data Studio di tab baru
+ * Membuka dashboard visual Google Data Studio secara langsung di tab baru
  */
 function openDataStudio() {
   const html = HtmlService.createHtmlOutput(
@@ -52,7 +52,7 @@ function openDataStudio() {
     '</head>' +
     '<body>' +
     '<h3>Dashboard Data Studio</h3>' +
-    '<p>Dashboard visual grafik dan persentase alkes terbuka di tab baru. Jika pop-up diblokir, klik tombol di bawah:</p>' +
+    '<p>Jika dashboard tidak terbuka otomatis, klik tombol di bawah untuk membuka:</p>' +
     '<a href="' + DATA_STUDIO_URL + '" class="btn" target="_blank">Buka Dashboard Data Studio</a>' +
     '<script>' +
     'window.open("' + DATA_STUDIO_URL + '", "_blank");' +
@@ -66,7 +66,7 @@ function openDataStudio() {
 
 /**
  * Pilihan 1: Alkes ZAPIN
- * Hanya merefresh data pada sheet 'Alkes' dari database ZAPIN
+ * Merefresh data pada sheet 'Alkes' dari database ZAPIN serta menyiapkan sheet 'Tambah Alkes'
  */
 function refreshAlkesZAPIN() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
