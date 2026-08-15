@@ -1,4 +1,9 @@
 /**
+ * Link URL Laporan Google Looker Studio / Data Studio
+ */
+const DATA_STUDIO_URL = "https://datastudio.google.com/reporting/5024dd9b-a5c5-46b5-b914-638c03f7acd8";
+
+/**
  * Helper untuk mendapatkan atau membuat Sheet berdasarkan nama
  */
 function getOrCreateSheet_(name) {
@@ -19,10 +24,44 @@ function onOpen() {
     ui.createMenu("RefreshData")
       .addItem("Alkes ZAPIN", "refreshAlkesZAPIN")
       .addItem("Tambah Alkes", "submitTambahAlkes")
+      .addSeparator()
+      .addItem("Data Studio", "openDataStudio")
       .addToUi();
   } catch (e) {
     Logger.log("onOpen: " + e.toString());
   }
+}
+
+/**
+ * Pilihan 3: Data Studio
+ * Membuka dashboard visual Google Data Studio di tab baru
+ */
+function openDataStudio() {
+  const html = HtmlService.createHtmlOutput(
+    '<!DOCTYPE html>' +
+    '<html>' +
+    '<head>' +
+    '<base target="_blank">' +
+    '<style>' +
+    'body { font-family: Inter, sans-serif; text-align: center; padding: 25px 15px; margin: 0; background-color: #f8fafc; }' +
+    'h3 { color: #064e3b; margin: 0 0 10px 0; font-size: 16px; }' +
+    'p { color: #475569; font-size: 12px; margin-bottom: 20px; line-height: 1.5; }' +
+    '.btn { background-color: #064e3b; color: #ffffff !important; padding: 10px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }' +
+    '.btn:hover { background-color: #04382a; }' +
+    '</style>' +
+    '</head>' +
+    '<body>' +
+    '<h3>Dashboard Data Studio</h3>' +
+    '<p>Dashboard visual grafik dan persentase alkes terbuka di tab baru. Jika pop-up diblokir, klik tombol di bawah:</p>' +
+    '<a href="' + DATA_STUDIO_URL + '" class="btn" target="_blank">Buka Dashboard Data Studio</a>' +
+    '<script>' +
+    'window.open("' + DATA_STUDIO_URL + '", "_blank");' +
+    '</script>' +
+    '</body>' +
+    '</html>'
+  ).setWidth(380).setHeight(170);
+
+  SpreadsheetApp.getUi().showModalDialog(html, "Membuka Data Studio");
 }
 
 /**
@@ -58,14 +97,14 @@ function submitTambahAlkes() {
   const inputSheet = getOrCreateSheet_("Tambah Alkes");
   const lastRow = inputSheet.getLastRow();
 
-  if (lastRow < 3) {
+  if (lastRow < 2) {
     showAlert_("Form Tambah Alkes masih kosong. Silakan isi data alkes baru pada tabel di sheet Tambah Alkes.");
     return;
   }
 
-  // Baca data input dari baris 3, kolom B (2) sampai K (11) -> 10 kolom input
-  const numRows = lastRow - 2;
-  const values = inputSheet.getRange(3, 2, numRows, 10).getValues();
+  // Baca data input dari baris 2, kolom A (1) sampai J (10) -> 10 kolom input
+  const numRows = lastRow - 1;
+  const values = inputSheet.getRange(2, 1, numRows, 10).getValues();
   const payload = [];
 
   for (let i = 0; i < values.length; i++) {

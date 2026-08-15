@@ -44,7 +44,7 @@ const KALIBRASI_LIST_DROPDOWN = [
 ];
 
 /**
- * 1. Merender tabel data database alkes ke Sheet 'Alkes' (VIEW ONLY - 11 Kolom)
+ * 1. Merender tabel data database alkes ke Sheet 'Alkes' (Mulai dari A1 untuk integrasi Data Studio)
  */
 function renderAlkesViewSheet(sheet, rawData) {
   const headers = [
@@ -85,23 +85,20 @@ function renderAlkesViewSheet(sheet, rawData) {
   });
 
   sheet.clear();
-  sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 100), Math.max(sheet.getMaxColumns(), 20)).clearDataValidations();
+  sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 100), Math.max(sheet.getMaxColumns(), 15)).clearDataValidations();
 
   const totalRows = rows.length;
   const totalCols = rows[0].length;
 
-  const startRow = 2;
-  const startCol = 2; // Mulai Kolom B
+  const startRow = 1;
+  const startCol = 1; // Mulai Kolom A1
 
   sheet.getRange(startRow, startCol, totalRows, totalCols).setValues(rows);
-
-  sheet.setRowHeight(1, 20);
-  sheet.setColumnWidth(1, 25); // Kolom A Margin
 
   const tableRange = sheet.getRange(startRow, startCol, totalRows, totalCols);
   tableRange.setFontFamily("Inter");
 
-  // Styling Header (Baris 2)
+  // Styling Header (Baris 1)
   const headerRange = sheet.getRange(startRow, startCol, 1, totalCols);
   headerRange.setBackground("#064e3b") // Emerald Dark
              .setFontColor("#ffffff")
@@ -131,9 +128,9 @@ function renderAlkesViewSheet(sheet, rawData) {
       }
     }
 
-    sheet.getRange(startRow + 1, 2, totalRows - 1, 1).setHorizontalAlignment("center"); // No (B)
-    sheet.getRange(startRow + 1, 7, totalRows - 1, 1).setHorizontalAlignment("center"); // Tahun (G)
-    sheet.getRange(startRow + 1, 10, totalRows - 1, 2).setHorizontalAlignment("center"); // Kondisi, Status Kalibrasi (J, K)
+    sheet.getRange(startRow + 1, 1, totalRows - 1, 1).setHorizontalAlignment("center"); // No (A)
+    sheet.getRange(startRow + 1, 6, totalRows - 1, 1).setHorizontalAlignment("center"); // Tahun (F)
+    sheet.getRange(startRow + 1, 9, totalRows - 1, 2).setHorizontalAlignment("center"); // Kondisi, Status Kalibrasi (I, J)
   }
 
   tableRange.setWrap(true);
@@ -144,38 +141,35 @@ function renderAlkesViewSheet(sheet, rawData) {
   );
 
   const columnWidths = {
-    2: 55,  // No (B)
-    3: 220, // Nama Barang (C)
-    4: 140, // Merk (D)
-    5: 140, // Tipe (E)
-    6: 150, // Seri Number (F)
-    7: 65,  // Tahun (G)
-    8: 140, // Ruang Pemilik (H)
-    9: 140, // Lokasi Alkes (I)
-    10: 120,// Kondisi (J)
-    11: 150,// Status Kalibrasi (K)
-    12: 180 // Keterangan (L)
+    1: 55,  // No (A)
+    2: 220, // Nama Barang (B)
+    3: 140, // Merk (C)
+    4: 140, // Tipe (D)
+    5: 150, // Seri Number (E)
+    6: 65,  // Tahun (F)
+    7: 140, // Ruang Pemilik (G)
+    8: 140, // Lokasi Alkes (H)
+    9: 120, // Kondisi (I)
+    10: 150,// Status Kalibrasi (J)
+    11: 180 // Keterangan (K)
   };
 
-  for (let colIndex = 2; colIndex <= 12; colIndex++) {
+  for (let colIndex = 1; colIndex <= 11; colIndex++) {
     sheet.setColumnWidth(colIndex, columnWidths[colIndex] || 140);
   }
 
-  sheet.setFrozenRows(2);
-  sheet.setFrozenColumns(2);
+  sheet.setFrozenRows(1);
+  sheet.setFrozenColumns(1);
 }
 
 /**
- * 2. Menyiapkan Sheet 'Tambah Alkes' (10 Kolom Input, 20 Baris Zebra Striping)
+ * 2. Menyiapkan Sheet 'Tambah Alkes' (Mulai dari A1)
  */
 function setupInputAlkesSheet(sheet) {
   sheet.clear();
-  sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 100), Math.max(sheet.getMaxColumns(), 20)).clearDataValidations();
+  sheet.getRange(1, 1, Math.max(sheet.getMaxRows(), 100), Math.max(sheet.getMaxColumns(), 15)).clearDataValidations();
 
-  sheet.setRowHeight(1, 20);
-  sheet.setColumnWidth(1, 25); // Kolom A Margin
-
-  // Header Kolom Input langsung di Baris 2 (10 Kolom)
+  // Header Kolom Input langsung di Baris 1 (10 Kolom)
   const inputHeaders = [
     'Nama Barang',
     'Merk',
@@ -189,30 +183,30 @@ function setupInputAlkesSheet(sheet) {
     'Keterangan'
   ];
 
-  const headerRange = sheet.getRange(2, 2, 1, 10);
+  const headerRange = sheet.getRange(1, 1, 1, 10);
   headerRange.setValues([inputHeaders])
-             .setBackground("#064e3b") // Emerald Dark (Identik dengan sheet Alkes)
+             .setBackground("#064e3b") // Emerald Dark
              .setFontColor("#ffffff")
              .setFontWeight("bold")
              .setHorizontalAlignment("center")
              .setVerticalAlignment("middle")
              .setFontSize(11)
              .setFontFamily("Inter");
-  sheet.setRowHeight(2, 38);
+  sheet.setRowHeight(1, 38);
 
-  // Siapkan persis 20 baris kosong siap isi (Baris 3 s/d 22) dengan desain Zebra Striping
+  // Siapkan 20 baris kosong siap isi (Baris 2 s/d 21) dengan desain Zebra Striping
   const maxInputRows = 20;
-  const inputArea = sheet.getRange(3, 2, maxInputRows, 10);
+  const inputArea = sheet.getRange(2, 1, maxInputRows, 10);
   inputArea.setFontFamily("Inter")
            .setFontSize(10)
            .setFontColor("#0f172a")
            .setVerticalAlignment("middle");
 
   for (let r = 0; r < maxInputRows; r++) {
-    const currentRow = 3 + r;
+    const currentRow = 2 + r;
     sheet.setRowHeight(currentRow, 28);
 
-    const rowRange = sheet.getRange(currentRow, 2, 1, 10);
+    const rowRange = sheet.getRange(currentRow, 1, 1, 10);
     if (r % 2 === 0) {
       rowRange.setBackground("#ffffff"); // Putih
     } else {
@@ -221,11 +215,11 @@ function setupInputAlkesSheet(sheet) {
   }
 
   // Perataan Kolom
-  sheet.getRange(3, 6, maxInputRows, 1).setHorizontalAlignment("center"); // Tahun (F)
-  sheet.getRange(3, 9, maxInputRows, 2).setHorizontalAlignment("center"); // Kondisi, Status Kalibrasi (I, J)
+  sheet.getRange(2, 5, maxInputRows, 1).setHorizontalAlignment("center"); // Tahun (E)
+  sheet.getRange(2, 8, maxInputRows, 2).setHorizontalAlignment("center"); // Kondisi, Status Kalibrasi (H, I)
 
   // Border Area Input
-  sheet.getRange(2, 2, maxInputRows + 1, 10).setBorder(
+  sheet.getRange(1, 1, maxInputRows + 1, 10).setBorder(
     true, true, true, true, true, true,
     "#cbd5e1", SpreadsheetApp.BorderStyle.SOLID
   );
@@ -248,35 +242,35 @@ function setupInputAlkesSheet(sheet) {
     .setAllowInvalid(true)
     .build();
 
-  // Pasang Dropdown Ruang Pemilik (Kolom G / index 7)
-  sheet.getRange(3, 7, maxInputRows, 1).setDataValidation(roomValidation);
+  // Pasang Dropdown Ruang Pemilik (Kolom F / index 6)
+  sheet.getRange(2, 6, maxInputRows, 1).setDataValidation(roomValidation);
 
-  // Pasang Dropdown Lokasi Alkes (Kolom H / index 8)
-  sheet.getRange(3, 8, maxInputRows, 1).setDataValidation(roomValidation);
+  // Pasang Dropdown Lokasi Alkes (Kolom G / index 7)
+  sheet.getRange(2, 7, maxInputRows, 1).setDataValidation(roomValidation);
 
-  // Pasang Dropdown Kondisi (Kolom I / index 9)
-  sheet.getRange(3, 9, maxInputRows, 1).setDataValidation(kondisiValidation);
+  // Pasang Dropdown Kondisi (Kolom H / index 8)
+  sheet.getRange(2, 8, maxInputRows, 1).setDataValidation(kondisiValidation);
 
-  // Pasang Dropdown Status Kalibrasi (Kolom J / index 10)
-  sheet.getRange(3, 10, maxInputRows, 1).setDataValidation(kalibrasiValidation);
+  // Pasang Dropdown Status Kalibrasi (Kolom I / index 9)
+  sheet.getRange(2, 9, maxInputRows, 1).setDataValidation(kalibrasiValidation);
 
-  // Lebar Kolom Form Input (Senada dengan sheet Alkes)
+  // Lebar Kolom Form Input
   const inputWidths = {
-    2: 220, // Nama Barang (B)
-    3: 140, // Merk (C)
-    4: 140, // Tipe (D)
-    5: 150, // Seri Number (E)
-    6: 65,  // Tahun (F)
-    7: 140, // Ruang Pemilik (G)
-    8: 140, // Lokasi Alkes (H)
-    9: 120, // Kondisi (I)
-    10: 150,// Status Kalibrasi (J)
-    11: 180 // Keterangan (K)
+    1: 220, // Nama Barang (A)
+    2: 140, // Merk (B)
+    3: 140, // Tipe (C)
+    4: 150, // Seri Number (D)
+    5: 65,  // Tahun (E)
+    6: 140, // Ruang Pemilik (F)
+    7: 140, // Lokasi Alkes (G)
+    8: 120, // Kondisi (H)
+    9: 150, // Status Kalibrasi (I)
+    10: 180 // Keterangan (J)
   };
 
-  for (let colIndex = 2; colIndex <= 11; colIndex++) {
+  for (let colIndex = 1; colIndex <= 10; colIndex++) {
     sheet.setColumnWidth(colIndex, inputWidths[colIndex] || 140);
   }
 
-  sheet.setFrozenRows(2);
+  sheet.setFrozenRows(1);
 }
