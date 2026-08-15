@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('api/alkes', [AlkesController::class, 'apiIndex'])->name('api.alkes.index');
+Route::match(['get', 'post'], 'api/alkes', [AlkesController::class, 'apiHandler'])->name('api.alkes.index');
+Route::match(['get', 'post'], 'api/alkes/sync', [AlkesController::class, 'apiSync'])->name('api.alkes.sync.web');
 
 Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
