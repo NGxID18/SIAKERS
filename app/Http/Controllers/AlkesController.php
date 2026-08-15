@@ -297,7 +297,7 @@ class AlkesController extends Controller
             $ruanganCache = [];
             $getRuanganId = function ($namaRuangan) use (&$ruanganCache) {
                 $nameClean = trim($namaRuangan ?? '');
-                if (empty($nameClean) || $nameClean === '-') {
+                if (empty($nameClean) || $nameClean === '-' || in_array(strtolower($nameClean), ['ruang pemilik', 'lokasi alkes', 'lokasi fisik', 'lokasi fisik saat ini', 'ruangan'])) {
                     $nameClean = 'CSSD';
                 }
                 $key = strtolower($nameClean);
