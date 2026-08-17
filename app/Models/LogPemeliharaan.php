@@ -42,27 +42,13 @@ class LogPemeliharaan extends Model
         if (!$start) return '-';
 
         $end = $this->tanggal_selesai ?: now();
-
-        $totalMinutes = $start->diffInMinutes($end);
-        if ($totalMinutes < 60) {
-            return max(1, $totalMinutes) . ' Menit';
-        }
-
-        $totalHours = $start->diffInHours($end);
-        if ($totalHours < 24) {
-            $mins = $totalMinutes % 60;
-            return $mins > 0 ? "{$totalHours} Jam {$mins} Mnt" : "{$totalHours} Jam";
-        }
-
         $totalDays = $start->diffInDays($end);
-        if ($totalDays < 30) {
-            $hours = $totalHours % 24;
-            return $hours > 0 ? "{$totalDays} Hari {$hours} Jam" : "{$totalDays} Hari";
+
+        if ($totalDays <= 1) {
+            return '1 Hari';
         }
 
-        $months = floor($totalDays / 30);
-        $remDays = $totalDays % 30;
-        return $remDays > 0 ? "{$months} Bulan {$remDays} Hari" : "{$months} Bulan";
+        return "{$totalDays} Hari";
     }
 
     public function getKpiBadgeAttribute(): array

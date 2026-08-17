@@ -22,7 +22,12 @@ function onOpen() {
   try {
     const ui = SpreadsheetApp.getUi();
     ui.createMenu("ZAPIN")
-      .addItem("Refresh Data Alkes", "refreshAlkesZAPIN")
+      .addItem("Refresh Semua Data", "refreshAllSheetsManual")
+      .addSeparator()
+      .addItem("Refresh Data Alkes", "refreshOnlyAlkes")
+      .addItem("Refresh Data Perbaikan", "refreshOnlyPerbaikan")
+      .addItem("Refresh Data Kalibrasi", "refreshOnlyKalibrasi")
+      .addSeparator()
       .addItem("Tambah Alkes", "submitTambahAlkes")
       .addSeparator()
       .addItem("Data Studio", "openDataStudio")
@@ -33,8 +38,78 @@ function onOpen() {
 }
 
 /**
- * Pilihan 3: Data Studio
- * Membuka dashboard visual Google Data Studio secara langsung di tab baru
+ * Event Trigger Otomatis: Memfilter baris tabel saat Dropdown Bulan/Tahun di Baris 1 dipilih
+ */
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    const sheet = e.range.getSheet();
+    const sheetName = sheet.getName();
+    const row = e.range.getRow();
+    const col = e.range.getColumn();
+
+    // 1. Sheet Perbaikan (Dropdown Bulan di P1 / col 16, Tahun di Q1 / col 17)
+    if (sheetName === "Perbaikan" && row === 1 && (col === 16 || col === 17)) {
+      const selectedMonth = String(sheet.getRange(1, 16).getValue() || "SEMUA BULAN").trim();
+      const selectedYear = String(sheet.getRange(1, 17).getValue() || "SEMUA TAHUN").trim();
+      filterSheetByMonthAndYear_(sheet, 7, 8, selectedMonth, selectedYear);
+    }
+
+    // 2. Sheet Kalibrasi (Dropdown Bulan di O1 / col 15, Tahun di P1 / col 16)
+    if (sheetName === "Kalibrasi" && row === 1 && (col === 15 || col === 16)) {
+      const selectedMonth = String(sheet.getRange(1, 15).getValue() || "SEMUA BULAN").trim();
+      const selectedYear = String(sheet.getRange(1, 16).getValue() || "SEMUA TAHUN").trim();
+      filterSheetByMonthAndYear_(sheet, 9, 10, selectedMonth, selectedYear);
+    }
+  } catch (err) {
+    Logger.log("onEdit filter error: " + err.toString());
+  }
+}
+
+/**
+ * Menyembunyikan / Menampilkan baris berdasarkan pilihan Bulan (12 Bulan) dan Tahun
+ */
+function filterSheetByMonthAndYear_(sheet, monthCol, dateCol, selectedMonth, selectedYear) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  // Unhide semua baris data
+  sheet.showRows(2, lastRow - 1);
+
+  const isAllMonth = (!selectedMonth || selectedMonth === "SEMUA BULAN");
+  const isAllYear = (!selectedYear || selectedYear === "SEMUA TAHUN");
+
+  if (isAllMonth && isAllYear) {
+    return;
+  }
+
+  const monthValues = sheet.getRange(2, monthCol, lastRow - 1, 1).getValues();
+  const dateValues = sheet.getRange(2, dateCol, lastRow - 1, 1).getValues();
+
+  for (let i = 0; i < monthValues.length; i++) {
+    const monthText = String(monthValues[i][0]).toLowerCase();
+    const dateText = String(dateValues[i][0]).toLowerCase();
+
+    let matchMonth = isAllMonth;
+    if (!isAllMonth) {
+      matchMonth = (monthText.indexOf(selectedMonth.toLowerCase()) !== -1) ||
+                   (dateText.indexOf(selectedMonth.toLowerCase()) !== -1);
+    }
+
+    let matchYear = isAllYear;
+    if (!isAllYear) {
+      matchYear = (monthText.indexOf(selectedYear) !== -1) ||
+                  (dateText.indexOf(selectedYear) !== -1);
+    }
+
+    if (!matchMonth || !matchYear) {
+      sheet.hideRows(2 + i);
+    }
+  }
+}
+
+/**
+ * Pilihan: Data Studio Shortcut
  */
 function openDataStudio() {
   const html = HtmlService.createHtmlOutput(
@@ -65,32 +140,113 @@ function openDataStudio() {
 }
 
 /**
- * Pilihan 1: Alkes ZAPIN
- * Merefresh data pada sheet 'Alkes' dari database ZAPIN serta menyiapkan sheet 'Tambah Alkes'
+ * 1. Refresh SEMUA Sheet (Alkes, Perbaikan, Kalibrasi)
  */
-function refreshAlkesZAPIN() {
+function refreshAllSheets(showAlertFlag) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const viewSheet = getOrCreateSheet_("Alkes");
 
-  // Pastikan sheet 'Tambah Alkes' sudah disiapkan jika belum ada
+  const currentSheet = ss.getActiveSheet();
+  const currentSheetName = currentSheet ? currentSheet.getName() : "Alkes";
+
+  const alkesSheet = getOrCreateSheet_("Alkes");
+  const perbaikanSheet = getOrCreateSheet_("Perbaikan");
+  const kalibrasiSheet = getOrCreateSheet_("Kalibrasi");
+
   let inputSheet = ss.getSheetByName("Tambah Alkes");
   if (!inputSheet) {
     inputSheet = ss.insertSheet("Tambah Alkes");
     setupInputAlkesSheet(inputSheet);
   }
 
-  const data = fetchZapinData();
-  if (!data) return;
+  const allData = fetchAllZapinData();
+  if (!allData) return;
 
-  renderAlkesViewSheet(viewSheet, data);
-  ss.setActiveSheet(viewSheet);
+  if (allData.alkes) {
+    renderAlkesViewSheet(alkesSheet, allData.alkes);
+  }
 
-  showAlert_("Data pada sheet Alkes berhasil diperbarui dari database ZAPIN.");
+  if (allData.pemeliharaan) {
+    renderPerbaikanSheet(perbaikanSheet, allData.pemeliharaan);
+  }
+
+  if (allData.kalibrasi) {
+    renderKalibrasiSheet(kalibrasiSheet, allData.kalibrasi);
+  }
+
+  const activeTarget = ss.getSheetByName(currentSheetName) || alkesSheet;
+  ss.setActiveSheet(activeTarget);
+
+  if (showAlertFlag) {
+    showAlert_("Seluruh data (Alkes, Perbaikan, dan Kalibrasi) berhasil diperbarui dari database ZAPIN.");
+  }
+}
+
+function refreshAllSheetsManual() {
+  refreshAllSheets(true);
 }
 
 /**
- * Pilihan 2: Tambah Alkes
- * Memproses dan mengirim data baru dari sheet 'Tambah Alkes' ke database ZAPIN
+ * 2. Refresh Khusus Sheet 'Alkes'
+ */
+function refreshOnlyAlkes() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const currentSheet = ss.getActiveSheet();
+  const currentSheetName = currentSheet ? currentSheet.getName() : "Alkes";
+
+  const alkesSheet = getOrCreateSheet_("Alkes");
+  const data = fetchZapinData();
+  if (!data) return;
+
+  renderAlkesViewSheet(alkesSheet, data);
+
+  const activeTarget = ss.getSheetByName(currentSheetName) || alkesSheet;
+  ss.setActiveSheet(activeTarget);
+
+  showAlert_("Data pada Sheet 'Alkes' berhasil diperbarui.");
+}
+
+/**
+ * 3. Refresh Khusus Sheet 'Perbaikan'
+ */
+function refreshOnlyPerbaikan() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const currentSheet = ss.getActiveSheet();
+  const currentSheetName = currentSheet ? currentSheet.getName() : "Perbaikan";
+
+  const perbaikanSheet = getOrCreateSheet_("Perbaikan");
+  const data = fetchPemeliharaanData();
+  if (!data) return;
+
+  renderPerbaikanSheet(perbaikanSheet, data);
+
+  const activeTarget = ss.getSheetByName(currentSheetName) || perbaikanSheet;
+  ss.setActiveSheet(activeTarget);
+
+  showAlert_("Data pada Sheet 'Perbaikan' berhasil diperbarui.");
+}
+
+/**
+ * 4. Refresh Khusus Sheet 'Kalibrasi'
+ */
+function refreshOnlyKalibrasi() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const currentSheet = ss.getActiveSheet();
+  const currentSheetName = currentSheet ? currentSheet.getName() : "Kalibrasi";
+
+  const kalibrasiSheet = getOrCreateSheet_("Kalibrasi");
+  const data = fetchKalibrasiData();
+  if (!data) return;
+
+  renderKalibrasiSheet(kalibrasiSheet, data);
+
+  const activeTarget = ss.getSheetByName(currentSheetName) || kalibrasiSheet;
+  ss.setActiveSheet(activeTarget);
+
+  showAlert_("Data pada Sheet 'Kalibrasi' berhasil diperbarui.");
+}
+
+/**
+ * Pilihan 5: Tambah Alkes
  */
 function submitTambahAlkes() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -102,7 +258,6 @@ function submitTambahAlkes() {
     return;
   }
 
-  // Baca data input dari baris 2, kolom A (1) sampai J (10) -> 10 kolom input
   const numRows = lastRow - 1;
   const values = inputSheet.getRange(2, 1, numRows, 10).getValues();
   const payload = [];
@@ -138,39 +293,24 @@ function submitTambahAlkes() {
     return;
   }
 
-  // Kirim data baru ke database ZAPIN
   const result = pushZapinData(payload);
 
   if (result && result.status === "success") {
-    // 1. Bersihkan kembali form input Tambah Alkes
     setupInputAlkesSheet(inputSheet);
+    refreshAllSheets(false);
 
-    // 2. Refresh sheet Alkes agar data baru langsung tampak di urutan ruangan yang sesuai
     const viewSheet = getOrCreateSheet_("Alkes");
-    const data = fetchZapinData();
-    if (data) {
-      renderAlkesViewSheet(viewSheet, data);
-    }
-
-    // 3. Pindahkan tampilan ke sheet Alkes
     ss.setActiveSheet(viewSheet);
 
-    showAlert_("Sebanyak " + payload.length + " data alat kesehatan baru berhasil ditambahkan ke database ZAPIN dan tampil di sheet Alkes.");
+    showAlert_("Sebanyak " + payload.length + " data alat kesehatan baru berhasil ditambahkan ke database ZAPIN.");
   }
 }
 
 /**
- * Fungsi khusus Trigger Otomatis Per 1 Jam
- * Hanya merefresh sheet 'Alkes' tanpa menyentuh sheet 'Tambah Alkes'
+ * Trigger Otomatis Per 1 Jam
  */
 function autoRefreshAlkes() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const viewSheet = getOrCreateSheet_("Alkes");
-
-  const data = fetchZapinData();
-  if (!data) return;
-
-  renderAlkesViewSheet(viewSheet, data);
+  refreshAllSheets(false);
 }
 
 function showAlert_(message) {

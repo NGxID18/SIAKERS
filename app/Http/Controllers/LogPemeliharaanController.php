@@ -57,7 +57,18 @@ class LogPemeliharaanController extends Controller
     public function create(Request $request)
     {
         $selectedAlkesId = $request->query('alkes_id');
-        $alkesList = Alkes::with(['ruangan', 'lokasiRuangan'])->get();
+        $query = Alkes::with(['ruangan', 'lokasiRuangan']);
+
+        // Filter khusus untuk role Petugas Ruangan: hanya tampilkan alkes milik ruangan tersebut
+        if (session('user_role') === 'ruangan' && session('user_ruangan_id')) {
+            $userRuanganId = (int) session('user_ruangan_id');
+            $query->where(function ($q) use ($userRuanganId) {
+                $q->where('ruangan_id', $userRuanganId)
+                  ->orWhere('lokasi_ruangan_id', $userRuanganId);
+            });
+        }
+
+        $alkesList = $query->orderBy('nama_barang', 'asc')->get();
 
         return view('pemeliharaan.create', compact('alkesList', 'selectedAlkesId'));
     }
@@ -192,6 +203,12 @@ class LogPemeliharaanController extends Controller
                 'pesan' => "Unit {$alkes->nama_barang} telah selesai diperbaiki & dikalibrasi ulang pada {$now->format('d M Y H:i')} WIB. Status kalibrasi otomatis diperbarui (Valid hingga " . $now->copy()->addYear()->format('d M Y') . "). Diagnosa: {$validated['diagnosa_kerusakan']}. Tindakan: {$validated['tindakan_perbaikan']}.",
                 'tipe' => 'perbaikan_selesai',
             ]);
+
+            // Otomatis tandai notifikasi laporan kerusakan terkait sebagai sudah dibaca
+            Notification::where('alkes_id', $alkes->id)
+                ->where('tipe', 'laporan_kerusakan')
+                ->where('dibaca', false)
+                ->update(['dibaca' => true]);
 
             ActivityLog::record(
                 'Perbaikan & Kalibrasi Selesai',

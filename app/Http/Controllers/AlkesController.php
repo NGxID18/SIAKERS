@@ -6,6 +6,7 @@ use App\Enums\KondisiAlkes;
 use App\Enums\StatusAlkes;
 use App\Models\ActivityLog;
 use App\Models\Alkes;
+use App\Models\LogPemeliharaan;
 use App\Models\Nomenklatur;
 use App\Models\Ruangan;
 use Carbon\Carbon;
@@ -256,6 +257,197 @@ class AlkesController extends Controller
             'total' => count($data),
             'updated_at' => now()->toDateTimeString(),
             'data' => $data
+        ]);
+    }
+
+    public function apiSheetsData()
+    {
+        // 1. Alkes Data
+        $alkesItems = Alkes::with(['ruangan', 'lokasiRuangan'])
+            ->leftJoin('ruangan', 'alkes.ruangan_id', '=', 'ruangan.id')
+            ->orderBy('ruangan.nama_ruangan', 'asc')
+            ->orderBy('alkes.nama_barang', 'asc')
+            ->select('alkes.*')
+            ->get();
+
+        $alkesData = $alkesItems->map(function ($item, $index) {
+            $lokasiNama = $item->lokasiRuangan->nama_ruangan ?? ($item->ruangan->nama_ruangan ?? '-');
+            return [
+                'id' => $item->id,
+                'no' => $index + 1,
+                'nama_barang' => $item->nama_barang,
+                'merk' => $item->merk ?: '-',
+                'tipe' => $item->tipe ?: '-',
+                'seri_number' => $item->nomor_seri ?: '-',
+                'tahun' => $item->tahun_pengadaan ?: '-',
+                'ruang_pemilik' => $item->ruangan->nama_ruangan ?? '-',
+                'lokasi_alkes' => $lokasiNama,
+                'lokasi_fisik' => $lokasiNama,
+                'kondisi' => $item->kondisi_enum->label(),
+                'keterangan' => $item->keterangan ?: '-'
+            ];
+        });
+
+        // 2. Pemeliharaan / Perbaikan Data
+        $logItems = LogPemeliharaan::with(['alkes.ruangan', 'alkes.lokasiRuangan'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $pemeliharaanData = $logItems->map(function ($log, $index) {
+            $alkes = $log->alkes;
+            $ruangan = $alkes->ruangan->nama_ruangan ?? '-';
+            $merk = $alkes->merk ?: '-';
+            $tipe = $alkes->tipe ?: '-';
+            $merkTipe = ($merk !== '-' || $tipe !== '-') ? trim("{$merk} / {$tipe}", ' /') : '-';
+            
+            $startDate = $log->tanggal_mulai ?: $log->created_at;
+            $bulanPelaporan = $startDate ? $startDate->format('F Y') : '-';
+            $bulanIndoMap = [
+                'January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret',
+                'April' => 'April', 'May' => 'Mei', 'June' => 'Juni',
+                'July' => 'Juli', 'August' => 'Agustus', 'September' => 'September',
+                'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'
+            ];
+            foreach ($bulanIndoMap as $en => $id) {
+                $bulanPelaporan = str_replace($en, $id, $bulanPelaporan);
+            }
+
+            return [
+                'no' => $index + 1,
+                'nama_barang' => $alkes->nama_barang ?? '-',
+                'merk_tipe' => $merkTipe,
+                'seri_number' => $alkes->nomor_seri ?: '-',
+                'ruang_pemilik' => $ruangan,
+                'jenis_tindakan' => $log->jenis_tindakan ?? 'Perbaikan',
+                'bulan_pelaporan' => $bulanPelaporan,
+                'tanggal_mulai' => $log->tanggal_mulai ? $log->tanggal_mulai->format('Y-m-d') : ($log->created_at ? $log->created_at->format('Y-m-d') : '-'),
+                'tanggal_selesai' => $log->tanggal_selesai ? $log->tanggal_selesai->format('Y-m-d') : 'Dalam Proses',
+                'durasi_pengerjaan' => $log->durasi_pengerjaan ?? '1 Hari',
+                'pelaksana_vendor' => $log->pelaksana_vendor ?: 'Teknisi Elektromedis RS',
+                'deskripsi_kerusakan' => $log->deskripsi_kerusakan ?: '-',
+                'tindakan_perbaikan' => $log->tindakan_perbaikan ?: '-',
+                'status_hasil' => $log->status_hasil ?: 'Proses',
+            ];
+        });
+
+        // 3. Kalibrasi Data
+        $kalibrasiData = $alkesItems->map(function ($item, $index) {
+            $ruangPemilik = $item->ruangan->nama_ruangan ?? '-';
+            $lokasiFisik = $item->lokasiRuangan->nama_ruangan ?? $ruangPemilik;
+
+            $bulanKalibrasi = '-';
+            if ($item->tanggal_kalibrasi_terakhir) {
+                $bulanKalibrasi = Carbon::parse($item->tanggal_kalibrasi_terakhir)->format('F Y');
+                $bulanIndoMap = [
+                    'January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret',
+                    'April' => 'April', 'May' => 'Mei', 'June' => 'Juni',
+                    'July' => 'Juli', 'August' => 'Agustus', 'September' => 'September',
+                    'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'
+                ];
+                foreach ($bulanIndoMap as $en => $id) {
+                    $bulanKalibrasi = str_replace($en, $id, $bulanKalibrasi);
+                }
+            }
+
+            return [
+                'no' => $index + 1,
+                'nama_barang' => $item->nama_barang,
+                'merk' => $item->merk ?: '-',
+                'tipe' => $item->tipe ?: '-',
+                'seri_number' => $item->nomor_seri ?: '-',
+                'ruang_pemilik' => $ruangPemilik,
+                'lokasi_alkes' => $lokasiFisik,
+                'status_kalibrasi' => $item->status_kalibrasi ?: 'BELUM DIKALIBRASI',
+                'bulan_kalibrasi' => $bulanKalibrasi,
+                'tanggal_kalibrasi_terakhir' => $item->tanggal_kalibrasi_terakhir ? $item->tanggal_kalibrasi_terakhir->format('Y-m-d') : 'Belum ada data',
+                'tanggal_kalibrasi_berikutnya' => $item->tanggal_kalibrasi_berikutnya ? $item->tanggal_kalibrasi_berikutnya->format('Y-m-d') : 'Belum dijadwalkan',
+                'status_sertifikat' => $item->sertifikat_kalibrasi ? 'Ada Dokumen' : 'Belum Ada',
+                'keterangan' => $item->keterangan ?: '-',
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'updated_at' => now()->toDateTimeString(),
+            'data' => [
+                'alkes' => $alkesData,
+                'pemeliharaan' => $pemeliharaanData,
+                'kalibrasi' => $kalibrasiData,
+            ]
+        ]);
+    }
+
+    public function apiPemeliharaan()
+    {
+        $logItems = LogPemeliharaan::with(['alkes.ruangan', 'alkes.lokasiRuangan'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $data = $logItems->map(function ($log, $index) {
+            $alkes = $log->alkes;
+            $ruangan = $alkes->ruangan->nama_ruangan ?? '-';
+            return [
+                'no' => $index + 1,
+                'kode_inventaris' => $alkes->kode_inventaris ?? '-',
+                'nama_barang' => $alkes->nama_barang ?? '-',
+                'ruang_pemilik' => $ruangan,
+                'jenis_tindakan' => $log->jenis_tindakan ?? 'Perbaikan',
+                'tanggal_mulai' => $log->tanggal_mulai ? $log->tanggal_mulai->format('Y-m-d H:i') : ($log->created_at ? $log->created_at->format('Y-m-d H:i') : '-'),
+                'tanggal_selesai' => $log->tanggal_selesai ? $log->tanggal_selesai->format('Y-m-d H:i') : 'Dalam Proses',
+                'durasi_pengerjaan' => $log->durasi_pengerjaan ?? '-',
+                'pelaksana_vendor' => $log->pelaksana_vendor ?: 'Teknisi Elektromedis RS',
+                'deskripsi_kerusakan' => $log->deskripsi_kerusakan ?: '-',
+                'tindakan_perbaikan' => $log->tindakan_perbaikan ?: '-',
+                'biaya' => (float) ($log->biaya ?? 0),
+                'status_hasil' => $log->status_hasil ?: 'Proses',
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'total' => count($data),
+            'updated_at' => now()->toDateTimeString(),
+            'data' => $data,
+        ]);
+    }
+
+    public function apiKalibrasi()
+    {
+        $alkesItems = Alkes::with(['ruangan', 'lokasiRuangan'])
+            ->leftJoin('ruangan', 'alkes.ruangan_id', '=', 'ruangan.id')
+            ->orderBy('ruangan.nama_ruangan', 'asc')
+            ->orderBy('alkes.nama_barang', 'asc')
+            ->select('alkes.*')
+            ->get();
+
+        $data = $alkesItems->map(function ($item, $index) {
+            $ruangPemilik = $item->ruangan->nama_ruangan ?? '-';
+            $lokasiFisik = $item->lokasiRuangan->nama_ruangan ?? $ruangPemilik;
+            $merk = $item->merk ?: '-';
+            $tipe = $item->tipe ?: '-';
+            $merkTipe = ($merk !== '-' || $tipe !== '-') ? trim("{$merk} / {$tipe}", ' /') : '-';
+
+            return [
+                'no' => $index + 1,
+                'kode_inventaris' => $item->kode_inventaris ?? '-',
+                'nama_barang' => $item->nama_barang,
+                'merk_tipe' => $merkTipe,
+                'nomor_seri' => $item->nomor_seri ?: '-',
+                'ruang_pemilik' => $ruangPemilik,
+                'lokasi_fisik' => $lokasiFisik,
+                'status_kalibrasi' => $item->status_kalibrasi ?: 'BELUM DIKALIBRASI',
+                'tanggal_kalibrasi_terakhir' => $item->tanggal_kalibrasi_terakhir ? $item->tanggal_kalibrasi_terakhir->format('Y-m-d') : 'Belum ada data',
+                'tanggal_kalibrasi_berikutnya' => $item->tanggal_kalibrasi_berikutnya ? $item->tanggal_kalibrasi_berikutnya->format('Y-m-d') : 'Belum dijadwalkan',
+                'status_sertifikat' => $item->sertifikat_kalibrasi ? 'Ada Dokumen' : 'Belum Ada',
+                'keterangan' => $item->keterangan ?: '-',
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'total' => count($data),
+            'updated_at' => now()->toDateTimeString(),
+            'data' => $data,
         ]);
     }
 
