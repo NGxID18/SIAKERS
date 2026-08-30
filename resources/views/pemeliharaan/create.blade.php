@@ -31,7 +31,7 @@
         </button>
     </div>
 
-    <form method="POST" action="{{ route('pemeliharaan.store') }}" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm space-y-5">
+    <form method="POST" action="{{ route('pemeliharaan.store') }}" enctype="multipart/form-data" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm space-y-5">
         @csrf
 
         <div>
@@ -66,6 +66,11 @@
             <label class="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2">Gejala & Kendala yang Diamati Ruangan <span class="text-rose-600">*</span></label>
             <textarea name="gejala_kerusakan" rows="4" required placeholder="Tuliskan kendala awal yang dirasakan (misal: layar mati total saat dinyalakan, bising, eror sensor 02, dll)..." class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"></textarea>
             <p class="text-[11px] text-slate-500 font-semibold mt-1">*Catatan: Petugas ruangan memasukkan gejala awal. Diagnosa teknis & tindakan perbaikan akan diisi oleh Elektromedis saat selesai perbaikan.</p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2">Lampirkan Foto Kondisi Alat (Opsional)</label>
+            <input type="file" name="foto_kerusakan" accept="image/*" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">

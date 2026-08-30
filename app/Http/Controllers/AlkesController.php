@@ -20,7 +20,7 @@ class AlkesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan']);
+        $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan'])->accessibleByCurrentRole();
 
         if ($request->filled('search')) {
             $query->search(trim($request->search));
@@ -71,7 +71,7 @@ class AlkesController extends Controller
 
         $perPage = $request->per_page === 'all' ? 10000 : (int) $request->get('per_page', 50);
         $alkesList = $query->paginate($perPage)->withQueryString();
-        $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
+        $ruanganList = \Illuminate\Support\Facades\Cache::remember('ruangan_list', 86400, fn() => Ruangan::orderBy('nama_ruangan', 'asc')->get());
 
         $statuses = StatusAlkes::cases();
         $kondisis = KondisiAlkes::cases();

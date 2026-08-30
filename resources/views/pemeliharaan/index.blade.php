@@ -284,6 +284,11 @@
                     <div id="detailCatatan" class="p-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 whitespace-pre-line leading-relaxed"></div>
                 </div>
 
+                <div id="detailFotoContainer" class="hidden mt-3">
+                    <span class="text-xs font-bold text-slate-700 uppercase block mb-1">Foto Kondisi / Kerusakan:</span>
+                    <img id="detailFotoImg" src="" alt="Foto Kerusakan" class="w-full max-h-48 object-cover rounded-xl border border-slate-300 shadow-sm">
+                </div>
+
                 <div>
                     <span class="text-xs font-bold text-slate-700 uppercase block mb-1">Tindakan Perbaikan Elektromedis:</span>
                     <div id="detailTindakan" class="p-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed"></div>
@@ -314,6 +319,16 @@
         document.getElementById('detailRuangan').innerText = ruangan;
         document.getElementById('detailCatatan').innerText = log.deskripsi_kerusakan || '-';
         document.getElementById('detailTindakan').innerText = log.tindakan_perbaikan || '-';
+
+        var photoContainer = document.getElementById('detailFotoContainer');
+        var photoImg = document.getElementById('detailFotoImg');
+        if (log.foto_kerusakan) {
+            photoImg.src = log.foto_kerusakan;
+            photoContainer.classList.remove('hidden');
+        } else {
+            photoContainer.classList.add('hidden');
+            photoImg.src = '';
+        }
 
         document.getElementById('detailRepairModal').classList.remove('hidden');
     }

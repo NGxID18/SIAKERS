@@ -57,40 +57,26 @@ class LogPemeliharaanController extends Controller
     public function create(Request $request)
     {
         $selectedAlkesId = $request->query('alkes_id');
-        $query = Alkes::with(['ruangan', 'lokasiRuangan']);
-
-        // Filter khusus untuk role Petugas Ruangan: hanya tampilkan alkes milik ruangan tersebut
-        if (session('user_role') === 'ruangan' && session('user_ruangan_id')) {
-            $userRuanganId = (int) session('user_ruangan_id');
-            $query->where(function ($q) use ($userRuanganId) {
-                $q->where('ruangan_id', $userRuanganId)
-                  ->orWhere('lokasi_ruangan_id', $userRuanganId);
-            });
-        }
+        $query = Alkes::with(['ruangan', 'lokasiRuangan'])->accessibleByCurrentRole();
 
         $alkesList = $query->orderBy('nama_barang', 'asc')->get();
 
         return view('pemeliharaan.create', compact('alkesList', 'selectedAlkesId'));
     }
 
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StorePemeliharaanRequest $request, \App\Services\FileUploadService $uploadService)
     {
-        $validated = $request->validate([
-            'alkes_id' => 'required|exists:alkes,id',
-            'jenis_tindakan' => 'required|string',
-            'tanggal_lapor' => 'nullable|string',
-            'tanggal_mulai' => 'nullable|string',
-            'gejala_kerusakan' => 'nullable|string',
-            'deskripsi_kerusakan' => 'nullable|string',
-            'pelaksana_vendor' => 'nullable|string',
-            'tindakan_perbaikan' => 'nullable|string',
-            'biaya' => 'nullable|numeric',
-        ]);
+        $validated = $request->validated();
+
+        $fotoPath = null;
+        if ($request->hasFile('foto_kerusakan')) {
+            $fotoPath = $uploadService->uploadImage($request->file('foto_kerusakan'), 'kerusakan', 'rusak');
+        }
 
         $tglMulai = $validated['tanggal_lapor'] ?? $validated['tanggal_mulai'] ?? now()->toDateTimeString();
         $gejala = $validated['gejala_kerusakan'] ?? $validated['deskripsi_kerusakan'] ?? 'Gejala kerusakan dilaporkan oleh petugas ruangan.';
 
-        DB::transaction(function () use ($validated, $tglMulai, $gejala) {
+        DB::transaction(function () use ($validated, $tglMulai, $gejala, $fotoPath) {
             $alkes = Alkes::with(['ruangan', 'lokasiRuangan'])->findOrFail($validated['alkes_id']);
             $elektromedisRuang = Ruangan::where('nama_ruangan', 'Elektromedis')->first();
 
@@ -103,6 +89,7 @@ class LogPemeliharaanController extends Controller
                 'tanggal_mulai' => $tglMulai,
                 'pelaksana_vendor' => $validated['pelaksana_vendor'] ?? 'Teknisi Elektromedis RS',
                 'deskripsi_kerusakan' => 'Gejala Ruangan: ' . $gejala,
+                'foto_kerusakan' => $fotoPath,
                 'tindakan_perbaikan' => $validated['tindakan_perbaikan'] ?? 'Dalam Proses Penanganan Elektromedis',
                 'biaya' => $validated['biaya'] ?? 0,
                 'status_hasil' => 'Proses',
@@ -144,14 +131,9 @@ class LogPemeliharaanController extends Controller
         return redirect()->route('pemeliharaan.index')->with('success', 'Laporan kerusakan berhasil dikirim! Mutasi fisik unit ke Ruangan Elektromedis telah otomatis tercatat.');
     }
 
-    public function resolve(Request $request, $id)
+    public function resolve(\App\Http\Requests\ResolvePemeliharaanRequest $request, $id)
     {
-        $validated = $request->validate([
-            'diagnosa_kerusakan' => 'required|string',
-            'tindakan_perbaikan' => 'required|string',
-            'pelaksana_vendor' => 'nullable|string',
-            'biaya' => 'nullable|numeric',
-        ]);
+        $validated = $request->validated();
 
         DB::transaction(function () use ($id, $validated) {
             $log = LogPemeliharaan::findOrFail($id);

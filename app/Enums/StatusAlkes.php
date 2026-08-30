@@ -9,6 +9,7 @@ enum StatusAlkes: string
     case DALAM_PERBAIKAN = 'dalam_perbaikan';
     case PROSES_KALIBRASI = 'proses_kalibrasi';
     case AFKIR = 'afkir';
+    case DIPINJAM = 'dipinjam';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum StatusAlkes: string
             self::DALAM_PERBAIKAN => 'Dalam Perbaikan (Rusak)',
             self::PROSES_KALIBRASI => 'Proses Kalibrasi',
             self::AFKIR => 'Afkir / Non-Aktif',
+            self::DIPINJAM => 'Dipinjam',
         };
     }
 
@@ -29,6 +31,7 @@ enum StatusAlkes: string
             self::DALAM_PERBAIKAN => 'bg-amber-100 text-amber-800 border-amber-300',
             self::PROSES_KALIBRASI => 'bg-purple-100 text-purple-800 border-purple-300',
             self::AFKIR => 'bg-rose-100 text-rose-800 border-rose-300',
+            self::DIPINJAM => 'bg-sky-100 text-sky-800 border-sky-300',
         };
     }
 }

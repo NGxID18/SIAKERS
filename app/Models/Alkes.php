@@ -118,4 +118,15 @@ class Alkes extends Model
               });
         });
     }
+    public function scopeAccessibleByCurrentRole($query)
+    {
+        if (session('user_role') === 'ruangan' && session('user_ruangan_id')) {
+            $userRuanganId = (int) session('user_ruangan_id');
+            return $query->where(function ($q) use ($userRuanganId) {
+                $q->where('ruangan_id', $userRuanganId)
+                  ->orWhere('lokasi_ruangan_id', $userRuanganId);
+            });
+        }
+        return $query;
+    }
 }

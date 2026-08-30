@@ -51,49 +51,47 @@ class MutasiAlkesController extends Controller
         return view('mutasi.create', compact('alkesList', 'ruanganList', 'selectedAlkesId'));
     }
 
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreMutasiRequest $request)
     {
-        $validated = $request->validate([
-            'alkes_id' => 'required|exists:alkes,id',
-            'ruangan_tujuan_id' => 'required|exists:ruangan,id',
-            'pemohon' => 'required|string|max:255',
-            'penanggung_jawab' => 'required|string|max:255',
-            'alasan_mutasi' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
-        $alkes = Alkes::findOrFail($validated['alkes_id']);
-        $ruanganAsalId = $alkes->lokasi_ruangan_id ?? $alkes->ruangan_id;
+        DB::transaction(function () use ($validated, $request) {
+            $alkes = Alkes::where('id', $validated['alkes_id'])->lockForUpdate()->firstOrFail();
+            $ruanganAsalId = $alkes->lokasi_ruangan_id ?? $alkes->ruangan_id;
 
-        if ($ruanganAsalId == $validated['ruangan_tujuan_id']) {
-            return back()->withErrors(['ruangan_tujuan_id' => 'Ruangan tujuan harus berbeda dari ruangan asal fisik saat ini!']);
-        }
+            if ($ruanganAsalId == $validated['ruangan_tujuan_id']) {
+                abort(422, 'Ruangan tujuan harus berbeda dari ruangan asal fisik saat ini!');
+            }
 
-        $mutasi = MutasiAlkes::create([
-            'alkes_id' => $alkes->id,
-            'ruangan_asal_id' => $ruanganAsalId,
-            'ruangan_tujuan_id' => $validated['ruangan_tujuan_id'],
-            'tanggal_mutasi' => now(),
-            'pemohon' => $validated['pemohon'],
-            'penanggung_jawab' => $validated['penanggung_jawab'],
-            'alasan_mutasi' => $validated['alasan_mutasi'],
-            'status_persetujuan' => 'Disetujui',
-        ]);
+            $mutasi = MutasiAlkes::create([
+                'alkes_id' => $alkes->id,
+                'ruangan_asal_id' => $ruanganAsalId,
+                'ruangan_tujuan_id' => $validated['ruangan_tujuan_id'],
+                'tanggal_mutasi' => now(),
+                'pemohon' => $validated['pemohon'],
+                'penanggung_jawab' => $validated['penanggung_jawab'],
+                'alasan_mutasi' => $validated['alasan_mutasi'],
+                'status_persetujuan' => 'Disetujui',
+            ]);
 
-        $alkes->update([
-            'lokasi_ruangan_id' => $validated['ruangan_tujuan_id'],
-        ]);
+            $alkes->update([
+                'lokasi_ruangan_id' => $validated['ruangan_tujuan_id'],
+            ]);
 
-        $mutasi->load(['ruanganAsal', 'ruanganTujuan']);
-        $rAsal = $mutasi->ruanganAsal->nama_ruangan ?? 'Ruangan Asal';
-        $rTujuan = $mutasi->ruanganTujuan->nama_ruangan ?? 'Ruangan Tujuan';
+            $mutasi->load(['ruanganAsal', 'ruanganTujuan']);
+            $rAsal = $mutasi->ruanganAsal->nama_ruangan ?? 'Ruangan Asal';
+            $rTujuan = $mutasi->ruanganTujuan->nama_ruangan ?? 'Ruangan Tujuan';
 
-        ActivityLog::record(
-            'Pindah Ruangan Alkes',
-            "Memindahkan lokasi fisik unit '{$alkes->nama_barang}' ({$alkes->kode_inventaris}) dari {$rAsal} ke {$rTujuan}.",
-            $rTujuan
-        );
+            ActivityLog::record(
+                'Pindah Ruangan Alkes',
+                "Memindahkan lokasi fisik unit '{$alkes->nama_barang}' ({$alkes->kode_inventaris}) dari {$rAsal} ke {$rTujuan}.",
+                $rTujuan
+            );
+            
+            $request->session()->flash('mutasi_tujuan', $rTujuan);
+        });
 
         return redirect()->route('mutasi.index')
-            ->with('success', "Proses pemindahan lokasi unit alkes ke {$rTujuan} berhasil!");
+            ->with('success', "Proses pemindahan lokasi unit alkes ke " . session('mutasi_tujuan') . " berhasil!");
     }
 }

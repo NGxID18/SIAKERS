@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KalibrasiController;
 use App\Http\Controllers\LogPemeliharaanController;
 use App\Http\Controllers\MutasiAlkesController;
+use App\Http\Controllers\PeminjamanAlkesController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Middleware\EnsureSessionRole;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,10 @@ Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('mutasi', [MutasiAlkesController::class, 'index'])->name('mutasi.index');
     Route::get('mutasi/buat', [MutasiAlkesController::class, 'create'])->name('mutasi.create');
     Route::post('mutasi', [MutasiAlkesController::class, 'store'])->name('mutasi.store');
+
+    Route::get('peminjaman', [PeminjamanAlkesController::class, 'index'])->name('peminjaman.index');
+    Route::post('peminjaman', [PeminjamanAlkesController::class, 'store'])->name('peminjaman.store');
+    Route::post('peminjaman/{id}/kembalikan', [PeminjamanAlkesController::class, 'kembalikan'])->name('peminjaman.kembalikan');
 
     Route::get('pemeliharaan', [LogPemeliharaanController::class, 'index'])->name('pemeliharaan.index');
     Route::get('pemeliharaan/buat', [LogPemeliharaanController::class, 'create'])->name('pemeliharaan.create');
