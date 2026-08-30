@@ -1,38 +1,40 @@
-# ZAPIN: Sistem Pintar Manajemen Alat Kesehatan
+# Dokumentasi Sistem Informasi Manajemen Alat Kesehatan (ZAPIN)
 
-Selamat datang di ZAPIN. Sistem ini dirancang bukan sekadar untuk mencatat data, tetapi hadir sebagai "asisten digital" yang akan mempermudah rutinitas harian seluruh tenaga kesehatan, teknisi, dan manajemen di rumah sakit. 
+## 1. Pendahuluan
+Sistem Informasi Manajemen Alat Kesehatan (ZAPIN) adalah aplikasi berbasis web yang dikembangkan untuk mengelola seluruh siklus hidup peralatan medis di lingkungan institusi kesehatan. Sistem ini dirancang untuk mendigitalisasi proses inventarisasi, perpindahan barang, peminjaman, pemeliharaan, hingga pemantauan jadwal kalibrasi alat.
 
-Kami memahami bahwa di lingkungan medis, kecepatan dan ketepatan adalah segalanya. Kehilangan jejak sebuah alat atau terlambat menyadari alat rusak bisa berdampak langsung pada pelayanan pasien. Oleh karena itu, ZAPIN dibangun dengan satu tujuan utama: **Memberikan ketenangan pikiran, agar Anda bisa fokus menyelamatkan nyawa, sementara kami menjaga peralatannya.**
+Sebagai sebuah solusi perangkat lunak, fokus pengembangan sistem ini bukan hanya pada digitalisasi formulir kertas, melainkan penyediaan pusat data yang akurat guna mendukung kelancaran operasional tenaga medis dan mempermudah manajemen dalam pengambilan keputusan.
 
----
+## 2. Modul Utama dan Nilai Guna
+Berikut adalah penjabaran fungsionalitas inti dari sistem beserta dampak langsungnya terhadap efisiensi operasional rumah sakit:
 
-## 🌟 Apa Keuntungan Menggunakan ZAPIN?
+### 2.1. Manajemen Inventaris Alat Kesehatan (Master Data)
+- **Fungsi Sistem:** Pencatatan dan pengelolaan data spesifikasi alat kesehatan secara terpusat, mencakup informasi nomenklatur, nomor seri, hingga tahun pengadaan.
+- **Manfaat Operasional:** Mempermudah pencarian rekam jejak dan validasi jumlah fisik aset yang tersedia di setiap ruangan. Digitalisasi ini memangkas waktu penelusuran dokumen fisik secara signifikan dan meminimalisasi risiko kehilangan aset akibat kelalaian pencatatan manual.
 
-Berikut adalah bagaimana fungsi-fungsi di dalam ZAPIN dirancang khusus untuk mempermudah pekerjaan Anda:
+### 2.2. Sistem Mutasi Alat
+- **Fungsi Sistem:** Pencatatan perpindahan lokasi fisik alat kesehatan antar ruangan atau instalasi, lengkap dengan rincian penanggung jawab dan alasan mutasi.
+- **Manfaat Operasional:** Memberikan transparansi penuh terhadap rantai pergerakan aset. Manajemen dapat melacak riwayat lokasi terakhir sebuah alat secara historis, sehingga pertanggungjawaban dan pengawasan aset inventaris menjadi lebih jelas dan terukur.
 
-### 1. Temukan Alat dalam Hitungan Detik (Master Data Alkes)
-- **Fungsi:** Mendata seluruh informasi alat (mulai dari nomor seri, kondisi, hingga lokasi).
-- **Manfaat bagi Anda:** Tinggalkan kebiasaan membongkar tumpukan kertas dokumen atau *file* Excel lama. Kapan pun Anda butuh mengetahui jumlah kursi roda yang bagus, atau di mana letak mesin EKG pengadaan tahun lalu, Anda hanya perlu mengetiknya di kolom pencarian. Semua data muncul dalam sekedip mata.
+### 2.3. Manajemen Peminjaman
+- **Fungsi Sistem:** Modul pencatatan sirkulasi pinjam-meminjam alat antar unit yang dilengkapi dengan validasi ketersediaan dan sistem penguncian data (concurrency lock).
+- **Manfaat Operasional:** Mencegah terjadinya bentrokan penjadwalan pemakaian alat (double-booking). Tenaga medis memiliki kepastian mengenai status kesiapan alat, yang pada akhirnya berdampak langsung pada kecepatan dan kelancaran pelayanan pasien pada situasi kritis.
 
-### 2. Bebas Cemas Alat Hilang (Sistem Mutasi & Peminjaman)
-- **Fungsi:** Mengatur pergerakan fisik alat dari satu ruangan ke ruangan lain secara resmi.
-- **Manfaat bagi Anda:** Mengakhiri kebingungan "alat ini terakhir dipinjam siapa?". Setiap barang yang dipinjam atau dipindahkan antar ruangan tercatat dengan riwayat yang rapi. Sistem dengan cerdas akan mencegah perawat lain meminjam alat yang sama di waktu yang bersamaan (*Anti Double-Booking*), memastikan tidak ada jadwal yang bentrok saat kondisi darurat.
+### 2.4. Pencatatan Pemeliharaan dan Pelaporan Kerusakan
+- **Fungsi Sistem:** Modul pelaporan insiden kerusakan yang mengintegrasikan bukti visual (foto) dengan pelacakan tahapan perbaikan (status tiket).
+- **Manfaat Operasional:** Memangkas birokrasi pelaporan manual antar ruangan. Teknisi elektromedis dapat segera merespons kendala berdasarkan tingkat urgensi. Setiap laporan perbaikan yang selesai akan tersimpan sebagai data historis, yang sangat krusial sebagai dasar pertimbangan kelayakan operasi atau pengadaan unit pengganti di masa mendatang.
 
-### 3. Lapor Kerusakan Tanpa Mondar-Mandir (Log Pemeliharaan)
-- **Fungsi:** Fasilitas untuk melaporkan alat bermasalah lengkap dengan unggahan foto bukti.
-- **Manfaat bagi Anda:** Perawat kini tidak perlu lagi meninggalkan pos jaga hanya untuk mencari teknisi. Cukup ambil foto alat yang bermasalah melalui sistem, tulis gejalanya, dan teknisi Elektromedis akan langsung mengetahuinya. Alat secara otomatis tercatat berstatus "Sedang Diperbaiki", sehingga petugas lain tahu alat tersebut belum bisa dipakai.
+### 2.5. Sistem Peringatan Dini (Early Warning System) Kalibrasi
+- **Fungsi Sistem:** Otomatisasi notifikasi peringatan berbasis latar belakang (cron job) yang mendistribusikan peringatan via email dan dasbor pada H-30 dan H-7 sebelum masa kalibrasi alat berakhir.
+- **Manfaat Operasional:** Berfungsi sebagai mekanisme pemeliharaan preventif (preventive maintenance). Rumah sakit terhindar dari risiko terlewatnya jadwal kalibrasi, sehingga standar keselamatan pasien tetap terjaga serta mendukung pemenuhan indikator akreditasi mutu institusi kesehatan.
 
-### 4. Menjamin Keselamatan Pasien (Pengingat Kalibrasi Otomatis)
-- **Fungsi:** *Early Warning System* (EWS) yang akan memantau masa berlaku kalibrasi setiap alat.
-- **Manfaat bagi Anda:** Anda tidak perlu lagi mengingat-ingat kapan sebuah alat harus ditera ulang. Sistem akan bekerja di belakang layar dan mengirimkan peringatan otomatis ke dasbor dan email petugas pada H-30 dan H-7 sebelum masa kalibrasi habis. Alat yang terkalibrasi tepat waktu adalah kunci keamanan pasien dan poin penting dalam akreditasi rumah sakit!
+### 2.6. Dasbor Analitik dan Pelaporan
+- **Fungsi Sistem:** Visualisasi data real-time menggunakan agregasi matrik untuk merangkum kondisi alat (baik, rusak) dan sebaran unit di seluruh instalasi.
+- **Manfaat Operasional:** Menyediakan landasan data (data-driven) yang cepat dan presisi bagi jajaran pimpinan. Manajer dan direksi dapat langsung mengevaluasi efisiensi penggunaan alat serta menyusun perencanaan alokasi anggaran belanja modal secara lebih strategis.
 
-### 5. Pantauan Cepat untuk Keputusan Tepat (Dasbor Pintar)
-- **Fungsi:** Halaman beranda yang menyajikan grafik statistik dan kondisi alat terkini secara sekilas.
-- **Manfaat bagi Anda:** Pimpinan rumah sakit atau kepala ruangan tidak perlu membaca laporan berlembar-lembar. Cukup dengan melirik Dasbor, Anda langsung tahu ruangan mana yang paling banyak memiliki alat rusak, atau aktivitas peminjaman apa yang baru saja terjadi hari ini. Sangat memudahkan dalam perencanaan anggaran pengadaan alat baru.
-
----
-
-## 🔒 Privasi dan Keamanan Data
-ZAPIN dirancang dengan kesadaran penuh akan tata kelola privasi. Sistem ini dilengkapi dengan **pembatasan hak akses**. Artinya, perawat di Ruang IGD hanya akan fokus melihat dan mengelola alat-alat di IGD saja tanpa terganggu oleh data dari Ruang Bersalin. Namun, teknisi pusat tetap dapat memantau semuanya secara menyeluruh.
-
-*ZAPIN - Merawat Alat Anda, Sebaik Anda Merawat Pasien.*
+## 3. Spesifikasi Arsitektur dan Keamanan
+Dari sisi rekayasa perangkat lunak (software engineering), sistem ini dibangun dengan memperhatikan keandalan dan keamanan akses data:
+- **Kerangka Kerja:** Dibangun menggunakan framework Laravel (PHP) dengan arsitektur pola Model-View-Controller (MVC) untuk menjaga keteraturan dan skalabilitas kode.
+- **Integritas Data:** Seluruh operasi yang mengubah struktur kepemilikan dan relasi data dijalankan dalam ruang lingkup transaksi basis data (Database Transactions) untuk menghindari data yang tidak konsisten saat terjadi gangguan.
+- **Isolasi Akses (Role-Based Filtering):** Terdapat pembatasan hak akses dan visibilitas data berbasis peran dan unit kerja pengguna. Sistem secara otomatis menyaring kueri (local scope) agar petugas hanya dapat memodifikasi dan mengakses data peralatan yang berada dalam rentang kewenangan instalasinya masing-masing.
+- **Penanganan Kondisi Balapan (Race Condition):** Implementasi metode Pessimistic Locking pada proses sirkulasi alat diterapkan untuk memastikan konsistensi antrean saat terdapat lebih dari satu instruksi akses pada pecahan waktu yang bersamaan.
