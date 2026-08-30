@@ -12,6 +12,9 @@ use App\Models\Ruangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreAlkesRequest;
+use App\Http\Requests\UpdateAlkesRequest;
+use App\Services\AlkesSyncService;
 
 class AlkesController extends Controller
 {
@@ -20,23 +23,7 @@ class AlkesController extends Controller
         $query = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan']);
 
         if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_barang', 'like', "%{$search}%")
-                  ->orWhere('merk', 'like', "%{$search}%")
-                  ->orWhere('tipe', 'like', "%{$search}%")
-                  ->orWhere('nomor_seri', 'like', "%{$search}%")
-                  ->orWhere('tahun_pengadaan', 'like', "%{$search}%")
-                  ->orWhere('jumlah', 'like', "%{$search}%")
-                  ->orWhere('lokasi_saat_ini_note', 'like', "%{$search}%")
-                  ->orWhere('kondisi', 'like', "%{$search}%")
-                  ->orWhere('aspak_status', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhereHas('ruangan', function ($rq) use ($search) {
-                      $rq->where('nama_ruangan', 'like', "%{$search}%")
-                        ->orWhere('kode_ruangan', 'like', "%{$search}%");
-                  });
-            });
+            $query->search(trim($request->search));
         }
 
         if ($request->filled('ruangan_id')) {
@@ -94,11 +81,6 @@ class AlkesController extends Controller
 
     public function create()
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->route('alkes.index')
-                ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menambah data inventaris alkes.');
-        }
-
         $nomenklaturList = Nomenklatur::all();
         $ruanganList = Ruangan::orderBy('nama_ruangan', 'asc')->get();
         $statuses = StatusAlkes::cases();
@@ -107,29 +89,9 @@ class AlkesController extends Controller
         return view('alkes.create', compact('nomenklaturList', 'ruanganList', 'statuses', 'kondisis'));
     }
 
-    public function store(Request $request)
+    public function store(StoreAlkesRequest $request)
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->route('alkes.index')
-                ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menambah data inventaris alkes.');
-        }
-
-        $validated = $request->validate([
-            'nama_barang' => 'required|string|max:255',
-            'kode_inventaris' => 'nullable|string',
-            'nomor_seri' => 'nullable|string',
-            'nomenklatur_id' => 'nullable|exists:nomenklatur,id',
-            'merk' => 'nullable|string',
-            'tipe' => 'nullable|string',
-            'tahun_pengadaan' => 'nullable|string',
-            'jumlah' => 'nullable|integer|min:1',
-            'ruangan_id' => 'required|exists:ruangan,id',
-            'status' => 'required',
-            'kondisi' => 'required',
-            'aspak_status' => 'nullable|string',
-            'kib_status' => 'nullable|boolean',
-            'keterangan' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         if (empty($validated['kode_inventaris'])) {
             $maxId = Alkes::max('id') ?? 0;
@@ -156,11 +118,6 @@ class AlkesController extends Controller
 
     public function edit($id)
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->route('alkes.index')
-                ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang merubah data inventaris alkes.');
-        }
-
         $alkes = Alkes::with(['nomenklatur', 'ruangan', 'lokasiRuangan'])->findOrFail($id);
 
         $nomenklaturList = Nomenklatur::all();
@@ -171,31 +128,11 @@ class AlkesController extends Controller
         return view('alkes.edit', compact('alkes', 'nomenklaturList', 'ruanganList', 'statuses', 'kondisis'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateAlkesRequest $request, $id)
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->route('alkes.index')
-                ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang merubah data inventaris alkes.');
-        }
-
         $alkes = Alkes::findOrFail($id);
 
-        $validated = $request->validate([
-            'nama_barang' => 'required|string|max:255',
-            'kode_inventaris' => 'nullable|string',
-            'nomor_seri' => 'nullable|string',
-            'nomenklatur_id' => 'nullable|exists:nomenklatur,id',
-            'merk' => 'nullable|string',
-            'tipe' => 'nullable|string',
-            'tahun_pengadaan' => 'nullable|string',
-            'jumlah' => 'nullable|integer|min:1',
-            'ruangan_id' => 'required|exists:ruangan,id',
-            'status' => 'required',
-            'kondisi' => 'required',
-            'aspak_status' => 'nullable|string',
-            'kib_status' => 'nullable|boolean',
-            'keterangan' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $alkes->update($validated);
 
@@ -207,11 +144,6 @@ class AlkesController extends Controller
 
     public function destroy($id)
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->route('alkes.index')
-                ->with('error', 'Akses Ditolak: Hanya Ruangan Elektromedis (Admin) yang berwenang menghapus data inventaris alkes.');
-        }
-
         $alkes = Alkes::findOrFail($id);
 
         $namaAlat = $alkes->nama_barang;
@@ -459,7 +391,7 @@ class AlkesController extends Controller
         return $this->apiIndex();
     }
 
-    public function apiSync(Request $request)
+    public function apiSync(Request $request, AlkesSyncService $syncService)
     {
         if ($request->isMethod('get') && !$request->has('data')) {
             return $this->apiIndex();
@@ -480,167 +412,14 @@ class AlkesController extends Controller
             return $this->apiIndex();
         }
 
-        $updatedCount = 0;
-        $createdCount = 0;
-        $savedResults = [];
-
-        DB::transaction(function () use ($items, &$updatedCount, &$createdCount, &$savedResults) {
-            // Helper to get or create Ruangan
-            $ruanganCache = [];
-            $getRuanganId = function ($namaRuangan) use (&$ruanganCache) {
-                $nameClean = trim($namaRuangan ?? '');
-                if (empty($nameClean) || $nameClean === '-' || in_array(strtolower($nameClean), ['ruang pemilik', 'lokasi alkes', 'lokasi fisik', 'lokasi fisik saat ini', 'ruangan'])) {
-                    $nameClean = 'CSSD';
-                }
-                $key = strtolower($nameClean);
-                if (isset($ruanganCache[$key])) {
-                    return $ruanganCache[$key];
-                }
-
-                $ruangan = Ruangan::whereRaw('LOWER(nama_ruangan) = ?', [$key])->first();
-                if (!$ruangan) {
-                    $kodeStr = 'R-' . strtoupper(substr(str_replace([' ', '/'], '-', $nameClean), 0, 10));
-                    $ruangan = Ruangan::create([
-                        'nama_ruangan' => $nameClean,
-                        'kode_ruangan' => $kodeStr,
-                    ]);
-                }
-                $ruanganCache[$key] = $ruangan->id;
-                return $ruangan->id;
-            };
-
-            // Kondisi Mapping Helper
-            $mapKondisi = function ($rawKondisi) {
-                $clean = strtolower(trim($rawKondisi ?? ''));
-                if (str_contains($clean, 'rusak berat')) return KondisiAlkes::RUSAK_BERAT->value;
-                if (str_contains($clean, 'rusak ringan')) return KondisiAlkes::RUSAK_RINGAN->value;
-                return KondisiAlkes::BAIK->value;
-            };
-
-            foreach ($items as $row) {
-                $dbId = !empty($row['id']) ? (int) $row['id'] : null;
-                $namaBarang = trim($row['nama_barang'] ?? '');
-                if (empty($namaBarang) || strtolower($namaBarang) === 'nama barang' || str_starts_with(strtolower($namaBarang), 'nama barang') || str_contains(strtolower($namaBarang), 'ketik data') || str_contains(strtolower($namaBarang), 'form tambah')) {
-                    continue;
-                }
-
-                $ruangPemilikId = $getRuanganId($row['ruang_pemilik'] ?? null);
-                $lokasiVal = !empty($row['lokasi_alkes']) ? $row['lokasi_alkes'] : ($row['lokasi_fisik'] ?? null);
-                $lokasiFisikId = !empty($lokasiVal) ? $getRuanganId($lokasiVal) : $ruangPemilikId;
-                $kondisi = $mapKondisi($row['kondisi'] ?? 'Baik');
-                $status = ($kondisi === KondisiAlkes::BAIK->value) ? StatusAlkes::TERSEDIA->value : StatusAlkes::DALAM_PERBAIKAN->value;
-
-                $alkes = null;
-                if ($dbId) {
-                    $alkes = Alkes::find($dbId);
-                }
-
-                if (!$alkes && !empty($row['seri_number']) && $row['seri_number'] !== '-') {
-                    $alkes = Alkes::where('nomor_seri', trim($row['seri_number']))->first();
-                }
-
-                if ($alkes) {
-                    $newMerk = !empty($row['merk']) && $row['merk'] !== '-' ? trim($row['merk']) : $alkes->merk;
-                    $newTipe = !empty($row['tipe']) && $row['tipe'] !== '-' ? trim($row['tipe']) : $alkes->tipe;
-                    $newSN = !empty($row['seri_number']) && $row['seri_number'] !== '-' ? trim($row['seri_number']) : $alkes->nomor_seri;
-                    $newTahun = !empty($row['tahun']) && $row['tahun'] !== '-' ? trim($row['tahun']) : $alkes->tahun_pengadaan;
-                    $newKalibrasiStatus = !empty($row['status_kalibrasi']) && $row['status_kalibrasi'] !== '-' ? trim($row['status_kalibrasi']) : $alkes->status_kalibrasi;
-                    $newKet = !empty($row['keterangan']) && $row['keterangan'] !== '-' ? trim($row['keterangan']) : $alkes->keterangan;
-                    $currentKondisiVal = $alkes->kondisi instanceof \App\Enums\KondisiAlkes ? $alkes->kondisi->value : (string) $alkes->kondisi;
-
-                    $isChanged = (
-                        $alkes->nama_barang !== $namaBarang ||
-                        $alkes->merk !== $newMerk ||
-                        $alkes->tipe !== $newTipe ||
-                        $alkes->nomor_seri !== $newSN ||
-                        $alkes->tahun_pengadaan !== $newTahun ||
-                        $alkes->ruangan_id != $ruangPemilikId ||
-                        $alkes->lokasi_ruangan_id != $lokasiFisikId ||
-                        $currentKondisiVal !== $kondisi ||
-                        $alkes->status_kalibrasi !== $newKalibrasiStatus ||
-                        $alkes->keterangan !== $newKet
-                    );
-
-                    if ($isChanged) {
-                        $alkes->update([
-                            'nama_barang' => $namaBarang,
-                            'merk' => $newMerk,
-                            'tipe' => $newTipe,
-                            'nomor_seri' => $newSN,
-                            'tahun_pengadaan' => $newTahun,
-                            'ruangan_id' => $ruangPemilikId,
-                            'lokasi_ruangan_id' => $lokasiFisikId,
-                            'kondisi' => $kondisi,
-                            'status' => $status,
-                            'status_kalibrasi' => $newKalibrasiStatus,
-                            'keterangan' => $newKet,
-                        ]);
-
-                        $updatedCount++;
-                        $savedResults[] = [
-                            'no' => $alkes->id,
-                            'status' => 'updated',
-                            'nama_barang' => $alkes->nama_barang,
-                        ];
-                    }
-                } else {
-                    // CREATE
-                    $maxId = Alkes::max('id') ?? 0;
-                    $kodeInventaris = 'ALT-2026-' . str_pad($maxId + 1, 4, '0', STR_PAD_LEFT);
-
-                    $statusKalibrasi = !empty($row['status_kalibrasi']) && $row['status_kalibrasi'] !== '-' ? trim($row['status_kalibrasi']) : 'BELUM DIKALIBRASI';
-                    $tglKalibrasi = null;
-                    if (!empty($row['tanggal_kalibrasi_terakhir']) && $row['tanggal_kalibrasi_terakhir'] !== '-' && $row['tanggal_kalibrasi_terakhir'] !== 'Belum ada data') {
-                        try {
-                            $tglKalibrasi = \Carbon\Carbon::parse($row['tanggal_kalibrasi_terakhir'])->toDateString();
-                        } catch (\Exception $e) {
-                            $tglKalibrasi = null;
-                        }
-                    }
-
-                    $newAlkes = Alkes::create([
-                        'kode_inventaris' => $kodeInventaris,
-                        'nama_barang' => $namaBarang,
-                        'nomenklatur_id' => null,
-                        'merk' => !empty($row['merk']) && $row['merk'] !== '-' ? trim($row['merk']) : null,
-                        'tipe' => !empty($row['tipe']) && $row['tipe'] !== '-' ? trim($row['tipe']) : null,
-                        'nomor_seri' => !empty($row['seri_number']) && $row['seri_number'] !== '-' ? trim($row['seri_number']) : null,
-                        'tahun_pengadaan' => !empty($row['tahun']) && $row['tahun'] !== '-' ? trim($row['tahun']) : date('Y'),
-                        'jumlah' => 1,
-                        'ruangan_id' => $ruangPemilikId,
-                        'lokasi_ruangan_id' => $lokasiFisikId,
-                        'kondisi' => $kondisi,
-                        'status' => $status,
-                        'status_kalibrasi' => $statusKalibrasi,
-                        'tanggal_kalibrasi_terakhir' => $tglKalibrasi,
-                        'keterangan' => !empty($row['keterangan']) && $row['keterangan'] !== '-' ? trim($row['keterangan']) : null,
-                    ]);
-
-                    $createdCount++;
-                    $savedResults[] = [
-                        'no' => $newAlkes->id,
-                        'status' => 'created',
-                        'nama_barang' => $newAlkes->nama_barang,
-                    ];
-                }
-            }
-
-            // Catat HANYA 1 Log Ringkasan jika ada perubahan nyata
-            if ($createdCount > 0 || $updatedCount > 0) {
-                ActivityLog::record(
-                    'Sinkronisasi Spreadsheet',
-                    "Sinkronisasi Google Spreadsheet: {$createdCount} alkes baru ditambahkan, {$updatedCount} data diperbarui.",
-                    'Google Sheets'
-                );
-            }
-        });
+        $result = $syncService->sync($items);
 
         return response()->json([
             'status' => 'success',
-            'message' => "Sinkronisasi berhasil! {$createdCount} data baru ditambahkan, {$updatedCount} data diperbarui.",
-            'created_count' => $createdCount,
-            'updated_count' => $updatedCount,
-            'results' => $savedResults,
+            'message' => "Sinkronisasi berhasil! {$result['created_count']} data baru ditambahkan, {$result['updated_count']} data diperbarui.",
+            'created_count' => $result['created_count'],
+            'updated_count' => $result['updated_count'],
+            'results' => $result['results'],
         ]);
     }
 }

@@ -17,8 +17,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('alkes', AlkesController::class)->except(['store']);
-    Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
+    Route::get('alkes', [AlkesController::class, 'index'])->name('alkes.index');
+    Route::get('alkes/{alkes}', [AlkesController::class, 'show'])->name('alkes.show');
+
+    Route::middleware(['role:elektromedis'])->group(function () {
+        Route::get('alkes/create', [AlkesController::class, 'create'])->name('alkes.create');
+        Route::post('alkes', [AlkesController::class, 'store'])->name('alkes.store');
+        Route::get('alkes/{alkes}/edit', [AlkesController::class, 'edit'])->name('alkes.edit');
+        Route::put('alkes/{alkes}', [AlkesController::class, 'update'])->name('alkes.update');
+        Route::delete('alkes/{alkes}', [AlkesController::class, 'destroy'])->name('alkes.destroy');
+    });
 
     Route::get('mutasi', [MutasiAlkesController::class, 'index'])->name('mutasi.index');
     Route::get('mutasi/buat', [MutasiAlkesController::class, 'create'])->name('mutasi.create');
@@ -30,7 +38,7 @@ Route::middleware([EnsureSessionRole::class])->group(function () {
     Route::post('pemeliharaan/{id}/selesai', [LogPemeliharaanController::class, 'resolve'])->name('pemeliharaan.resolve');
 
     Route::get('kalibrasi', [KalibrasiController::class, 'index'])->name('kalibrasi.index');
-    Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->name('kalibrasi.update');
+    Route::post('kalibrasi/{id}', [KalibrasiController::class, 'update'])->middleware('role:elektromedis')->name('kalibrasi.update');
     Route::get('database/sertifikat/{filename}', [KalibrasiController::class, 'serveCertificate'])->name('sertifikat.show');
 
     Route::get('ruangan', [RuanganController::class, 'index'])->name('ruangan.index');

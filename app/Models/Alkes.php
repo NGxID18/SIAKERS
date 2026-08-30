@@ -98,4 +98,24 @@ class Alkes extends Model
     {
         return $this->ruangan_id !== $this->lokasi_ruangan_id;
     }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('nama_barang', 'like', "%{$search}%")
+              ->orWhere('merk', 'like', "%{$search}%")
+              ->orWhere('tipe', 'like', "%{$search}%")
+              ->orWhere('nomor_seri', 'like', "%{$search}%")
+              ->orWhere('tahun_pengadaan', 'like', "%{$search}%")
+              ->orWhere('jumlah', 'like', "%{$search}%")
+              ->orWhere('lokasi_saat_ini_note', 'like', "%{$search}%")
+              ->orWhere('kondisi', 'like', "%{$search}%")
+              ->orWhere('aspak_status', 'like', "%{$search}%")
+              ->orWhere('keterangan', 'like', "%{$search}%")
+              ->orWhereHas('ruangan', function ($rq) use ($search) {
+                  $rq->where('nama_ruangan', 'like', "%{$search}%")
+                    ->orWhere('kode_ruangan', 'like', "%{$search}%");
+              });
+        });
+    }
 }

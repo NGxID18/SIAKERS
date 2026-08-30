@@ -70,9 +70,6 @@ class KalibrasiController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (session('user_role') !== 'elektromedis') {
-            return redirect()->back()->with('error', 'Akses Ditolak! Hanya peran Elektromedis yang memiliki otoritas memperbarui data & sertifikat kalibrasi.');
-        }
 
         $request->validate([
             'tanggal_kalibrasi_terakhir' => 'required|date',
